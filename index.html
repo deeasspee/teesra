@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teesra — Ek Khabar, Teen Nazariye</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a08;
+      --bg2: #11110e;
+      --surface: #18180f;
+      --border: #2a2a1f;
+      --text: #e8e4d4;
+      --text-dim: #7a7660;
+      --text-mid: #b0aa90;
+      --accent-facts: #e8c84a;
+      --accent-left: #5b9bd5;
+      --accent-right: #d45b5b;
+      --accent-pulse: #7bc67e;
+      --glow: rgba(232, 200, 74, 0.06);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    nav.scrolled {
+      border-color: var(--border);
+      background: rgba(10, 10, 8, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--accent-facts);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--text-dim);
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+      display: block;
+      letter-spacing: 2px;
+      margin-top: -4px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--accent-facts);
+      color: var(--bg) !important;
+      padding: 8px 20px;
+      border-radius: 2px;
+      font-weight: 500 !important;
+      letter-spacing: 0.3px !important;
+      transition: opacity 0.2s !important;
+    }
+
+    .nav-cta:hover { opacity: 0.85; color: var(--bg) !important; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: 'तीसरा';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(180px, 25vw, 340px);
+      font-weight: 900;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(232, 200, 74, 0.07);
+      pointer-events: none;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent-facts);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(52px, 8vw, 110px);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -2px;
+      max-width: 800px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.35s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent-facts);
+    }
+
+    .hero-subtitle {
+      margin-top: 36px;
+      font-size: 18px;
+      color: var(--text-mid);
+      max-width: 480px;
+      line-height: 1.7;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+
+    .hero-subtitle strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      margin-top: 48px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.65s forwards;
+    }
+
+    .btn-primary {
+      background: var(--accent-facts);
+      color: var(--bg);
+      padding: 14px 32px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: opacity 0.2s, transform 0.2s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-ghost {
+      color: var(--text-dim);
+      font-size: 13px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .btn-ghost:hover { color: var(--text); }
+
+    .btn-ghost::after {
+      content: '→';
+      transition: transform 0.2s;
+    }
+
+    .btn-ghost:hover::after { transform: translateX(4px); }
+
+    /* TICKER */
+    .ticker-wrap {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+      overflow: hidden;
+      margin-top: 80px;
+    }
+
+    .ticker {
+      display: flex;
+      gap: 0;
+      animation: ticker 28s linear infinite;
+      white-space: nowrap;
+      width: max-content;
+    }
+
+    .ticker-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      padding: 0 40px;
+      text-transform: uppercase;
+    }
+
+    .ticker-item span {
+      color: var(--accent-facts);
+      margin-right: 12px;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* THREE SIDES SECTION */
+    .section {
+      padding: 100px 48px;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      max-width: 600px;
+      margin-bottom: 60px;
+    }
+
+    .three-sides {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .side-card {
+      background: var(--bg);
+      padding: 40px 36px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+
+    .side-card:hover { background: var(--surface); }
+
+    .side-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .side-facts::before { background: var(--accent-facts); }
+    .side-left::before { background: var(--accent-left); }
+    .side-right::before { background: var(--accent-right); }
+
+    .side-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 72px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 20px;
+      opacity: 0.08;
+      position: absolute;
+      top: 24px;
+      right: 24px;
+    }
+
+    .side-facts .side-number { color: var(--accent-facts); }
+    .side-left .side-number { color: var(--accent-left); }
+    .side-right .side-number { color: var(--accent-right); }
+
+    .side-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .side-facts .side-icon { background: rgba(232, 200, 74, 0.12); }
+    .side-left .side-icon { background: rgba(91, 155, 213, 0.12); }
+    .side-right .side-icon { background: rgba(212, 91, 91, 0.12); }
+
+    .side-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .side-facts .side-tag { color: var(--accent-facts); }
+    .side-left .side-tag { color: var(--accent-left); }
+    .side-right .side-tag { color: var(--accent-right); }
+
+    .side-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    .side-desc {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    /* DEMO STORY CARD */
+    .demo-section {
+      padding: 0 48px 100px;
+    }
+
+    .demo-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .demo-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .story-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      max-width: 780px;
+    }
+
+    .story-header {
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .story-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .story-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .story-sources {
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .source-tag {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 2px;
+    }
+
+    .story-coverage {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .coverage-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--accent-facts);
+      line-height: 1;
+    }
+
+    .coverage-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .story-panels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .story-panel {
+      padding: 24px 28px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .story-panel:last-child { border-right: none; }
+
+    .panel-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .panel-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .panel-facts .panel-tag { color: var(--accent-facts); }
+    .panel-facts .panel-tag::before { background: var(--accent-facts); }
+    .panel-left .panel-tag { color: var(--accent-left); }
+    .panel-left .panel-tag::before { background: var(--accent-left); }
+    .panel-right .panel-tag { color: var(--accent-right); }
+    .panel-right .panel-tag::before { background: var(--accent-right); }
+
+    .panel-text {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+
+    /* MISSION SECTION */
+    .mission {
+      padding: 100px 48px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .mission-left .section-title {
+      margin-bottom: 24px;
+    }
+
+    .mission-text {
+      font-size: 16px;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .mission-text strong { color: var(--text); font-weight: 500; }
+
+    .mission-values {
+      margin-top: 48px;
+    }
+
+    .value-item {
+      display: flex;
+      gap: 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .value-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent-facts);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .value-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .value-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    /* NEWSLETTER SIGNUP */
+    .signup-section {
+      margin: 0 48px 100px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-section::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(232, 200, 74, 0.05), transparent 70%);
+      pointer-events: none;
+    }
+
+    .signup-inner {
+      max-width: 520px;
+    }
+
+    .signup-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--accent-facts);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .signup-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .signup-desc {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .signup-form {
+      display: flex;
+      gap: 0;
+    }
+
+    .signup-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-right: none;
+      color: var(--text);
+      padding: 14px 20px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .signup-input::placeholder { color: var(--text-dim); }
+    .signup-input:focus { border-color: var(--accent-facts); }
+
+    .signup-btn {
+      background: var(--accent-facts);
+      color: var(--bg);
+      border: none;
+      padding: 14px 28px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .signup-btn:hover { opacity: 0.88; }
+
+    .signup-note {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 14px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent-facts);
+    }
+
+    .footer-tagline {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .footer-right {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-align: right;
+    }
+
+    /* STATUS BADGE */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(123, 198, 126, 0.08);
+      border: 1px solid rgba(123, 198, 126, 0.2);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--accent-pulse);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-pulse);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 20px 60px; }
+      .hero::after { display: none; }
+      .section, .demo-section, .signup-section { padding: 60px 20px; }
+      .mission { grid-template-columns: 1fr; gap: 40px; padding: 60px 20px; }
+      .three-sides { grid-template-columns: 1fr; }
+      .story-panels { grid-template-columns: 1fr; }
+      .story-panel { border-right: none; border-top: 1px solid var(--border); }
+      .story-header { flex-direction: column; }
+      .signup-section { margin: 0 20px 60px; padding: 40px 24px; }
+      .signup-form { flex-direction: column; }
+      .signup-input { border-right: 1px solid var(--border); border-bottom: none; }
+      footer { flex-direction: column; gap: 16px; text-align: center; padding: 32px 20px; }
+      .footer-right { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      Teesra
+      <span>तीसरा नज़रिया</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#mission">Mission</a></li>
+      <li><a href="#signup" class="nav-cta">Get the brief →</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Building in public — Day 3 of 30
+    </div>
+    <p class="hero-eyebrow">India's third perspective on news</p>
+    <h1 class="hero-title">One story.<br><em>Three truths.</em></h1>
+    <p class="hero-subtitle">
+      Every morning, <strong>Teesra</strong> cuts through India's media noise —
+      the facts, the left lens, the right lens.
+      You decide what to believe.
+    </p>
+    <div class="hero-actions">
+      <a href="#signup" class="btn-primary">Get the morning brief</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+
+    <!-- TICKER -->
+    <div class="ticker-wrap" style="margin-left: -48px; margin-right: -48px; margin-top: 80px;">
+      <div class="ticker">
+        <div class="ticker-item"><span>●</span> RBI Policy · 8 sources · 3 perspectives</div>
+        <div class="ticker-item"><span>●</span> India vs Australia · 12 sources · Full analysis</div>
+        <div class="ticker-item"><span>●</span> Budget 2025 · 15 sources · Left + Right + Facts</div>
+        <div class="ticker-item"><span>●</span> Delhi Elections · 10 sources · Street pulse</div>
+        <div class="ticker-item"><span>●</span> India GDP · 9 sources · 3 perspectives</div>
+        <div class="ticker-item"><span>●</span> RBI Policy · 8 sources · 3 perspectives</div>
+        <div class="ticker-item"><span>●</span> India vs Australia · 12 sources · Full analysis</div>
+        <div class="ticker-item"><span>●</span> Budget 2025 · 15 sources · Left + Right + Facts</div>
+        <div class="ticker-item"><span>●</span> Delhi Elections · 10 sources · Street pulse</div>
+        <div class="ticker-item"><span>●</span> India GDP · 9 sources · 3 perspectives</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE SIDES -->
+  <section class="section" id="how">
+    <p class="section-label">How Teesra works</p>
+    <h2 class="section-title">Every story, dissected three ways.</h2>
+
+    <div class="three-sides">
+      <div class="side-card side-facts">
+        <div class="side-number">01</div>
+        <div class="side-icon">⚖️</div>
+        <p class="side-tag">The Facts</p>
+        <h3 class="side-heading">What actually happened</h3>
+        <p class="side-desc">AI reads 10+ sources per story and extracts only verified, cross-referenced facts. No spin. No agenda. Minimum 3 sources must agree before a story appears.</p>
+      </div>
+      <div class="side-card side-left">
+        <div class="side-number">02</div>
+        <div class="side-icon">🔵</div>
+        <p class="side-tag">Left Lens</p>
+        <h3 class="side-heading">How the left frames it</h3>
+        <p class="side-desc">See how progressive, liberal outlets like The Wire, Scroll, and The Hindu frame this story — their angle, their emphasis, their concerns.</p>
+      </div>
+      <div class="side-card side-right">
+        <div class="side-number">03</div>
+        <div class="side-icon">🔴</div>
+        <p class="side-tag">Right Lens</p>
+        <h3 class="side-heading">How the right frames it</h3>
+        <p class="side-desc">See how conservative outlets like Swarajya, OpIndia, and Times Now frame the same story — their narrative, their priorities, their reading of events.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO STORY CARD -->
+  <div class="demo-section">
+    <p class="demo-label">Sample story card</p>
+    <div class="story-card">
+      <div class="story-header">
+        <div>
+          <p class="story-meta">Economy · 22 March 2025 · 7:30 AM</p>
+          <h3 class="story-title">RBI cuts repo rate by 25bps to 6.25%, signals growth focus</h3>
+          <div class="story-sources">
+            <span class="source-tag">Mint</span>
+            <span class="source-tag">The Hindu</span>
+            <span class="source-tag">NDTV</span>
+            <span class="source-tag">Swarajya</span>
+            <span class="source-tag">+7 more</span>
+          </div>
+        </div>
+        <div class="story-coverage">
+          <div class="coverage-num">11</div>
+          <div class="coverage-label">Sources</div>
+        </div>
+      </div>
+      <div class="story-panels">
+        <div class="story-panel panel-facts">
+          <p class="panel-tag">Facts</p>
+          <p class="panel-text">RBI's MPC voted 4-2 to cut the benchmark rate. EMIs on home and auto loans will reduce marginally. Inflation at 4.1%, within target band. Next review in June 2025.</p>
+        </div>
+        <div class="story-panel panel-left">
+          <p class="panel-tag">Left Lens</p>
+          <p class="panel-text">Rate cut welcomed but critics say it's too little — real wages still stagnant, rural demand weak. Experts worry banks may not pass on benefits to common borrowers.</p>
+        </div>
+        <div class="story-panel panel-right">
+          <p class="panel-tag">Right Lens</p>
+          <p class="panel-text">Bold growth signal from RBI. Modi government's fiscal discipline creating room for monetary easing. Business confidence likely to surge, investment cycle to revive.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION -->
+  <section class="mission" id="mission">
+    <div class="mission-left">
+      <p class="section-label">Our mission</p>
+      <h2 class="section-title">Built for India's first internet generation.</h2>
+      <p class="mission-text">
+        We grew up on Twitter, Instagram, and YouTube. We saw media go from neutral to loud. We watched <strong>the same event reported 10 different ways</strong> depending on who you followed.
+      </p>
+      <p class="mission-text">
+        Teesra exists because <strong>informed citizens need all sides of a story</strong> — not just the bubble they already live in.
+      </p>
+    </div>
+    <div class="mission-right">
+      <div class="mission-values">
+        <div class="value-item">
+          <span class="value-num">01</span>
+          <div>
+            <p class="value-title">Verified first, fast second</p>
+            <p class="value-desc">A story appears only when 3+ credible publishers have covered it. We will never break news. We will always get it right.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <span class="value-num">02</span>
+          <div>
+            <p class="value-title">Your conclusions, not ours</p>
+            <p class="value-desc">Teesra has no editorial line. We show you how others frame a story so you can form your own view — not adopt ours.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <span class="value-num">03</span>
+          <div>
+            <p class="value-title">Under 5 minutes every morning</p>
+            <p class="value-desc">The entire Teesra brief is designed to be read before your chai goes cold. Dense, honest, fast.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <span class="value-num">04</span>
+          <div>
+            <p class="value-title">India-first, always</p>
+            <p class="value-desc">Built for young Indians who care about what's happening in their country and the world — in that order.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNUP -->
+  <div class="signup-section" id="signup">
+    <div class="signup-inner">
+      <p class="signup-tag">Early access</p>
+      <h2 class="signup-title">Get Teesra in your inbox every morning.</h2>
+      <p class="signup-desc">Free. No noise. Just India's three sides — delivered by 7:30 AM.</p>
+      <div class="signup-form">
+        <input type="email" class="signup-input" placeholder="yourname@gmail.com" />
+        <button class="signup-btn" onclick="handleSignup()">Join waitlist →</button>
+      </div>
+      <p class="signup-note">No spam. No politics. Just clarity. Unsubscribe anytime.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <div class="footer-logo">Teesra</div>
+      <div class="footer-tagline">Ek khabar, teen nazariye.</div>
+    </div>
+    <div class="footer-right">
+      Built by Divyendu<br>
+      IIM Amritsar · 2026<br>
+      <span style="color: var(--accent-facts);">teesra.news</span>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Signup handler
+    function handleSignup() {
+      const input = document.querySelector('.signup-input');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) {
+        input.style.borderColor = 'var(--accent-right)';
+        input.placeholder = 'Enter a valid email';
+        setTimeout(() => {
+          input.style.borderColor = '';
+          input.placeholder = 'yourname@gmail.com';
+        }, 2000);
+        return;
+      }
+      const btn = document.querySelector('.signup-btn');
+      btn.textContent = '✓ You\'re on the list';
+      btn.style.background = 'var(--accent-pulse)';
+      input.value = '';
+      input.disabled = true;
+      input.placeholder = 'See you at 7:30 AM ☀️';
+    }
+
+    // Intersection observer for subtle fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(el => {
+        if (el.isIntersecting) {
+          el.target.style.opacity = '1';
+          el.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.side-card, .story-card, .value-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
