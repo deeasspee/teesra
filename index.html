@@ -975,27 +975,53 @@
       navbar.classList.toggle('scrolled', window.scrollY > 40);
     });
 
-    // Signup handler
-    function handleSignup() {
-      const input = document.querySelector('.signup-input');
-      const email = input.value.trim();
-      if (!email || !email.includes('@')) {
+    async function handleSignup() {
+    const input = document.querySelector('.signup-input');
+    const btn = document.querySelector('.signup-btn');
+    const email = input.value.trim();
+
+    // Basic validation
+    if (!email || !email.includes('@')) {
         input.style.borderColor = 'var(--accent-right)';
         input.placeholder = 'Enter a valid email';
         setTimeout(() => {
-          input.style.borderColor = '';
-          input.placeholder = 'yourname@gmail.com';
+            input.style.borderColor = '';
+            input.placeholder = 'yourname@gmail.com';
         }, 2000);
         return;
-      }
-      const btn = document.querySelector('.signup-btn');
-      btn.textContent = '✓ You\'re on the list';
-      btn.style.background = 'var(--accent-pulse)';
-      input.value = '';
-      input.disabled = true;
-      input.placeholder = 'See you at 7:30 AM ☀️';
     }
 
+    // Show loading state
+    btn.textContent = 'Sending...';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('http://localhost:5000/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (data.message === 'already_subscribed') {
+            btn.textContent = 'Already subscribed ✓';
+            btn.style.background = 'var(--text-dim)';
+        } else {
+            btn.textContent = '✓ Check your inbox!';
+            btn.style.background = 'var(--accent-pulse)';
+            input.value = '';
+            input.disabled = true;
+            input.placeholder = 'See you at 7:30 AM ☀️';
+        }
+
+    } catch (error) {
+        btn.textContent = 'Try again';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+    }
+}
     // Intersection observer for subtle fade-in on scroll
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(el => {
