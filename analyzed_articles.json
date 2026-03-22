@@ -1,0 +1,41 @@
+[
+  {
+    "story_type": "general",
+    "headline": "Maharashtra gets 20% more commercial cooking gas from Centre",
+    "facts": "The central government has increased Maharashtra's commercial LPG quota by 20%. Hotels, restaurants, dhabas, food processing units, and dairies will get priority for this additional supply.",
+    "impact": "Restaurants and food businesses in Maharashtra might face fewer gas shortages and lower costs in the coming weeks.",
+    "left_lens": "Government stepping in to support small food businesses and hospitality sector after supply constraints. Shows state intervention helping vulnerable economic sectors recover.",
+    "right_lens": "Market-driven allocation would be more efficient than government quotas. Question why Maharashtra specifically — is this political favoritism or genuine shortage response?",
+    "public_pulse": "Small restaurant owners and food vendors likely relieved about supply certainty. General public neutral since impact is indirect, though some may see cheaper food prices as positive.",
+    "original_title": "Commercial LPG quota in Maharashtra raised by 20% on Centre’s directive",
+    "source": "The Hindu",
+    "source_bias": "center-left",
+    "url": "https://www.thehindu.com/news/national/maharashtra/commercial-lpg-quota-in-maharashtra-raised-by-20-on-centres-directive/article70772839.ece"
+  },
+  {
+    "story_type": "general",
+    "headline": "AI writing tools may weaken your own writing style",
+    "facts": "Studies show that predictive text technology, which suggests words as you type, encourages people to write in more predictable patterns. This technology is becoming more common in phones, emails, and writing apps.",
+    "impact": "Your personal writing might start sounding less unique if you rely too much on AI suggestions.",
+    "left_lens": "AI tools concentrate power in tech companies and risk homogenizing human expression. Technology companies profit from our creativity while eroding authentic voices and individuality.",
+    "right_lens": "Predictive text is a helpful tool that saves time and reduces effort. Users can choose to accept or reject suggestions, so personal agency remains intact.",
+    "public_pulse": "Young people are split — some worried about losing their voice, others see it as just a convenience tool they can use or ignore.",
+    "original_title": "With AI finishing your sentences, what will happen to your unique voice on the page?",
+    "source": "Scroll",
+    "source_bias": "left",
+    "url": "https://scroll.in/article/1091466/with-ai-finishing-your-sentences-what-will-happen-to-your-unique-voice-on-the-page?utm_source=rss&utm_medium=public"
+  },
+  {
+    "story_type": "general",
+    "headline": "Indian woman became first female Fellow at Glasgow medical college",
+    "facts": "In 1912, Jamini Sen became the first woman Fellow of Glasgow's Royal College of Physicians and Surgeons, an institution founded in 1599 that had previously excluded women. Her achievement broke a centuries-long barrier in British medical education.",
+    "impact": "Women in medicine got proof they could crack institutions that seemed closed to them forever.",
+    "left_lens": "Historic win against patriarchal systems—Sen overcame discrimination to achieve what seemed impossible, exposing how powerful institutions kept women out based purely on gender.",
+    "right_lens": "Individual merit and talent eventually win—Sen's exceptional abilities earned her recognition even within traditional structures, showing that excellence can break through barriers over time.",
+    "public_pulse": "Mild interest in forgotten history; appreciation for uncovering overlooked achievers; some surprise that this wasn't widely known before.",
+    "original_title": "The forgotten Indian woman trailblazer in British medicine",
+    "source": "BBC India",
+    "source_bias": "center",
+    "url": "https://www.bbc.com/news/articles/cy9gz8d075no?at_medium=RSS&at_campaign=rss"
+  }
+]

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teesra — Today's Brief</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a08;
+      --bg2: #11110e;
+      --surface: #18180f;
+      --border: #2a2a1f;
+      --text: #e8e4d4;
+      --text-dim: #7a7660;
+      --text-mid: #b0aa90;
+      --facts: #e8c84a;
+      --left: #5b9bd5;
+      --right: #d45b5b;
+      --pulse: #7bc67e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,8,0.95);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--facts);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      display: block;
+      margin-top: -3px;
+    }
+
+    .nav-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .nav-back {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* HERO BAR */
+    .feed-hero {
+      padding: 48px 40px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feed-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--facts);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .feed-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .feed-subtitle {
+      font-size: 14px;
+      color: var(--text-mid);
+    }
+
+    .feed-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .feed-meta-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feed-meta-item::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--facts);
+    }
+
+    /* LOADING */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 40px;
+      gap: 16px;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--facts);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ARTICLES FEED */
+    .articles-feed {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    /* STORY CARD */
+    .story-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .story-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .story-card:hover {
+      border-color: #3a3a2f;
+    }
+
+    /* CARD HEADER */
+    .card-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .card-type {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .type-political { background: rgba(232,200,74,0.1); color: var(--facts); }
+    .type-sports    { background: rgba(123,198,126,0.1); color: var(--pulse); }
+    .type-sensitive { background: rgba(212,91,91,0.1); color: var(--right); }
+    .type-general   { background: rgba(176,170,144,0.1); color: var(--text-mid); }
+
+    .card-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .card-source {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .card-source a {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .card-source a:hover { color: var(--facts); }
+
+    /* PANELS */
+    .card-panels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .panel {
+      padding: 20px 24px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .panel:last-child { border-right: none; }
+
+    .panel-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .panel-label::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .panel-facts .panel-label { color: var(--facts); }
+    .panel-facts .panel-label::before { background: var(--facts); }
+    .panel-left .panel-label { color: var(--left); }
+    .panel-left .panel-label::before { background: var(--left); }
+    .panel-right .panel-label { color: var(--right); }
+    .panel-right .panel-label::before { background: var(--right); }
+
+    .panel-text {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+
+    /* BOTTOM ROW */
+    .card-bottom {
+      border-top: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .pulse-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--pulse);
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pulse-label::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--pulse);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .pulse-text {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    /* IMPACT BAR */
+    .card-impact {
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .impact-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--facts);
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .impact-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    /* CAUTION */
+    .card-caution {
+      border-top: 1px solid rgba(212,91,91,0.2);
+      padding: 12px 24px;
+      background: rgba(212,91,91,0.04);
+      font-size: 12px;
+      color: var(--right);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 80px 40px;
+    }
+
+    .empty-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-mid);
+    }
+
+    .empty-desc {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+
+    .empty-code {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      color: var(--facts);
+      display: inline-block;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      nav { padding: 14px 20px; }
+      .feed-hero { padding: 32px 20px 24px; }
+      .feed-title { font-size: 28px; }
+      .articles-feed { padding: 24px 16px; }
+      .card-panels { grid-template-columns: 1fr; }
+      .panel { border-right: none; border-top: 1px solid var(--border); }
+      .panel:first-child { border-top: none; }
+      .card-header { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">
+      Teesra
+      <span>तीसरा नज़रिया</span>
+    </a>
+    <span class="nav-date" id="todayDate"></span>
+    <a href="/" class="nav-back">← Back to home</a>
+  </nav>
+
+  <div class="feed-hero">
+    <p class="feed-eyebrow">Today's Brief</p>
+    <h1 class="feed-title">Morning Brief</h1>
+    <p class="feed-subtitle">AI-analyzed stories from across India's media spectrum</p>
+    <div class="feed-meta">
+      <span class="feed-meta-item" id="articleCount">Loading stories...</span>
+      <span class="feed-meta-item">Verified · 3+ sources each</span>
+      <span class="feed-meta-item">Facts · Left · Right · Pulse</span>
+    </div>
+  </div>
+
+  <div id="feedContainer">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Fetching today's brief...</p>
+    </div>
+  </div>
+
+  <script>
+    // Set today's date
+    const dateEl = document.getElementById('todayDate');
+    dateEl.textContent = new Date().toLocaleDateString('en-IN', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    // Story type config
+    const typeConfig = {
+      political: { label: '🏛 Political', cls: 'type-political' },
+      sports:    { label: '🏏 Sports',    cls: 'type-sports' },
+      sensitive: { label: '⚠️ Sensitive', cls: 'type-sensitive' },
+      general:   { label: '📰 General',   cls: 'type-general' }
+    };
+
+    function buildCard(article) {
+      const type = typeConfig[article.story_type] || typeConfig.general;
+
+      const cautionHtml = article.caution_note ? `
+        <div class="card-caution">
+          <span>⚠️</span>
+          <span>${article.caution_note}</span>
+        </div>` : '';
+
+      return `
+        <div class="story-card">
+          <div class="card-header">
+            <div>
+              <span class="card-type ${type.cls}">${type.label}</span>
+              <h2 class="card-headline">${article.headline}</h2>
+              <p class="card-source">
+                ${article.source} · ${article.source_bias}
+                ${article.url ? `· <a href="${article.url}" target="_blank">Read original →</a>` : ''}
+              </p>
+            </div>
+          </div>
+
+          <div class="card-panels">
+            <div class="panel panel-facts">
+              <p class="panel-label">Facts</p>
+              <p class="panel-text">${article.facts}</p>
+            </div>
+            <div class="panel panel-left">
+              <p class="panel-label">Left Lens</p>
+              <p class="panel-text">${article.left_lens}</p>
+            </div>
+            <div class="panel panel-right">
+              <p class="panel-label">Right Lens</p>
+              <p class="panel-text">${article.right_lens}</p>
+            </div>
+          </div>
+
+          <div class="card-impact">
+            <span class="impact-label">Impact</span>
+            <span class="impact-text">${article.impact}</span>
+          </div>
+
+          <div class="card-bottom">
+            <span class="pulse-label">Street Pulse</span>
+            <span class="pulse-text">${article.public_pulse}</span>
+          </div>
+
+          ${cautionHtml}
+        </div>`;
+    }
+
+    async function loadFeed() {
+      try {
+        const res = await fetch('http://localhost:5000/api/articles');
+        const data = await res.json();
+
+        const container = document.getElementById('feedContainer');
+
+        if (!data.articles || data.articles.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p class="empty-title">No articles yet</p>
+              <p class="empty-desc">Run the analyzer first to generate today's brief</p>
+              <div class="empty-code">python analyze_article.py</div>
+            </div>`;
+          return;
+        }
+
+        document.getElementById('articleCount').textContent =
+          `${data.count} stories today`;
+
+        container.innerHTML = `
+          <div class="articles-feed">
+            ${data.articles.map(buildCard).join('')}
+          </div>`;
+
+        // Animate cards in with stagger
+        setTimeout(() => {
+          document.querySelectorAll('.story-card').forEach((card, i) => {
+            setTimeout(() => card.classList.add('visible'), i * 150);
+          });
+        }, 100);
+
+      } catch (err) {
+        document.getElementById('feedContainer').innerHTML = `
+          <div class="empty-state">
+            <p class="empty-title">Backend not running</p>
+            <p class="empty-desc">Start the Flask server first</p>
+            <div class="empty-code">python app.py</div>
+          </div>`;
+      }
+    }
+
+    loadFeed();
+  </script>
+
+</body>
+</html>
