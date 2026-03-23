@@ -406,6 +406,66 @@
       .panel:first-child { border-top: none; }
       .card-header { flex-direction: column; }
     }
+    /* IMPROVED CARD STYLES */
+    .story-card {
+      border-radius: 2px;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .story-card:hover {
+      border-color: #3a3a2f;
+      transform: translateY(-2px);
+    }
+
+    .card-headline {
+      transition: color 0.2s;
+    }
+
+    .story-card:hover .card-headline {
+      color: var(--facts);
+    }
+
+    /* TYPE BADGE PILL */
+    .card-type {
+      border-radius: 100px;
+      font-size: 10px;
+    }
+
+    /* DIVIDER BETWEEN CARDS */
+    .articles-feed {
+      padding-top: 48px;
+    }
+
+    /* PANEL HOVER */
+    .panel {
+      transition: background 0.2s;
+    }
+
+    .panel:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* IMPACT BAR HIGHLIGHT */
+    .card-impact {
+      background: rgba(232, 200, 74, 0.03);
+    }
+
+    /* STORY COUNT BADGE */
+    .feed-count-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232,200,74,0.08);
+      border: 1px solid rgba(232,200,74,0.15);
+      padding: 6px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--facts);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
   </style>
 </head>
 <body>
@@ -467,10 +527,11 @@
             <div>
               <span class="card-type ${type.cls}">${type.label}</span>
               <h2 class="card-headline">${article.headline}</h2>
-              <p class="card-source">
+             <p class="card-source">
                 ${article.source} · ${article.source_bias}
+                · ${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
                 ${article.url ? `· <a href="${article.url}" target="_blank">Read original →</a>` : ''}
-              </p>
+              </p> 
             </div>
           </div>
 
@@ -523,8 +584,11 @@
         document.getElementById('articleCount').textContent =
           `${data.count} stories today`;
 
-        container.innerHTML = `
+          container.innerHTML = `
           <div class="articles-feed">
+            <div class="feed-count-badge">
+              ✦ ${data.count} stories · ${new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long'})}
+            </div>
             ${data.articles.map(buildCard).join('')}
           </div>`;
 

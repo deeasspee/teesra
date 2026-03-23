@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — Teesra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a08;
+      --surface: #18180f;
+      --border: #2a2a1f;
+      --text: #e8e4d4;
+      --text-dim: #7a7660;
+      --text-mid: #b0aa90;
+      --facts: #e8c84a;
+      --left: #5b9bd5;
+      --right: #d45b5b;
+      --pulse: #7bc67e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--facts);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      display: block;
+      margin-top: -3px;
+    }
+
+    .nav-back {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    .about-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+
+    .about-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--facts);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .about-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -1.5px;
+      margin-bottom: 32px;
+    }
+
+    .about-title em {
+      font-style: italic;
+      color: var(--facts);
+    }
+
+    .about-body p {
+      font-size: 16px;
+      color: var(--text-mid);
+      line-height: 1.85;
+      margin-bottom: 20px;
+    }
+
+    .about-body p strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .about-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    .beliefs-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+    }
+
+    .belief {
+      display: flex;
+      gap: 20px;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .belief:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .belief-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--facts);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .belief-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .belief-desc {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+
+    .builder-section {
+      margin-top: 64px;
+      padding: 36px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .builder-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .builder-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .builder-bio {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .builder-bio strong { color: var(--text); font-weight: 500; }
+
+    .builder-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .builder-tag-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+    }
+
+    .cta-section {
+      margin-top: 48px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      background: var(--facts);
+      color: var(--bg);
+      padding: 12px 28px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    .btn-ghost {
+      color: var(--text-dim);
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--text); }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .about-wrap { padding: 48px 20px; }
+      .about-title { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      Teesra
+      <span>तीसरा नज़रिया</span>
+    </a>
+    <a href="index.html" class="nav-back">← Home</a>
+  </nav>
+
+  <div class="about-wrap">
+
+    <p class="about-eyebrow">About Teesra</p>
+    <h1 class="about-title">Why we built <em>this.</em></h1>
+
+    <div class="about-body">
+      <p>
+        India has a news problem. Not a shortage of it — we're drowning in it.
+        Every outlet has an angle. Every headline is designed to make you feel something
+        before you've had time to think.
+      </p>
+      <p>
+        We grew up as <strong>India's first internet generation</strong> — on Twitter,
+        YouTube, Instagram since before it was cool. We watched the same event get reported
+        ten different ways depending on who you followed. We learned, sometimes the hard way,
+        that every headline has an agenda.
+      </p>
+      <p>
+        <strong>Teesra is the tool we wished existed.</strong> Not another news app that
+        shoves breaking news at you. A thinking tool — one that shows you the facts,
+        then shows you how the left sees it, how the right sees it, and what people
+        on the street are actually saying. Then gets out of your way.
+      </p>
+      <p>
+        The goal isn't to make you read more news. It's to make you
+        <strong>think better about the news you do read.</strong>
+      </p>
+    </div>
+
+    <hr class="about-divider"/>
+
+    <h2 class="beliefs-title">What Teesra believes.</h2>
+
+    <div class="belief">
+      <span class="belief-num">01</span>
+      <div>
+        <p class="belief-title">Verified before visible</p>
+        <p class="belief-desc">A story appears only after 3+ established publishers have covered it. We will never break news. We will always get it right.</p>
+      </div>
+    </div>
+
+    <div class="belief">
+      <span class="belief-num">02</span>
+      <div>
+        <p class="belief-title">Show the lens, not the view</p>
+        <p class="belief-desc">We don't have an editorial opinion. We show you how others frame a story so you can see the frame — and step outside it.</p>
+      </div>
+    </div>
+
+    <div class="belief">
+      <span class="belief-num">03</span>
+      <div>
+        <p class="belief-title">Not every story is political</p>
+        <p class="belief-desc">Sports gets fan sentiment. Politics gets left and right. Sensitive stories get facts first with extra care. The presentation adapts to the nature of the story.</p>
+      </div>
+    </div>
+
+    <div class="belief">
+      <span class="belief-num">04</span>
+      <div>
+        <p class="belief-title">Respect the reader's intelligence</p>
+        <p class="belief-desc">No sensationalism. No panic. No telling you what to conclude. Young India is smart enough to form its own opinions — it just needs honest raw material.</p>
+      </div>
+    </div>
+
+    <div class="belief">
+      <span class="belief-num">05</span>
+      <div>
+        <p class="belief-title">Under 5 minutes, every morning</p>
+        <p class="belief-desc">The entire Teesra brief is designed to be read before your chai goes cold. Dense, honest, fast — then back to your life.</p>
+      </div>
+    </div>
+
+    <!-- BUILDER SECTION -->
+    <div class="builder-section">
+      <p class="builder-tag">Built by</p>
+      <h3 class="builder-name">Divyendu</h3>
+      <p class="builder-bio">
+        Frontend developer turned MBA. <strong>IIM Amritsar</strong> grad with a focus on
+        Analytics, Marketing and Product. Previously at TCS and Accenture.
+        Building Teesra because I got tired of not knowing which version of the truth to believe.
+      </p>
+      <div class="builder-tags">
+        <span class="builder-tag-item">IIM Amritsar</span>
+        <span class="builder-tag-item">Product · Analytics</span>
+        <span class="builder-tag-item">Built with Claude AI</span>
+        <span class="builder-tag-item">Building in public</span>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <a href="feed.html" class="btn-primary">Read today's brief →</a>
+      <a href="index.html#signup" class="btn-ghost">Join the waitlist</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
