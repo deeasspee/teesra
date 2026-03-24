@@ -7,6 +7,7 @@ import json
 import os
 from dotenv import load_dotenv
 from fetch_news import fetch_all_news
+from database import save_article
 
 load_dotenv()
 
@@ -281,6 +282,7 @@ if __name__ == "__main__":
         if analysis:
             display_analysis(analysis)
             results.append(analysis)
+            save_article(analysis)  # save to Supabase
 
         print("\n")
 

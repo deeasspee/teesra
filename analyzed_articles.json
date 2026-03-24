@@ -1,41 +1,41 @@
 [
   {
     "story_type": "general",
-    "headline": "Maharashtra gets 20% more cooking gas on government order",
-    "facts": "The central government has increased Maharashtra's commercial LPG quota by 20%. Hotels, restaurants, dhabas, food processing units, industrial canteens, and dairy businesses will get priority for the extra supply.",
-    "impact": "Restaurants and small food businesses in Maharashtra will face less pressure on cooking gas costs and availability over the coming weeks.",
-    "left_lens": "Government stepping in to support small businesses and the hospitality sector during economic strain, ensuring food businesses can operate without fuel shortages.",
-    "right_lens": "Centre allocating resources efficiently to boost business activity in a major state, helping the commercial food industry remain competitive and productive.",
-    "public_pulse": "Mixed sentiment — restaurant owners and small businesses welcome the relief, while some question whether the increase is substantial enough to meaningfully lower operating costs.",
-    "original_title": "Commercial LPG quota in Maharashtra raised by 20% on Centre’s directive",
+    "headline": "Two arrested for dangerous bike stunts in Hyderabad",
+    "facts": "Two people were arrested near the Telangana Secretariat and Lumbini Park in Hyderabad for performing risky motorcycle stunts. Police took action after incidents of dangerous biking in the area.",
+    "impact": "You might see more police checkpoints around popular spots in Hyderabad if stunt biking becomes a bigger issue.",
+    "left_lens": "Public safety needs enforcement — reckless biking endangers riders and bystanders, so police crackdowns protect citizens and reduce road accidents.",
+    "right_lens": "Youth expression shouldn't face heavy-handed police action — enforcement should focus on actual harm rather than restricting harmless recreation.",
+    "public_pulse": "Mixed reactions — some support stricter enforcement for safety, others see it as unnecessary policing of young people having fun on bikes.",
+    "original_title": "Two arrested for dangerous bike stunts near Telangana Secretariat, Lumbini Park in Hyderabad",
     "source": "The Hindu",
     "source_bias": "center-left",
-    "url": "https://www.thehindu.com/news/national/maharashtra/commercial-lpg-quota-in-maharashtra-raised-by-20-on-centres-directive/article70772839.ece"
+    "url": "https://www.thehindu.com/news/cities/Hyderabad/two-arrested-for-dangerous-bike-stunts-near-secretariat-lumbini-park/article70780068.ece"
   },
   {
     "story_type": "general",
-    "headline": "AI autocomplete might be making our writing less original",
-    "facts": "Research suggests that predictive text tools—the kind that finish your sentences—could reduce how creatively people write. A study titled 'Predictive Text Encourages Predictive Writing' found a direct link between using these tools and less unique writing styles.",
-    "impact": "Your texts and social media posts might start sounding more generic if you rely on autocomplete suggestions.",
-    "left_lens": "Tech companies are eroding human creativity and individuality by pushing addictive predictive tools that make people lazy writers. This threatens authentic human expression and cultural diversity.",
-    "right_lens": "Predictive text is a useful tool that saves time and helps people communicate faster. Users can choose whether to accept suggestions, so it's ultimately about personal choice and convenience.",
-    "public_pulse": "Young people are split—some find autocomplete helpful for quick responses, others worry their writing feels fake when they use it too much. Many don't think about the impact until someone points it out.",
-    "original_title": "With AI finishing your sentences, what will happen to your unique voice on the page?",
+    "headline": "Rajasthan villages fight solar farms threatening sacred groves",
+    "facts": "Communities in Rajasthan are protesting solar energy projects that could damage orans—locally-managed forests where livestock graze and water collects. These sacred groves are important for both the environment and local livelihoods in desert areas.",
+    "impact": "Solar projects might slow down in some areas if communities successfully block them, affecting India's renewable energy goals.",
+    "left_lens": "Environmental protection and indigenous land rights are being sacrificed for corporate renewable energy projects without proper community consent or ecological impact studies.",
+    "right_lens": "India needs renewable energy to meet climate targets and reduce dependence on fossil fuels, but projects must balance development with local concerns through better planning and compensation.",
+    "public_pulse": "Mixed sentiment—many support protecting natural resources and community rights, while others see renewable energy as necessary for India's future, creating tension between environmental conservation and energy needs.",
+    "original_title": "In Rajasthan, residents march to save sacred groves from solar projects",
     "source": "Scroll",
     "source_bias": "left",
-    "url": "https://scroll.in/article/1091466/with-ai-finishing-your-sentences-what-will-happen-to-your-unique-voice-on-the-page?utm_source=rss&utm_medium=public"
+    "url": "https://scroll.in/article/1091590/in-rajasthan-residents-march-to-save-scared-groves-from-solar-projects?utm_source=rss&utm_medium=public"
   },
   {
     "story_type": "general",
-    "headline": "Indian woman became first female fellow at Glasgow medical college",
-    "facts": "Jamini Sen became the first woman Fellow of Glasgow's Royal College of Physicians in 1912. The institution, founded in 1599, had never admitted women to this status before.",
-    "impact": "Women in medicine got a major confidence boost from seeing one of their own break into prestigious institutions that had kept them out for centuries.",
-    "left_lens": "Progressive achievement showing how women fought systemic barriers in male-dominated fields. Highlights the erasure of women's contributions to history and celebrates those who refused to accept exclusion.",
-    "right_lens": "Recognition of individual merit and achievement. A woman earned a position at one of the world's oldest medical colleges through her own excellence, not special treatment.",
-    "public_pulse": "Modest curiosity with appreciation for historical figures who challenged norms. Many find it surprising that this story remains relatively unknown despite her groundbreaking achievement.",
-    "original_title": "The forgotten Indian woman trailblazer in British medicine",
+    "headline": "Nine UK universities opening campuses across India",
+    "facts": "Nine UK universities are establishing campuses in India to expand their reach in the Indian higher education market. Initial enrollment numbers are expected to be modest as these institutions build their presence and reputation in the country.",
+    "impact": "Young Indians will have more options to study UK-curriculum degrees without leaving India, though spots may be limited at first.",
+    "left_lens": "Expansion of educational opportunity and access for Indian students; potential brain drain reduction as quality UK education becomes locally available; positive step toward democratizing elite education.",
+    "right_lens": "Foreign universities entering Indian market signals confidence in India's growth and economic potential; increases competition that could improve quality standards; represents India's rising global importance in education sector.",
+    "public_pulse": "Mix of excitement about having prestigious UK institutions nearby and skepticism about whether they'll maintain quality standards or just be profit-driven operations with modest enrollment.",
+    "original_title": "UK universities flock to India - but will they succeed?",
     "source": "BBC India",
     "source_bias": "center",
-    "url": "https://www.bbc.com/news/articles/cy9gz8d075no?at_medium=RSS&at_campaign=rss"
+    "url": "https://www.bbc.com/news/articles/c93w2pw3y0no?at_medium=RSS&at_campaign=rss"
   }
 ]
