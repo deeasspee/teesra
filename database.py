@@ -98,6 +98,39 @@ def get_articles_by_type(story_type: str) -> list:
         print(f"❌ Failed to fetch {story_type} articles: {e}")
         return []
 
+# ── SAVE SUBSCRIBER ───────────────────────────────────────────────
+def save_subscriber(email: str) -> bool:
+    try:
+        client = get_client()
+        client.table("subscribers").insert({
+            "email": email,
+            "is_active": True
+        }).execute()
+        print(f"  💾 Subscriber saved: {email}")
+        return True
+    except Exception as e:
+        # Unique constraint means already subscribed
+        if "duplicate" in str(e).lower() or "unique" in str(e).lower():
+            print(f"  ℹ️  Already subscribed: {email}")
+            return False
+        print(f"  ❌ Failed to save subscriber: {e}")
+        return False
+
+
+# ── GET ALL SUBSCRIBERS ───────────────────────────────────────────
+def get_all_subscribers() -> list:
+    try:
+        client = get_client()
+        response = (
+            client.table("subscribers")
+            .select("email")
+            .eq("is_active", True)
+            .execute()
+        )
+        return [row["email"] for row in response.data]
+    except Exception as e:
+        print(f"❌ Failed to fetch subscribers: {e}")
+        return []
 
 # ── TEST CONNECTION ───────────────────────────────────────────────
 if __name__ == "__main__":

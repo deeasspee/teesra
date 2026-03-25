@@ -5,7 +5,7 @@
 import os
 import resend
 from dotenv import load_dotenv
-from database import get_todays_articles
+from database import get_todays_articles, get_all_subscribers
 from datetime import date
 
 load_dotenv()
@@ -208,5 +208,25 @@ def send_newsletter(to_email: str):
 
 # ── RUN ───────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    email = input("Send newsletter to: ")
-    send_newsletter(email)
+    import sys
+
+    # Allow passing email as argument or send to all subscribers
+    if len(sys.argv) > 1:
+        # Called with specific email: python newsletter.py test@gmail.com
+        send_newsletter(sys.argv[1])
+    else:
+        # Send to all active subscribers
+        subscribers = get_all_subscribers()
+
+        if not subscribers:
+            print("⚠️  No subscribers found. Add yourself first via the website signup.")
+            test = input("Send test to this email instead: ").strip()
+            if test:
+                send_newsletter(test)
+        else:
+            print(f"\n📬 Sending to {len(subscribers)} subscribers...")
+            success = 0
+            for email in subscribers:
+                if send_newsletter(email):
+                    success += 1
+            print(f"\n✅ Newsletter sent to {success}/{len(subscribers)} subscribers")

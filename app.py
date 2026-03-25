@@ -1,6 +1,6 @@
 # app.py
 # Teesra local server
-from database import get_todays_articles
+from database import get_todays_articles, save_subscriber
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
@@ -54,13 +54,16 @@ def subscribe():
     if not email or "@" not in email:
         return jsonify({"error": "Invalid email"}), 400
 
-    if email in subscribers:
+    # Save to Supabase
+    saved = save_subscriber(email)
+
+    if not saved:
         return jsonify({"message": "already_subscribed"}), 200
 
-    subscribers.append(email)
+    # Send welcome email
     send_welcome_email(email)
 
-    print(f"📧 New subscriber: {email} (total: {len(subscribers)})")
+    print(f"📧 New subscriber saved to Supabase: {email}")
     return jsonify({"message": "subscribed"}), 200
 
 

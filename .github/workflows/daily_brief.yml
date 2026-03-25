@@ -1,0 +1,33 @@
+name: Teesra Daily Brief
+
+on:
+  schedule:
+    # 7:30 AM IST = 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # This allows manual trigger from GitHub UI anytime
+
+jobs:
+  send_daily_brief:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install anthropic supabase resend feedparser python-dotenv flask flask-cors
+
+      - name: Run Teesra daily pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: python run_daily.py
