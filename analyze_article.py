@@ -7,7 +7,8 @@ import json
 import os
 from dotenv import load_dotenv
 from fetch_news import fetch_all_news
-from database import save_article
+#from database import save_article
+from database import save_article, clear_todays_articles
 
 load_dotenv()
 
@@ -41,6 +42,13 @@ def detect_story_type(title, summary):
         "bjp", "congress", "modi", "rahul", "opposition", "policy",
         "law", "bill", "vote", "constitution", "court", "judge"
     ]
+     # Tech keywords
+    tech_keywords = [
+        "ai", "artificial intelligence", "chatgpt", "openai", "google",
+        "apple", "microsoft", "startup", "smartphone", "cybersecurity",
+        "robot", "machine learning", "chip", "semiconductor", "app",
+        "software", "tech", "elon", "meta", "samsung", "iphone"
+    ]
 
     # Check story type in order of priority
     for word in sensitive_keywords:
@@ -54,6 +62,10 @@ def detect_story_type(title, summary):
     for word in political_keywords:
         if word in title_lower:
             return "political"
+    
+    for word in tech_keywords:
+        if word in title_lower:
+            return "tech"
 
     return "general"
 
@@ -79,6 +91,22 @@ CRITICAL RULES:
 - Keep each section to 2-3 sentences maximum
 - Return ONLY raw JSON — no markdown, no ```json fences, no extra text before or after
 
+STREET PULSE RULES:
+- NEVER use the words "mixed", "divided", "varied", "split" or "reactions"
+- NEVER start with "People" or "The public"
+- Every story has nuance — find the specific angle, debate or emotion
+- Name a specific group, community, profession or fanbase who cares about this
+- Focus on ONE dominant sentiment or ONE interesting tension
+- Good examples:
+  "Farmers in Punjab are cautiously optimistic, while urban economists worry this changes little on the ground"
+  "Cricket Twitter is going berserk — this chase will be debated for years"
+  "Students and young job seekers are the most anxious about this — LinkedIn is flooded with worried posts"
+  "Startup founders are celebrating this policy shift, but legacy businesses see it as a threat"
+- Bad examples:
+  "Mixed reactions from the public"
+  "People have divided opinions on this issue"
+  "There are varied sentiments across different groups"
+
 HEADLINE RULES:
 - Must be a clean, grammatical English sentence
 - No unnecessary words like "in 2025" or "says report"
@@ -96,18 +124,17 @@ IMPACT RULES:
 
     if story_type == "sports":
         return base_context + """
-Since this is a SPORTS story, political framing is less relevant.
-Focus heavily on public sentiment and fan reaction.
+Since this is a SPORTS story, political framing is NOT relevant.
+Focus on match details, player performance and fan energy.
+Do NOT include left_lens or right_lens sections at all.
 
 Return this exact JSON:
 {
   "story_type": "sports",
   "headline": "rewritten headline in plain english, max 12 words",
-  "facts": "what exactly happened, just the facts",
-  "impact": "what this means for the sport or the moment — keep it like fan conversation",
-  "public_pulse": "how fans and general public are likely reacting to this",
-  "left_lens": "brief left-media angle if relevant, else write: Not applicable for this story",
-  "right_lens": "brief right-media angle if relevant, else write: Not applicable for this story"
+  "facts": "what exactly happened — scores, players, key moments, records broken. Be specific with numbers and names. 4-5 sentences.",
+  "impact": "what this means for the tournament, team standings or player legacy — like a fan texting another fan",
+  "public_pulse": "specific fan reactions — name the groups, the emotions, the debates happening right now. No generic mixed reactions."
 }"""
 
     elif story_type == "sensitive":
@@ -258,37 +285,47 @@ def display_analysis(analysis):
 # ── 5. RUN IT ─────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    from article_selector import select_top_stories
+
     print("\n🗞️  Teesra AI Brain — Starting up...\n")
 
+    # Step 1 — Fetch
     print("📡 Fetching live articles...")
     all_articles = fetch_all_news()
 
-    test_articles = [
-        all_articles[0],
-        all_articles[25],
-        all_articles[40],
-    ]
+    # Clear today's old runs before saving fresh ones
+    clear_todays_articles()
 
-    print(f"\n🧠 Analyzing 3 articles with Claude...\n")
+    # Step 2 — Smart selection
+    top_articles = select_top_stories(all_articles, n=11)
+
+    print(f"\n🧠 Analyzing {len(top_articles)} articles with Claude...\n")
 
     results = []
+    failed = 0
 
-    for i, article in enumerate(test_articles):
-        print(f"─── Article {i+1} of 3 ───")
-        print(f"  Original: {article['title']}")
+    for i, article in enumerate(top_articles):
+        print(f"─── Article {i+1} of {len(top_articles)} ───")
+        print(f"  Original: {article['title'][:70]}...")
+        print(f"  Covered by {article.get('source_count', 1)} sources")
 
         analysis = analyze_article(article)
 
         if analysis:
             display_analysis(analysis)
+            save_article(analysis)
             results.append(analysis)
-            save_article(analysis)  # save to Supabase
+        else:
+            failed += 1
+            print(f"  ⚠️ Skipped")
 
-        print("\n")
+        print()
 
-    # Save results to JSON file for the UI to read
+    # Save backup JSON
     with open("analyzed_articles.json", "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ Saved {len(results)} analyzed articles to analyzed_articles.json")
-    print("✅ Day 6 complete. Teesra AI brain is working.\n")
+    print("─" * 50)
+    print(f"✅ Done. {len(results)} articles analyzed, {failed} failed")
+    print(f"💾 Saved to Supabase + analyzed_articles.json")
+    print(f"🌐 Open http://localhost:5000/feed to see today's brief\n")

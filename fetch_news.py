@@ -59,7 +59,38 @@ SOURCES = [
         "name": "OpIndia",
         "url": "https://www.opindia.com/feed/",
         "bias": "right"
+    },
+    {
+        "name": "The Caravan",
+        "url": "https://caravanmagazine.in/feed",
+        "bias": "left"
+    },
+    {
+        "name": "The Quint",
+        "url": "https://www.thequint.com/feed",
+        "bias": "left"
+    },
+    {
+        "name": "ESPNCricinfo",
+        "url": "https://www.espncricinfo.com/rss/content/story/feeds/0.xml",
+        "bias": "center"
+    },
+    {
+        "name": "Cricbuzz",
+        "url": "http://live-feeds.cricbuzz.com/CricbuzzFeed",
+        "bias": "center"
+    },
+    {
+        "name": "TechCrunch",
+        "url": "https://techcrunch.com/feed/",
+        "bias": "center"
+    },
+    {
+        "name": "The Verge",
+        "url": "https://www.theverge.com/rss/index.xml",
+        "bias": "center"
     }
+
 ]
 
 

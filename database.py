@@ -49,7 +49,16 @@ def save_article(analysis: dict) -> bool:
         print(f"  ❌ Supabase save failed: {e}")
         return False
 
-
+# ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
+def clear_todays_articles() -> bool:
+    try:
+        client = get_client()
+        client.table("article").delete().eq("fetched_date", str(date.today())).execute()
+        print(f"  🗑️  Cleared today's existing articles from Supabase")
+        return True
+    except Exception as e:
+        print(f"  ❌ Failed to clear articles: {e}")
+        return False
 # ── GET TODAY'S ARTICLES ──────────────────────────────────────────
 def get_todays_articles() -> list:
     try:

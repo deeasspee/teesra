@@ -213,6 +213,7 @@
     .type-sports    { background: rgba(123,198,126,0.1); color: var(--pulse); }
     .type-sensitive { background: rgba(212,91,91,0.1); color: var(--right); }
     .type-general   { background: rgba(176,170,144,0.1); color: var(--text-mid); }
+    .type-tech { background: rgba(91,155,213,0.1); color: var(--left); }
 
     .card-headline {
       font-family: 'Playfair Display', serif;
@@ -466,6 +467,128 @@
       text-transform: uppercase;
       margin-bottom: 32px;
     }
+    /* SOURCE COUNT BADGE */
+    .source-count-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .source-count-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      cursor: default;
+      transition: border-color 0.2s;
+    }
+
+    .source-count-wrap:hover .source-count-badge {
+      border-color: var(--facts);
+    }
+
+    .source-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--facts);
+      line-height: 1;
+    }
+
+    .source-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* SOURCE TOOLTIP */
+    .source-tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      min-width: 160px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 10;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .source-count-wrap:hover .source-tooltip {
+      display: flex;
+    }
+
+    .source-tooltip span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-mid);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    /* SPORTS CARD */
+    .story-card[data-sports="true"] {
+      border-color: rgba(123, 198, 126, 0.3);
+      background: linear-gradient(135deg, #11110e 0%, #0f1a10 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-card[data-sports="true"]::before {
+      content: '🏏';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 120px;
+      opacity: 0.04;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    /* IPL CARD */
+    .story-card[data-ipl="true"] {
+      border-color: rgba(232, 200, 74, 0.4);
+      background: linear-gradient(135deg, #11110e 0%, #1a1700 100%);
+    }
+    /* TECH CARD */
+    .story-card[data-tech="true"] {
+      border-color: rgba(91, 155, 213, 0.3);
+      background: linear-gradient(135deg, #11110e 0%, #0f1218 100%);
+    }
+
+    .story-card[data-tech="true"]::before {
+      content: '⚡';
+      font-size: 120px;
+    }
+
+    .story-card[data-ipl="true"]::before {
+      content: '🏆';
+      font-size: 120px;
+    }
+
+    /* SPORTS PANELS — facts takes full width */
+    .sports-panels {
+      grid-template-columns: 1fr !important;
+    }
+
+    .panel-facts-full .panel-text {
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    /* CARD HEADER LEFT */
+    .card-header-left {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -509,11 +632,44 @@
       political: { label: '🏛 Political', cls: 'type-political' },
       sports:    { label: '🏏 Sports',    cls: 'type-sports' },
       sensitive: { label: '⚠️ Sensitive', cls: 'type-sensitive' },
-      general:   { label: '📰 General',   cls: 'type-general' }
+      general:   { label: '📰 General',   cls: 'type-general' },
+      tech:      { label: '⚡ Tech',       cls: 'type-tech' }
     };
 
     function buildCard(article) {
       const type = typeConfig[article.story_type] || typeConfig.general;
+      const isSports = article.story_type === 'sports';
+
+      // Source count + tooltip
+      const sourceCount = article.source_count || 1;
+      const sourceNames = article.covered_by
+        ? article.covered_by.map(s => `<span>${s}</span>`).join('')
+        : `<span>${article.source}</span>`;
+
+      const sourceCountHtml = `
+        <div class="source-count-wrap">
+          <div class="source-count-badge">
+            <span class="source-num">${sourceCount}</span>
+            <span class="source-label">source${sourceCount > 1 ? 's' : ''}</span>
+          </div>
+          <div class="source-tooltip">${sourceNames}</div>
+        </div>`;
+
+      // Left/right panels — hide for sports
+      const leftRightHtml = isSports ? '' : `
+            <div class="panel panel-left">
+              <p class="panel-label">Left Lens</p>
+              <p class="panel-text">${article.left_lens || ''}</p>
+            </div>
+            <div class="panel panel-right">
+              <p class="panel-label">Right Lens</p>
+              <p class="panel-text">${article.right_lens || ''}</p>
+            </div>`;
+
+      // Sports card gets special background
+      const sportsAttr = isSports ? 'data-sports="true"' : '';
+      const iplAttr = article.is_ipl ? 'data-ipl="true"' : '';
+      const techAttr = article.is_tech ? 'data-tech="true"' : '';
 
       const cautionHtml = article.caution_note ? `
         <div class="card-caution">
@@ -522,32 +678,26 @@
         </div>` : '';
 
       return `
-        <div class="story-card">
+        <div class="story-card" ${sportsAttr} ${iplAttr} ${techAttr}>
           <div class="card-header">
-            <div>
+            <div class="card-header-left">
               <span class="card-type ${type.cls}">${type.label}</span>
               <h2 class="card-headline">${article.headline}</h2>
-             <p class="card-source">
+              <p class="card-source">
                 ${article.source} · ${article.source_bias}
                 · ${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
                 ${article.url ? `· <a href="${article.url}" target="_blank">Read original →</a>` : ''}
-              </p> 
+              </p>
             </div>
+            ${sourceCountHtml}
           </div>
 
-          <div class="card-panels">
-            <div class="panel panel-facts">
+          <div class="card-panels ${isSports ? 'sports-panels' : ''}">
+            <div class="panel panel-facts ${isSports ? 'panel-facts-full' : ''}">
               <p class="panel-label">Facts</p>
               <p class="panel-text">${article.facts}</p>
             </div>
-            <div class="panel panel-left">
-              <p class="panel-label">Left Lens</p>
-              <p class="panel-text">${article.left_lens}</p>
-            </div>
-            <div class="panel panel-right">
-              <p class="panel-label">Right Lens</p>
-              <p class="panel-text">${article.right_lens}</p>
-            </div>
+            ${leftRightHtml}
           </div>
 
           <div class="card-impact">
