@@ -162,7 +162,7 @@ def build_email_html(articles):
       <p style="margin:0 0 12px 0;font-size:11px;color:#7a7660;font-style:italic;">We don't tell you what to think. We give you everything you need to think for yourself.</p>
       <p style="margin:0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:1px;">
         Built by Divyendu · IIM Amritsar · 
-        You're on the Teesra waitlist. No spam, ever.
+        No spam, No ads, ever. Promise.
       </p>
     </td>
   </tr>
