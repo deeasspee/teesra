@@ -135,7 +135,7 @@ def build_email_html(articles):
   <tr>
     <td style="padding:0 0 24px 0; border-bottom:1px solid #2a2a1f; margin-bottom:24px;">
       <p style="margin:0 0 2px 0;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#e8c84a;letter-spacing:-1px;">Teesra</p>
-      <p style="margin:0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:3px;text-transform:uppercase;">तीसरा नज़रिया · Ek khabar, teen nazariye</p>
+      <p style="margin:0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:3px;text-transform:uppercase;">News that matters to you</p>
     </td>
   </tr>
 
