@@ -7,6 +7,7 @@ import resend
 from dotenv import load_dotenv
 from database import get_todays_articles, get_all_subscribers
 from datetime import date
+from market_data import fetch_market_data, format_market_for_email
 
 load_dotenv()
 resend.api_key = os.getenv("RESEND_API_KEY")
@@ -114,7 +115,7 @@ def build_story_html(article, index):
 
 
 # ── BUILD FULL EMAIL ──────────────────────────────────────────────
-def build_email_html(articles):
+def build_email_html(articles, market_data=None):
     today = date.today().strftime("%A, %d %B %Y")
     article_count = len(articles)
 
@@ -152,6 +153,9 @@ def build_email_html(articles):
   <tr><td style="padding:0 0 24px 0;border-bottom:1px solid #2a2a1f;"></td></tr>
   <tr><td style="height:24px;"></td></tr>
 
+  <!-- MARKET DATA -->
+  {format_market_for_email(market_data)}
+
   <!-- STORIES -->
   {stories_html}
 
@@ -183,6 +187,13 @@ def send_newsletter(to_email: str):
     if not articles:
         print("❌ No articles found for today. Run analyze_article.py first.")
         return False
+    try:
+        market_data = fetch_market_data()
+    except Exception as e:
+        print(f"  ⚠️ Market data failed: {e}")
+        market_data = None
+
+    html = build_email_html(articles, market_data)
 
     print(f"   Found {len(articles)} articles")
 

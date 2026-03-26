@@ -208,7 +208,13 @@ def select_top_stories(all_articles: list, n: int = 10) -> list:
 
     if not tech_added:
         print(f"   ⚠️  No tech story found today")
+    # ── REORDER — sports and tech always at the end ───────────────
+    general_stories = [a for a in selected if not a.get('is_ipl') and not a.get('is_tech') and a.get('story_type') != 'sports']
+    ipl_stories = [a for a in selected if a.get('is_ipl')]
+    sports_stories = [a for a in selected if a.get('story_type') == 'sports' and not a.get('is_ipl')]
+    tech_stories = [a for a in selected if a.get('is_tech')]
 
+    selected = general_stories + tech_stories + ipl_stories + sports_stories
     print(f"\n✅ Final selection: {len(selected)} stories")
     print(f"   {len([a for a in selected if a.get('is_ipl')])} IPL + "
           f"{len([a for a in selected if a.get('story_type') == 'sports' and not a.get('is_ipl')])} sports + "

@@ -4,6 +4,7 @@ from database import get_todays_articles, save_subscriber
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
+from market_data import fetch_market_data
 import json
 import os
 
@@ -24,6 +25,16 @@ def feed():
 @app.route("/about")
 def about():
     return send_from_directory(".", "about.html")
+@app.route("/upi-qr.png")
+def upi_qr():
+    return send_from_directory(".", "upi-qr.png")
+@app.route("/api/market")
+def get_market():
+    try:
+        data = fetch_market_data()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ── SERVE ANALYZED ARTICLES ───────────────────────────────────────
 @app.route("/api/articles")

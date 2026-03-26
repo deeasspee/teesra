@@ -174,15 +174,20 @@ Return this exact JSON:
         return base_context + """
 This is a GENERAL news story. Balance all three perspectives equally.
 
+IMPORTANT: left_lens and right_lens must NEVER be empty.
+Every story has a left and right framing — find it even if subtle.
+- Left lens tends to focus on: systemic issues, institutional failure, impact on vulnerable groups, need for regulation
+- Right lens tends to focus on: individual responsibility, national security, economic growth, traditional values
+
 Return this exact JSON:
 {
   "story_type": "general",
   "headline": "plain english rewrite of headline, max 12 words",
-  "facts": "what happened, clear and simple",
-  "impact": "real world consequence of this — keep it conversational, no preaching",
-  "left_lens": "left media framing of this story",
-  "right_lens": "right media framing of this story",
-  "public_pulse": "general public reaction and sentiment"
+  "facts": "what happened, clear and simple. 2-3 sentences only.",
+  "impact": "real world consequence — conversational, one sentence, no preaching",
+  "left_lens": "how a left-leaning outlet would frame this — must not be empty",
+  "right_lens": "how a right-leaning outlet would frame this — must not be empty",
+  "public_pulse": "specific reaction from a named group — no mixed reactions language"
 }"""
 
 
