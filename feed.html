@@ -811,14 +811,14 @@
       const sourceNames = (article.covered_by || [article.source])
         .map(s => `<span>${s}</span>`).join('');
 
-      const sourceHtml = `
+        const sourceHtml = sourceCount > 1 ? `
         <div class="source-count-wrap">
           <div class="source-count-badge">
             <span class="source-num">${sourceCount}</span>
-            <span class="source-label">source${sourceCount > 1 ? 's' : ''}</span>
+            <span class="source-label">sources</span>
           </div>
           <div class="source-tooltip">${sourceNames}</div>
-        </div>`;
+        </div>` : '';
 
       const hasLeft  = !isSports && article.left_lens  && article.left_lens.trim().length  > 10;
       const hasRight = !isSports && article.right_lens && article.right_lens.trim().length > 10;
