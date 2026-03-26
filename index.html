@@ -759,6 +759,65 @@
     }
     #qrModal { display: none !important; }
     #qrModal.active { display: flex !important; }
+  /* HAMBURGER */
+  .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 200;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-dim);
+      transition: all 0.3s;
+    }
+
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(10,10,8,0.98);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        z-index: 150;
+      }
+
+      .nav-links.open { display: flex; }
+
+      .nav-links a {
+        font-size: 22px;
+        letter-spacing: 1px;
+      }
+
+      .nav-links li { list-style: none; }
+
+      .nav-cta {
+        padding: 12px 32px !important;
+        font-size: 16px !important;
+      }
+    }  
   </style>
 </head>
 <body>
@@ -782,6 +841,9 @@
       Teesra
       <span></span>
     </a>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-links">
       <li><a href="#how">How it works</a></li>
       <li><a href="#mission">Mission</a></li>
@@ -1087,6 +1149,22 @@ if (localStorage.getItem('teesra-theme') === 'light') {
     // Close QR modal on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') document.getElementById('qrModal').classList.remove('active');
+    });
+    function toggleMenu() {
+      const menu = document.querySelector('.nav-links');
+      const btn = document.getElementById('hamburger');
+      menu.classList.toggle('open');
+      btn.classList.toggle('open');
+      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+    }
+
+    // Close menu when a link is clicked
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.remove('open');
+        document.getElementById('hamburger').classList.remove('open');
+        document.body.style.overflow = '';
+      });
     });
   </script>
 </body>
