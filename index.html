@@ -785,7 +785,7 @@
     <ul class="nav-links">
       <li><a href="#how">How it works</a></li>
       <li><a href="#mission">Mission</a></li>
-      <li><a href="http://localhost:5000/feed">Today's Brief ✦</a></li>
+      <li><a href="/feed">Today's Brief ✦</a></li>
       <li><a href="/about" class=""nav-back>About</a></li>
       <li><button onclick="toggleTheme()" id="themeBtn" style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:6px 12px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;letter-spacing:0.5px;">☀️ Light</button></li>
       <li><a href="#" onclick="event.preventDefault(); document.getElementById('qrModal').classList.add('active')">☕ Support</a></li>
@@ -1043,7 +1043,7 @@ if (localStorage.getItem('teesra-theme') === 'light') {
     btn.disabled = true;
 
     try {
-        const response = await fetch('http://localhost:5000/subscribe', {
+        const response = await fetch('/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })

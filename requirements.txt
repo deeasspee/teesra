@@ -1,0 +1,7 @@
+anthropic
+supabase
+resend
+feedparser
+flask
+flask-cors
+python-dotenv

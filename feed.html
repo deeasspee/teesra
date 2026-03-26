@@ -923,8 +923,8 @@
       const container = document.getElementById('feedContainer');
 
       const [articlesRes, marketRes] = await Promise.allSettled([
-        fetch('http://localhost:5000/api/articles'),
-        fetch('http://localhost:5000/api/market')
+        fetch('/api/articles'),
+        fetch('/api/market')
       ]);
 
       if (articlesRes.status === 'rejected') {
