@@ -26,7 +26,7 @@ def clean_title(title: str) -> str:
 
 # ── TITLE SIMILARITY ──────────────────────────────────────────────
 # Checks if two titles are about the same story
-def titles_similar(title1: str, title2: str, threshold: int = 3) -> bool:
+def titles_similar(title1: str, title2: str, threshold: int = 2) -> bool:
     words1 = set(clean_title(title1).split())
     words2 = set(clean_title(title2).split())
 
@@ -71,7 +71,11 @@ def score_group(group: list) -> dict:
     bias_diversity = len(biases)
 
     # Base score
-    score = (source_count * 2) + bias_diversity
+    # Single source stories get lower base score
+    if source_count == 1:
+        score = 1 + bias_diversity
+    else:
+        score = (source_count * 2) + bias_diversity
 
     # Boost national/international importance
     title_lower = group[0]['title'].lower()
@@ -130,7 +134,7 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
     other_articles = []
 
     # International sources
-    international_sources = ['Reuters World', 'Al Jazeera', 'BBC India']
+    international_sources = ['BBC World', 'Reuters', 'BBC India']
 
     for article in all_articles:
         title_lower = article['title'].lower()

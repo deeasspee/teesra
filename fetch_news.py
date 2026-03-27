@@ -86,14 +86,14 @@ SOURCES = [
         "bias": "center"
     },
     {
-        "name": "Reuters World",
-        "url": "https://feeds.reuters.com/reuters/worldNews",
+        "name": "BBC World",
+        "url": "http://feeds.bbci.co.uk/news/world/rss.xml",
         "bias": "center"
     },
     {
-        "name": "Al Jazeera",
-        "url": "https://www.aljazeera.com/xml/rss/all.xml",
-        "bias": "center-left"
+        "name": "Reuters",
+        "url": "https://feeds.reuters.com/reuters/topNews",
+        "bias": "center"
     }
 
 ]
@@ -121,7 +121,8 @@ def fetch_from_source(source):
                 "fetched_at": str(datetime.now())
             }
 
-            articles.append(article)
+            if not is_likely_paywalled(article):
+                articles.append(article)
 
     except Exception as e:
         print(f"  ⚠️  Could not fetch {source['name']}: {e}")
@@ -131,6 +132,21 @@ def fetch_from_source(source):
 
 # ── 3. THE MAIN FUNCTION ──────────────────────────────────────────
 # This loops through ALL sources and collects everything
+PAYWALLED_SOURCES = [
+    "Indian Express",
+    "Mint",
+    "The Hindu",
+    "Hindustan Times"
+]
+
+def is_likely_paywalled(article: dict) -> bool:
+    """Skip articles from known paywall sources with thin summaries"""
+    source = article.get("source", "")
+    summary = article.get("summary", "")
+
+    if source in PAYWALLED_SOURCES and len(summary) < 200:
+        return True
+    return False
 
 def fetch_all_news():
     all_articles = []

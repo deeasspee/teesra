@@ -69,7 +69,7 @@ def detect_story_type(title, summary, source=""):
 
     # International keywords
     international_sources = ['Reuters World', 'Al Jazeera']
-    if source in ['Reuters World', 'Al Jazeera']:
+    if source in ['BBC World', 'Reuters']:
         return "international"
 
     
@@ -125,6 +125,14 @@ HEADLINE RULES:
 - No unnecessary words like "in 2025" or "says report"
 - Read like a newspaper headline, not a search query
 - Maximum 12 words
+
+LEFT/RIGHT LENS RULES:
+- Write IN the voice of that perspective — not about it
+- NEVER say "left outlets may report" or "conservative media could frame"
+- Instead write AS IF you are that outlet — first person plural is fine
+- Good: "The government's freebies signal a return to populist politics that deepens fiscal stress"
+- Bad: "Left outlets may highlight the fiscal burden of these promises"
+- Each lens is 3 sentences maximum, confident and direct
 
 IMPACT RULES:
 - One sentence maximum

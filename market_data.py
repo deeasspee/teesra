@@ -85,6 +85,7 @@ def fetch_market_data() -> dict:
 
     indices["mood"] = mood
     indices["date"] = str(date.today())
+    indices["as_of"] = datetime.now().strftime("%d %b %Y, %I:%M %p IST")
 
     print(f"  ✅ {mood}")
     print(f"     Sensex: {sensex['current']:,.2f} ({'+' if sensex['change'] >= 0 else ''}{sensex['change_pct']:.2f}%)")
@@ -149,7 +150,7 @@ def format_market_for_email(market: dict) -> str:
       </tr>
       <tr>
         <td style="padding:8px 20px; border-top:1px solid #2a2a1f;">
-          <p style="margin:0; font-size:11px; color:#7a7660;">{mood}</p>
+          <p style="margin:0; font-size:11px; color:#7a7660;">As of {market.get('as_of', 'last close')}</p>
         </td>
       </tr>
     </table>"""

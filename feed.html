@@ -733,6 +733,14 @@
       pointer-events: none;
       line-height: 1;
     }
+    .live-clock {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--facts);
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -764,6 +772,7 @@
 
   <!-- HERO -->
   <div class="feed-hero">
+    <div class="live-clock" id="liveClock">00:00:00 AM</div>
     <p class="feed-eyebrow">Today's Brief</p>
     <h1 class="feed-title">Morning Brief</h1>
     <p class="feed-subtitle">AI-analyzed stories from across India's media spectrum</p>
@@ -810,6 +819,21 @@
     if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
+
+    // ── LIVE CLOCK ────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      const timeStr = `${String(h).padStart(2,'0')}:${m}:${s} ${ampm}`;
+      const clockEl = document.getElementById('liveClock');
+      if (clockEl) clockEl.textContent = timeStr;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
 
     // ── TYPE CONFIG ───────────────────────────────────────────────
     const typeConfig = {
@@ -934,7 +958,7 @@
             <span class="market-val">${fmt(m.bank_nifty.current)}</span>
             <span class="market-chg" style="color:${col(m.bank_nifty.direction)}">${arrow(m.bank_nifty.direction)} ${pct(m.bank_nifty.change_pct)}</span>
           </span>
-          <span class="market-mood">${m.mood||''}</span>
+          <span class="market-mood">As of ${m.as_of||'last close'}</span>
         </div>`;
     }
 
