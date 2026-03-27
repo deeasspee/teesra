@@ -69,7 +69,7 @@ def detect_story_type(title, summary, source=""):
 
     # International keywords
     international_sources = ['Reuters World', 'Al Jazeera']
-    if article.get('source', '') in international_sources:
+    if source in ['Reuters World', 'Al Jazeera']:
         return "international"
 
     
