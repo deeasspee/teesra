@@ -95,6 +95,8 @@ def fetch_market_data() -> dict:
 
 def format_market_for_email(market: dict) -> str:
     """Returns HTML snippet for newsletter"""
+    if not market:
+        return ""
     sensex = market.get("sensex", {})
     nifty = market.get("nifty", {})
     bank_nifty = market.get("bank_nifty", {})

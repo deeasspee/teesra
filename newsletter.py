@@ -118,7 +118,14 @@ def build_story_html(article, index):
 def build_email_html(articles, market_data=None):
     today = date.today().strftime("%A, %d %B %Y")
     article_count = len(articles)
-
+    # Market section — safe even if None
+    market_section = ""
+    if market_data:
+        try:
+            market_section = format_market_for_email(market_data)
+        except Exception as e:
+            print(f"  ⚠️ Market email section failed: {e}")
+            market_section = ""
     # Build all story cards
     stories_html = ""
     for i, article in enumerate(articles):
@@ -154,7 +161,7 @@ def build_email_html(articles, market_data=None):
   <tr><td style="height:24px;"></td></tr>
 
   <!-- MARKET DATA -->
-  {format_market_for_email(market_data)}
+  {market_section}
 
   <!-- STORIES -->
   {stories_html}
