@@ -67,14 +67,40 @@ def score_group(group: list) -> dict:
     sources = list(set([a['source'] for a in group]))
     biases = list(set([a['bias'] for a in group]))
 
-    # More sources = more important
     source_count = len(sources)
-
-    # Bonus if covered across multiple bias types
     bias_diversity = len(biases)
 
-    # Final score
+    # Base score
     score = (source_count * 2) + bias_diversity
+
+    # Boost national/international importance
+    title_lower = group[0]['title'].lower()
+
+    boost_keywords = [
+        'india', 'supreme court', 'parliament', 'rbi', 'budget', 'modi',
+        'election', 'economy', 'gdp', 'inflation', 'pakistan', 'china',
+        'war', 'attack', 'crisis', 'ban', 'law', 'policy', 'rupee',
+        'market', 'sensex', 'nifty', 'ipl', 'cricket', 'world cup',
+        'ai', 'tech', 'startup', 'unicorn', 'nasa', 'space', 'climate'
+    ]
+
+    # Penalise hyper-local or low-importance stories
+    penalty_keywords = [
+        'result class', 'municipal', 'traffic', 'ward',
+        'locality', 'colony', 'panchayat', 'village', 'block',
+        'district court', 'minor accident', 'lost and found',
+        'school holiday', 'college exam date', 'admit card'
+    ]
+
+    for word in boost_keywords:
+        if word in title_lower:
+            score += 3
+            break
+
+    for word in penalty_keywords:
+        if word in title_lower:
+            score -= 5
+            break
 
     return {
         "score":        score,
@@ -88,7 +114,7 @@ def score_group(group: list) -> dict:
 
 # ── SELECT TOP STORIES ────────────────────────────────────────────
 # Main function — returns top N articles for the daily brief
-def select_top_stories(all_articles: list, n: int = 10) -> list:
+def select_top_stories(all_articles: list, n: int = 15) -> list:
     print(f"\n🧠 Selecting top {n} stories from {len(all_articles)} articles...")
 
     # Separate into buckets
@@ -97,41 +123,64 @@ def select_top_stories(all_articles: list, n: int = 10) -> list:
     tech_articles = []
     other_articles = []
 
+    ipl_articles = []
+    sports_articles = []
+    tech_articles = []
+    international_articles = []
+    other_articles = []
+
+    # International sources
+    international_sources = ['Reuters World', 'Al Jazeera', 'BBC India']
+
     for article in all_articles:
         title_lower = article['title'].lower()
-        source = article['source'].lower()
-
-        # Tech bucket — from tech sources or tech keywords
-        if source in ['techcrunch', 'the verge'] or any(word in title_lower for word in [
-            'ai', 'artificial intelligence', 'chatgpt', 'openai', 'google', 'apple',
-            'microsoft', 'startup', 'tech', 'app', 'software', 'smartphone',
-            'cybersecurity', 'data', 'robot', 'machine learning', 'chip', 'semiconductor'
-        ]):
-            tech_articles.append(article)
+        source = article['source']
 
         # IPL bucket
-        elif any(word in title_lower for word in [
+        if any(word in title_lower for word in [
             'ipl', 'indian premier league', 'ipl 2026'
         ]):
             ipl_articles.append(article)
 
+        # Tech bucket
+        elif source in ['TechCrunch', 'The Verge'] or any(word in title_lower for word in [
+            'artificial intelligence', 'chatgpt', 'openai', 'apple',
+            'microsoft', 'startup', 'smartphone', 'cybersecurity',
+            'robot', 'machine learning', 'chip', 'semiconductor',
+            'software', 'elon', 'meta', 'samsung', 'iphone'
+        ]):
+            tech_articles.append(article)
+
         # Sports bucket
         elif any(word in title_lower for word in [
             'cricket', 'match', 'test match', 'odi', 't20',
-            'football', 'hockey', 'tournament', 'player',
-            'score', 'wicket', 'goal', 'trophy', 'olympic',
-            'fifa', 'icc', 'squad', 'batting', 'bowling'
+            'football', 'hockey', 'tournament', 'score',
+            'wicket', 'goal', 'trophy', 'olympic', 'fifa',
+            'icc', 'squad', 'batting', 'bowling'
         ]):
             sports_articles.append(article)
+
+        # International bucket — from international sources
+        # AND story must have global/India-impact keywords
+        elif source in international_sources and any(word in title_lower for word in [
+            'india', 'war', 'attack', 'crisis', 'ceasefire', 'nuclear',
+            'sanction', 'trade', 'economy', 'climate', 'election',
+            'president', 'prime minister', 'china', 'pakistan', 'russia',
+            'usa', 'america', 'europe', 'nato', 'un ', 'united nations',
+            'oil', 'dollar', 'inflation', 'global', 'world', 'summit',
+            'deal', 'agreement', 'conflict', 'protest', 'disaster'
+        ]):
+            international_articles.append(article)
 
         else:
             other_articles.append(article)
 
-    print(f"   Buckets → General: {len(other_articles)} | IPL: {len(ipl_articles)} | Sports: {len(sports_articles)} | Tech: {len(tech_articles)}")
+    print(f"   Buckets → India: {len(other_articles)} | International: {len(international_articles)} | IPL: {len(ipl_articles)} | Sports: {len(sports_articles)} | Tech: {len(tech_articles)}")
 
     # ── SLOT ALLOCATION ───────────────────────────────────────────
-    # 7 general + 1 IPL + 1 sports + 1 tech = 10
-    general_slots = n - 3
+    # 11 general + 1 IPL + 1 sports + 1 tech = 14... + 1 flex = 15
+    general_slots = n - 5
+    international_slots = 2
 
     selected = []
     bias_priority = ['center', 'center-left', 'left', 'right']
@@ -208,13 +257,47 @@ def select_top_stories(all_articles: list, n: int = 10) -> list:
 
     if not tech_added:
         print(f"   ⚠️  No tech story found today")
-    # ── REORDER — sports and tech always at the end ───────────────
-    general_stories = [a for a in selected if not a.get('is_ipl') and not a.get('is_tech') and a.get('story_type') != 'sports']
-    ipl_stories = [a for a in selected if a.get('is_ipl')]
-    sports_stories = [a for a in selected if a.get('story_type') == 'sports' and not a.get('is_ipl')]
-    tech_stories = [a for a in selected if a.get('is_tech')]
+    
+    # ── INTERNATIONAL STORIES (2 slots) ──────────────────────────
+    intl_added = 0
+    # Score and sort international articles too
+    intl_groups = group_articles(international_articles)
+    intl_scored = [score_group(g) for g in intl_groups]
+    intl_scored.sort(key=lambda x: x['score'], reverse=True)
 
-    selected = general_stories + tech_stories + ipl_stories + sports_stories
+    for story in intl_scored[:international_slots]:
+        articles = story['articles']
+        best = articles[0]
+        best['covered_by'] = story['sources']
+        best['source_count'] = story['source_count']
+        best['is_international'] = True
+        selected.append(best)
+        intl_added += 1
+        print(f"   ✅ International: {best['title'][:60]}...")
+
+    if intl_added == 0:
+        print(f"   ⚠️  No international stories found today")
+    # ── FLEX SLOT — extra general if sports/tech not found ────────
+    # Already handled by general_slots count
+    # Just ensure we always return n stories if possible
+    while len(selected) < n and len(scored) > len(selected):
+        candidate = scored[len(selected) - 3]['articles'][0]
+        already = [a['title'] for a in selected]
+        if candidate['title'] not in already:
+            candidate['covered_by'] = [candidate['source']]
+            candidate['source_count'] = 1
+            selected.append(candidate)
+        else:
+            break
+    # ── REORDER — sports and tech always at the end ───────────────
+    india_stories = [a for a in selected if not a.get('is_ipl') and not a.get('is_tech') and not a.get('is_international') and a.get('story_type') != 'sports']
+    intl_stories  = [a for a in selected if a.get('is_international')]
+    tech_stories  = [a for a in selected if a.get('is_tech')]
+    ipl_stories   = [a for a in selected if a.get('is_ipl')]
+    sports_stories = [a for a in selected if a.get('story_type') == 'sports' and not a.get('is_ipl')]
+
+    # Order: India news → International → Tech → IPL → Sports
+    selected = india_stories + intl_stories + tech_stories + ipl_stories + sports_stories
     print(f"\n✅ Final selection: {len(selected)} stories")
     print(f"   {len([a for a in selected if a.get('is_ipl')])} IPL + "
           f"{len([a for a in selected if a.get('story_type') == 'sports' and not a.get('is_ipl')])} sports + "

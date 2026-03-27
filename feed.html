@@ -715,6 +715,24 @@
       .qr-wrap { margin: 0 auto; }
       .market-mood { display: none; }
     }
+
+    .type-international { background: rgba(180,140,255,0.1); color: #b48cff; }
+
+    .story-card[data-intl="true"] {
+      border-color: rgba(180,140,255,0.25);
+      background: linear-gradient(160deg, var(--surface) 0%, #120d18 100%);
+    }
+
+    .story-card[data-intl="true"]::before {
+      content: '🌍';
+      position: absolute;
+      right: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 100px;
+      opacity: 0.04;
+      pointer-events: none;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
@@ -795,11 +813,12 @@
 
     // ── TYPE CONFIG ───────────────────────────────────────────────
     const typeConfig = {
-      political: { label: '🏛 Political', cls: 'type-political' },
-      sports:    { label: '🏏 Sports',    cls: 'type-sports'    },
-      sensitive: { label: '⚠️ Sensitive', cls: 'type-sensitive' },
-      general:   { label: '📰 General',   cls: 'type-general'   },
-      tech:      { label: '⚡ Tech',       cls: 'type-tech'      }
+      political:     { label: '🏛 Political',     cls: 'type-political'     },
+      sports:        { label: '🏏 Sports',         cls: 'type-sports'        },
+      sensitive:     { label: '⚠️ Sensitive',      cls: 'type-sensitive'     },
+      general:       { label: '📰 General',        cls: 'type-general'       },
+      tech:          { label: '⚡ Tech',            cls: 'type-tech'          },
+      international: { label: '🌍 International',  cls: 'type-international' }
     };
 
     // ── BUILD CARD ────────────────────────────────────────────────
@@ -840,9 +859,10 @@
           <p class="panel-text">${article.right_lens}</p>
         </div>` : '';
 
-      const sportsAttr = isSports         ? 'data-sports="true"' : '';
-      const iplAttr    = article.is_ipl   ? 'data-ipl="true"'    : '';
-      const techAttr   = article.is_tech  ? 'data-tech="true"'   : '';
+      const sportsAttr = isSports                  ? 'data-sports="true"' : '';
+      const iplAttr    = article.is_ipl            ? 'data-ipl="true"'    : '';
+      const techAttr   = article.is_tech           ? 'data-tech="true"'   : '';
+      const intlAttr   = article.is_international  ? 'data-intl="true"'   : '';
 
       const cautionHtml = article.caution_note ? `
         <div class="card-caution">
@@ -850,7 +870,7 @@
         </div>` : '';
 
       return `
-        <div class="story-card" ${sportsAttr} ${iplAttr} ${techAttr}>
+        <div class="story-card" ${sportsAttr} ${iplAttr} ${techAttr} ${intlAttr}>
           <div class="card-header">
             <div class="card-header-left">
               <span class="card-type ${type.cls}">${type.label}</span>

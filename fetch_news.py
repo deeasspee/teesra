@@ -76,11 +76,6 @@ SOURCES = [
         "bias": "center"
     },
     {
-        "name": "Cricbuzz",
-        "url": "http://live-feeds.cricbuzz.com/CricbuzzFeed",
-        "bias": "center"
-    },
-    {
         "name": "TechCrunch",
         "url": "https://techcrunch.com/feed/",
         "bias": "center"
@@ -89,6 +84,16 @@ SOURCES = [
         "name": "The Verge",
         "url": "https://www.theverge.com/rss/index.xml",
         "bias": "center"
+    },
+    {
+        "name": "Reuters World",
+        "url": "https://feeds.reuters.com/reuters/worldNews",
+        "bias": "center"
+    },
+    {
+        "name": "Al Jazeera",
+        "url": "https://www.aljazeera.com/xml/rss/all.xml",
+        "bias": "center-left"
     }
 
 ]

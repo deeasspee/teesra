@@ -19,7 +19,7 @@ client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 # Decides what kind of story this is
 # This directly implements our product philosophy
 
-def detect_story_type(title, summary):
+def detect_story_type(title, summary, source=""):
 
     title_lower = title.lower()
 
@@ -67,6 +67,12 @@ def detect_story_type(title, summary):
         if word in title_lower:
             return "tech"
 
+    # International keywords
+    international_sources = ['Reuters World', 'Al Jazeera']
+    if article.get('source', '') in international_sources:
+        return "international"
+
+    
     return "general"
 
 
@@ -87,9 +93,16 @@ Source bias: {article['bias']}
 
 CRITICAL RULES:
 - Write in simple, clear English. No jargon.
-- Facts must be verifiable — no opinions in the facts section
+- Facts must be ONLY from the article provided — never add outside knowledge
+- If the article doesn't mention a stadium, score, or detail — do NOT invent it
+- Do not use your training knowledge to fill gaps — only use what is in the article text
 - Keep each section to 2-3 sentences maximum
 - Return ONLY raw JSON — no markdown, no ```json fences, no extra text before or after
+
+ACCURACY RULES:
+- Never state specific venues, scores, or names unless explicitly mentioned in the article
+- If you are unsure of a fact, omit it rather than guess
+- Facts section must read like a wire report — dry, sourced, no color
 
 STREET PULSE RULES:
 - NEVER use the words "mixed", "divided", "varied", "split" or "reactions"
@@ -125,16 +138,17 @@ IMPACT RULES:
     if story_type == "sports":
         return base_context + """
 Since this is a SPORTS story, political framing is NOT relevant.
-Focus on match details, player performance and fan energy.
-Do NOT include left_lens or right_lens sections at all.
+STRICT RULE: Only use facts explicitly stated in the article above.
+Do NOT add stadium names, scores, or player details from your training knowledge.
+If the article is a match preview, say so — do not invent match results.
 
 Return this exact JSON:
 {
   "story_type": "sports",
   "headline": "rewritten headline in plain english, max 12 words",
-  "facts": "what exactly happened — scores, players, key moments, records broken. Be specific with numbers and names. 4-5 sentences.",
-  "impact": "what this means for the tournament, team standings or player legacy — like a fan texting another fan",
-  "public_pulse": "specific fan reactions — name the groups, the emotions, the debates happening right now. No generic mixed reactions."
+  "facts": "only what the article explicitly states — no invented details. 3-4 sentences.",
+  "impact": "what this means for the tournament or fans — one conversational sentence",
+  "public_pulse": "specific fan reactions — name groups, emotions, debates. No generic language."
 }"""
 
     elif story_type == "sensitive":
@@ -170,6 +184,23 @@ Return this exact JSON:
   "public_pulse": "what general public and social media sentiment looks like"
 }"""
 
+    elif story_type == "international":
+        return base_context + """
+This is an INTERNATIONAL story. Focus on how it affects India or the broader world.
+
+STRICT RULE: Only use facts from the article. No invented details.
+
+Return this exact JSON:
+{
+  "story_type": "international",
+  "headline": "neutral rewrite of headline, max 12 words",
+  "facts": "what happened, where, who is involved — dry wire-report style, 2-3 sentences",
+  "impact": "how this affects India or Indians specifically — one direct sentence",
+  "left_lens": "how progressive outlets frame this globally",
+  "right_lens": "how conservative outlets frame this globally",
+  "public_pulse": "what Indians and global audiences are saying about this"
+}"""
+
     else:  # general
         return base_context + """
 This is a GENERAL news story. Balance all three perspectives equally.
@@ -196,7 +227,7 @@ Return this exact JSON:
 
 def analyze_article(article):
 
-    story_type = detect_story_type(article["title"], article["summary"])
+    story_type = detect_story_type(article["title"], article["summary"], article.get("source", ""))
     prompt = build_prompt(article, story_type)
 
     print(f"\n  🤖 Sending to Claude [{story_type.upper()} story]...")
@@ -302,7 +333,7 @@ if __name__ == "__main__":
     clear_todays_articles()
 
     # Step 2 — Smart selection
-    top_articles = select_top_stories(all_articles, n=11)
+    top_articles = select_top_stories(all_articles, n=15)
 
     print(f"\n🧠 Analyzing {len(top_articles)} articles with Claude...\n")
 
