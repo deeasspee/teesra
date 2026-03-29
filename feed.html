@@ -336,11 +336,14 @@
       -webkit-backdrop-filter: blur(10px);
       font-family: 'Space Mono', 'DM Mono', monospace;
       white-space: nowrap;
-      overflow: visible;
+      overflow-x: auto;
+      overflow-y: hidden;
       margin-bottom: 20px;
-      min-width: 0;
       width: 100%;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE */
     }
+    .market-ticker::-webkit-scrollbar { display: none; } /* Chrome/Safari */
     body.light .market-ticker {
       background: rgba(255,255,255,0.72);
       border-color: rgba(0,0,0,0.1);
@@ -380,27 +383,29 @@
 
     .market-name {
       font-size: 9px;
-      letter-spacing: 0.13em;
+      letter-spacing: 0.1em;
       color: var(--text-dim);
       text-transform: uppercase;
+      flex-shrink: 0;
     }
 
     .market-val {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      letter-spacing: 0.02em;
-      min-width: 0;
+      letter-spacing: 0.01em;
+      flex-shrink: 0;
     }
 
     .market-chg {
-      font-size: 11px;
+      font-size: 10px;
       font-family: 'Space Mono', 'DM Mono', monospace;
       display: flex;
       align-items: center;
-      gap: 3px;
-      padding: 2px 6px;
+      gap: 2px;
+      padding: 2px 5px;
       border-radius: 3px;
+      flex-shrink: 0;
     }
     .market-chg.up   { color: #22c55e; background: rgba(34,197,94,0.1); }
     .market-chg.down { color: #f87171; background: rgba(248,113,113,0.1); }
@@ -410,11 +415,13 @@
       margin-left: auto;
       font-size: 9px;
       color: var(--text-dim);
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
       flex-shrink: 0;
       padding-left: 14px;
+      margin-left: 14px;
       border-left: 1px solid rgba(255,255,255,0.07);
       font-style: normal;
+      white-space: nowrap;
     }
     body.light .market-mood { border-left-color: rgba(0,0,0,0.1); }
 
@@ -978,7 +985,7 @@
       <p class="qr-modal-title">☕ Buy a chai</p>
       <p class="qr-modal-desc">Scan with GPay, PhonePe or any UPI app</p>
       <img src="/upi-qr.png" alt="UPI QR Code" onerror="this.style.opacity='0.2'"/>
-      <p class="qr-modal-upi">UPI: 7044773183@ptyes</p>
+      <p class="qr-modal-upi">UPI: divyendu.shekhar@ptyes</p>
     </div>
   </div>
 
@@ -1280,7 +1287,7 @@
             <div class="support-text">
               <p>☕ Like Teesra?</p>
               <p class="support-desc">Built by one person, completely free. If it saves you time every morning, consider buying a chai.</p>
-              <p class="support-upi-id">UPI: 7044773183@ptyes</p>
+              <p class="support-upi-id">UPI: divyendu.shekhar@ptyes</p>
             </div>
             <div class="qr-wrap" onclick="openModal()" title="Click to enlarge">
               <img src="/upi-qr.png" alt="UPI QR Code" class="upi-qr"
