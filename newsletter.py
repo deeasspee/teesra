@@ -166,14 +166,41 @@ def build_email_html(articles, market_data=None):
   <!-- STORIES -->
   {stories_html}
 
-  <!-- FOOTER -->
+  <!-- SHARE + FOOTER -->
   <tr>
-    <td style="padding:24px 0 0 0;border-top:1px solid #2a2a1f;">
-      <p style="margin:0 0 4px 0;font-family:Georgia,serif;font-size:16px;font-weight:700;color:#e8c84a;">Teesra</p>
-      <p style="margin:0 0 12px 0;font-size:11px;color:#7a7660;font-style:italic;">We don't tell you what to think. We give you everything you need to think for yourself.</p>
-      <p style="margin:0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:1px;">
-        Built by Divyendu · IIM Amritsar · 
-        No spam, No ads, ever. Promise.
+    <td style="padding:28px 0 0 0; border-top:1px solid #2a2a1f; text-align:center;">
+      <p style="margin:0 0 6px 0; font-family:Georgia,serif; font-size:17px; font-weight:700; color:#e8e4d4;">Found this useful?</p>
+      <p style="margin:0 0 18px 0; font-family:monospace; font-size:10px; color:#6a6650; letter-spacing:1.5px; text-transform:uppercase;">Share Teesra with someone who reads the news</p>
+      <table cellpadding="0" cellspacing="0" style="margin:0 auto 24px auto;">
+        <tr>
+          <td style="padding:0 5px;">
+            <a href="https://wa.me/?text=Read%20today%27s%20Teesra%20brief%20%E2%80%94%20India%27s%20news%20from%20three%20perspectives.%20https%3A%2F%2Fteesra.vercel.app%2Ffeed"
+               target="_blank"
+               style="display:inline-block; padding:9px 16px; background:#25D366; font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#0a0a08; text-decoration:none; text-transform:uppercase; font-weight:700;">
+              📲 WhatsApp
+            </a>
+          </td>
+          <td style="padding:0 5px;">
+            <a href="https://twitter.com/intent/tweet?text=Reading%20today%27s%20Teesra%20brief%20%E2%80%94%20same%20story%2C%20three%20perspectives.%20No%20spin.%20https%3A%2F%2Fteesra.vercel.app%2Ffeed"
+               target="_blank"
+               style="display:inline-block; padding:9px 16px; background:#1a1a1a; border:1px solid #3a3a3a; font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#e8e4d4; text-decoration:none; text-transform:uppercase; font-weight:700;">
+              𝕏 Twitter
+            </a>
+          </td>
+          <td style="padding:0 5px;">
+            <a href="https://teesra.vercel.app/feed"
+               target="_blank"
+               style="display:inline-block; padding:9px 16px; background:rgba(232,200,74,0.08); border:1px solid rgba(232,200,74,0.25); font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#e8c84a; text-decoration:none; text-transform:uppercase; font-weight:700;">
+              🔗 Read Online
+            </a>
+          </td>
+        </tr>
+      </table>
+      <p style="margin:0 0 4px 0; font-family:Georgia,serif; font-size:15px; font-weight:900; color:#e8c84a;">Teesra</p>
+      <p style="margin:0 0 10px 0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:2px; text-transform:uppercase;">तीसरा नज़रिया · One story, three perspectives</p>
+      <p style="margin:0 0 6px 0; font-size:11px; color:#7a7660; font-style:italic;">We don't tell you what to think. We give you everything you need to think for yourself.</p>
+      <p style="margin:0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:1px;">
+        Built by Divyendu · IIM Amritsar · No ads, ever.
       </p>
     </td>
   </tr>
@@ -194,21 +221,28 @@ def send_newsletter(to_email: str):
     if not articles:
         print("❌ No articles found for today. Run analyze_article.py first.")
         return False
+
     try:
         market_data = fetch_market_data()
     except Exception as e:
         print(f"  ⚠️ Market data failed: {e}")
         market_data = None
 
-    html = build_email_html(articles, market_data)
-
     print(f"   Found {len(articles)} articles")
 
-    html = build_email_html(articles)
+    # Build email once — with market data
+    html = build_email_html(articles, market_data)
     today = date.today().strftime("%A, %d %B")
 
+    # ── FROM ADDRESS ──────────────────────────────────────────────
+    # Currently restricted to your own email (dsp.fiem@gmail.com) until
+    # you verify a domain at resend.com/domains.
+    # After verification, change to: "Teesra <brief@teesra.vercel.app>"
+    # or "Teesra <brief@teesra.news>" once you buy the domain.
+    FROM_ADDRESS = "Teesra <onboarding@resend.dev>"
+
     params = {
-        "from": "Teesra <onboarding@resend.dev>",
+        "from": FROM_ADDRESS,
         "to": [to_email],
         "subject": f"☀️ Teesra Brief — {today} · {len(articles)} stories",
         "html": html
@@ -220,7 +254,7 @@ def send_newsletter(to_email: str):
         print(f"   Email ID: {response['id']}")
         return True
     except Exception as e:
-        print(f"❌ Failed to send: {e}")
+        print(f"❌ Failed to send to {to_email}: {e}")
         return False
 
 
