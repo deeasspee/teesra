@@ -132,7 +132,7 @@ LEFT/RIGHT LENS RULES:
 - Instead write AS IF you are that outlet — first person plural is fine
 - Good: "The government's freebies signal a return to populist politics that deepens fiscal stress"
 - Bad: "Left outlets may highlight the fiscal burden of these promises"
-- Each lens is 3 sentences maximum, confident and direct
+- Each lens is 4 sentences maximum, confident and direct
 
 IMPACT RULES:
 - One sentence maximum
