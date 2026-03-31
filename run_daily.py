@@ -59,7 +59,8 @@ def run():
         else:
             print(f"📬 Sending to {len(subscribers)} subscribers...")
             success = 0
-            for email in subscribers:
+            for sub in subscribers:
+                email = sub['email'] if isinstance(sub, dict) else sub
                 if send_newsletter(email):
                     success += 1
             print(f"✅ Sent to {success}/{len(subscribers)} subscribers")
