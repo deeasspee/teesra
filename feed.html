@@ -59,12 +59,12 @@
       position: fixed;
       inset: 0;
       z-index: -1;
-      background: rgba(8, 8, 10, 0.60);
-      backdrop-filter: blur(3px) saturate(0.8);
-      -webkit-backdrop-filter: blur(3px) saturate(0.8);
+      background: rgba(6, 6, 8, 0.62);
+      backdrop-filter: blur(1px) saturate(0.85);
+      -webkit-backdrop-filter: blur(1px) saturate(0.85);
     }
     body.light #painting-overlay {
-      background: rgba(240, 238, 232, 0.65);
+      background: rgba(240, 238, 232, 0.72);
     }
 
     #painting-credit {
@@ -1307,85 +1307,80 @@
 
     loadFeed();
 
-    // ── DAILY PAINTING — Met Museum API ───────────────────────────
+    // ── NASA APOD BACKGROUND ──────────────────────────────────────
+    // Astronomy Picture of the Day — free, always dark + stunning
     (function () {
       const TODAY     = new Date().toISOString().slice(0, 10);
-      const CACHE_KEY = 'teesra_painting_' + TODAY;
+      const CACHE_KEY = 'teesra_bg_' + TODAY;
+      const NASA_KEY  = 'DEMO_KEY';
 
-      function dateToSeed(d) {
-        return d.split('').reduce(function(a, c) { return a + c.charCodeAt(0); }, 0);
-      }
-
-      function applyPainting(data) {
-        var bg     = document.getElementById('painting-bg');
-        var credit = document.getElementById('painting-credit');
+      function applyImage(url, title, credit) {
+        var bg = document.getElementById('painting-bg');
         if (!bg) return;
-        var img    = new Image();
+        var img = new Image();
         img.onload = function () {
-          bg.style.backgroundImage = "url('" + data.imageUrl + "')";
+          bg.style.backgroundImage    = "url('" + url + "')";
+          bg.style.backgroundSize     = 'cover';
+          bg.style.backgroundPosition = 'center';
+          bg.style.backgroundColor    = '#0a0a08';
           bg.classList.add('loaded');
         };
-        img.onerror = function () { /* silent fallback — dark bg still shows */ };
-        img.src = data.imageUrl;
+        img.onerror = function () { applyFallback(); };
+        img.src = url;
 
-        if (credit) {
-          var yr  = data.date ? ', ' + data.date : '';
-          var txt = data.title + yr + ' — ' + data.artist + ' · The Met';
-          credit.innerHTML = data.link
-            ? '<a href="' + data.link + '" target="_blank" rel="noopener">🖼 ' + txt + '</a>'
-            : '🖼 ' + txt;
+        var cel = document.getElementById('painting-credit');
+        if (cel && title) {
+          cel.style.display = 'block';
+          cel.innerHTML = '🔭 ' + title + (credit ? ' · ' + credit : '') + ' · NASA APOD';
         }
       }
 
-      async function loadPainting() {
+      function applyFallback() {
+        var bg = document.getElementById('painting-bg');
+        if (!bg) return;
+        bg.style.backgroundImage = 'radial-gradient(ellipse at 20% 50%, rgba(30,20,60,0.9) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(10,30,50,0.8) 0%, transparent 50%)';
+        bg.style.backgroundColor = '#0a0a08';
+        bg.classList.add('loaded');
+      }
+
+      async function loadBackground() {
         var cached = sessionStorage.getItem(CACHE_KEY);
         if (cached) {
-          try { applyPainting(JSON.parse(cached)); } catch(e) {}
-          return;
+          try {
+            var d = JSON.parse(cached);
+            if (d.url) { applyImage(d.url, d.title, d.credit); return; }
+          } catch(e) {}
         }
 
         try {
-          // Search European Paintings dept (11) for landscapes — broad enough to get variety
-          var seed    = dateToSeed(TODAY);
-          // We rotate between a few search terms by day-of-week for variety
-          var terms   = ['landscape', 'portrait', 'still life', 'flowers', 'figure', 'interior', 'seascape'];
-          var term    = terms[seed % terms.length];
+          var res  = await fetch('https://api.nasa.gov/planetary/apod?api_key=' + NASA_KEY + '&date=' + TODAY);
+          var data = await res.json();
 
-          var sRes    = await fetch(
-            'https://collectionapi.metmuseum.org/public/collection/v1/search?hasImages=true&medium=Paintings&departmentId=11&q=' + term
-          );
-          var sData   = await sRes.json();
+          // If today is a video, try yesterday
+          if (data.media_type !== 'image' || !data.url) {
+            var yd = new Date(); yd.setDate(yd.getDate() - 1);
+            var res2 = await fetch('https://api.nasa.gov/planetary/apod?api_key=' + NASA_KEY + '&date=' + yd.toISOString().slice(0,10));
+            data = await res2.json();
+          }
 
-          if (!sData.objectIDs || !sData.objectIDs.length) throw new Error('no ids');
+          if (data.media_type !== 'image' || !data.url) { applyFallback(); return; }
 
-          // Pick deterministically by date seed — same painting all day
-          var pickedID = sData.objectIDs[seed % sData.objectIDs.length];
-
-          var oRes  = await fetch(
-            'https://collectionapi.metmuseum.org/public/collection/v1/objects/' + pickedID
-          );
-          var obj   = await oRes.json();
-
-          if (!obj.primaryImage && !obj.primaryImageSmall) throw new Error('no image');
-
-          var data = {
-            imageUrl: obj.primaryImage || obj.primaryImageSmall,
-            title:    obj.title || 'Untitled',
-            artist:   obj.artistDisplayName || 'Unknown artist',
-            date:     obj.objectDate || '',
-            link:     obj.objectURL  || ''
+          var entry = {
+            url:    data.hdurl || data.url,
+            title:  data.title || '',
+            credit: data.copyright ? data.copyright.replace(/\n/g, ' ') : ''
           };
 
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-          applyPainting(data);
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(entry));
+          applyImage(entry.url, entry.title, entry.credit);
 
         } catch (err) {
-          // Silent fail — painting bg just stays hidden, dark overlay remains
-          console.info('Teesra: painting unavailable today', err.message);
+          console.info('Teesra: NASA APOD unavailable', err.message);
+          applyFallback();
         }
       }
 
-      loadPainting();
+      loadBackground();
     })();
   </script>
 
