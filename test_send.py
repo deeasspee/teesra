@@ -18,7 +18,7 @@ print(f"👥 Active subscribers: {len(subscribers)}")
 
 # ── CHANGE THIS to control who gets the test email ────────────────
 # Option A: Send only to yourself (safe while domain isn't verified)
-TEST_ONLY_TO = "dsp.fiem@gmail.com"
+TEST_ONLY_TO = None
 
 # Option B: Send to all subscribers (uncomment after domain is verified)
 # TEST_ONLY_TO = None

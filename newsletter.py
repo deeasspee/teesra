@@ -174,21 +174,21 @@ def build_email_html(articles, market_data=None):
       <table cellpadding="0" cellspacing="0" style="margin:0 auto 24px auto;">
         <tr>
           <td style="padding:0 5px;">
-            <a href="https://wa.me/?text=Read%20today%27s%20Teesra%20brief%20%E2%80%94%20India%27s%20news%20from%20three%20perspectives.%20https%3A%2F%2Fteesra.vercel.app%2Ffeed"
+            <a href="https://wa.me/?text=Read%20today%27s%20Teesra%20brief%20%E2%80%94%20India%27s%20news%20from%20three%20perspectives.%20https%3A%2F%2Fteesra.in%2Ffeed"
                target="_blank"
                style="display:inline-block; padding:9px 16px; background:#25D366; font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#0a0a08; text-decoration:none; text-transform:uppercase; font-weight:700;">
               📲 WhatsApp
             </a>
           </td>
           <td style="padding:0 5px;">
-            <a href="https://twitter.com/intent/tweet?text=Reading%20today%27s%20Teesra%20brief%20%E2%80%94%20same%20story%2C%20three%20perspectives.%20No%20spin.%20https%3A%2F%2Fteesra.vercel.app%2Ffeed"
+            <a href="https://twitter.com/intent/tweet?text=Reading%20today%27s%20Teesra%20brief%20%E2%80%94%20same%20story%2C%20three%20perspectives.%20No%20spin.%20https%3A%2F%2Fteesra.in%2Ffeed"
                target="_blank"
                style="display:inline-block; padding:9px 16px; background:#1a1a1a; border:1px solid #3a3a3a; font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#e8e4d4; text-decoration:none; text-transform:uppercase; font-weight:700;">
               𝕏 Twitter
             </a>
           </td>
           <td style="padding:0 5px;">
-            <a href="https://teesra.vercel.app/feed"
+            <a href="https://teesra.in/feed"
                target="_blank"
                style="display:inline-block; padding:9px 16px; background:rgba(232,200,74,0.08); border:1px solid rgba(232,200,74,0.25); font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#e8c84a; text-decoration:none; text-transform:uppercase; font-weight:700;">
               🔗 Read Online
@@ -235,11 +235,7 @@ def send_newsletter(to_email: str):
     today = date.today().strftime("%A, %d %B")
 
     # ── FROM ADDRESS ──────────────────────────────────────────────
-    # Currently restricted to your own email (dsp.fiem@gmail.com) until
-    # you verify a domain at resend.com/domains.
-    # After verification, change to: "Teesra <brief@teesra.vercel.app>"
-    # or "Teesra <brief@teesra.news>" once you buy the domain.
-    FROM_ADDRESS = "Teesra <onboarding@resend.dev>"
+    FROM_ADDRESS = "Teesra <brief@teesra.in>"
 
     params = {
         "from": FROM_ADDRESS,
