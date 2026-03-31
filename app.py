@@ -11,7 +11,37 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-subscribers = []
+FEED_API_KEY = os.getenv("FEED_API_KEY")  # set in .env + GitHub Secrets
+
+# ── API KEY CHECK ─────────────────────────────────────────────────
+def is_authorised() -> bool:
+    """
+    Allow requests from:
+      1. Teesra's own frontend (same-origin via Referer/Origin)
+      2. Localhost during development
+      3. Requests with valid X-API-Key header or ?api_key= param
+    Block everything else.
+    """
+    referer = request.headers.get('Referer', '')
+    origin  = request.headers.get('Origin', '')
+
+    # Own site — always allow
+    trusted = ['teesra.vercel.app', 'teesra.in', 'localhost', '127.0.0.1']
+    if any(t in referer or t in origin for t in trusted):
+        return True
+
+    # API key — for any external programmatic access
+    if FEED_API_KEY:
+        provided = (
+            request.headers.get('X-API-Key') or
+            request.args.get('api_key', '')
+        )
+        if provided == FEED_API_KEY:
+            return True
+        return False  # Key configured but not provided/wrong
+
+    # No key configured (local dev without .env) — allow
+    return True
 
 # ── SERVE FRONTEND ────────────────────────────────────────────────
 @app.route("/")
@@ -30,6 +60,8 @@ def upi_qr():
     return send_from_directory(".", "upi-qr.png")
 @app.route("/api/market")
 def get_market():
+    if not is_authorised():
+        return jsonify({"error": "Unauthorized"}), 401
     try:
         data = fetch_market_data()
         return jsonify(data)
@@ -39,6 +71,8 @@ def get_market():
 # ── SERVE ANALYZED ARTICLES ───────────────────────────────────────
 @app.route("/api/articles")
 def get_articles():
+    if not is_authorised():
+        return jsonify({"error": "Unauthorized"}), 401
     try:
         # Try Supabase first
         articles = get_todays_articles()
