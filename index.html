@@ -837,8 +837,35 @@
     </div>
   </div>
 
+  <!-- MOBILE NAV DRAWER — outside nav to avoid stacking context issues -->
+  <div id="mobileDrawer" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #0a0a08;
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+  ">
+    <!-- Close button -->
+    <button onclick="toggleMenu()" style="
+      position: absolute; top: 20px; right: 20px;
+      background: none; border: none;
+      color: var(--text-dim); font-size: 28px;
+      cursor: pointer; line-height: 1;
+    ">✕</button>
+
+    <a href="#how" onclick="toggleMenu()" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8e4d4;text-decoration:none;">How it works</a>
+    <a href="#mission" onclick="toggleMenu()" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8e4d4;text-decoration:none;">Mission</a>
+    <a href="/feed" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8c84a;text-decoration:none;">Today's Brief ✦</a>
+    <a href="/about" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8e4d4;text-decoration:none;">About</a>
+    <a href="#signup" onclick="toggleMenu()" style="display:inline-block;margin-top:8px;background:#e8c84a;color:#0a0a08;padding:14px 36px;font-size:15px;font-weight:500;text-decoration:none;font-family:'DM Sans',sans-serif;">Subscribe →</a>
+    <button onclick="toggleTheme();updateDrawerThemeBtn();" id="drawerThemeBtn" style="background:none;border:1px solid #2a2a1f;color:#7a7660;padding:8px 18px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;letter-spacing:1px;margin-top:4px;">☀️ Light</button>
+  </div>
+
   <!-- NAV -->
-  
   <nav id="navbar">
     <a href="#" class="nav-logo">
       Teesra
@@ -851,7 +878,7 @@
       <li><a href="#how">How it works</a></li>
       <li><a href="#mission">Mission</a></li>
       <li><a href="/feed">Today's Brief ✦</a></li>
-      <li><a href="/about" class=""nav-back>About</a></li>
+      <li><a href="/about">About</a></li>
       <li><button onclick="toggleTheme()" id="themeBtn" style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:6px 12px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;letter-spacing:0.5px;">☀️ Light</button></li>
       <li><a href="#" onclick="event.preventDefault(); document.getElementById('qrModal').classList.add('active')">☕ Support</a></li>
       <li><a href="#signup" class="nav-cta">Subscribe →</a></li>
@@ -862,7 +889,7 @@
   <section class="hero">
     <div class="status-badge">
       <div class="status-dot"></div>
-      Building in public — Day 13 of 30
+      Building in public — Live at teesra.in
     </div>
     <p class="hero-eyebrow">India's third perspective on news</p>
     <h1 class="hero-title">One story.<br><em>Three truths.</em></h1>
@@ -1154,20 +1181,35 @@ if (localStorage.getItem('teesra-theme') === 'light') {
       if (e.key === 'Escape') document.getElementById('qrModal').classList.remove('active');
     });
     function toggleMenu() {
-      const menu = document.querySelector('.nav-links');
-      const btn = document.getElementById('hamburger');
-      menu.classList.toggle('open');
-      btn.classList.toggle('open');
-      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+      const drawer = document.getElementById('mobileDrawer');
+      const btn    = document.getElementById('hamburger');
+      const isOpen = drawer.style.display === 'flex';
+      if (isOpen) {
+        drawer.style.display = 'none';
+        btn.classList.remove('open');
+        document.body.style.overflow = '';
+      } else {
+        drawer.style.display = 'flex';
+        btn.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        updateDrawerThemeBtn();
+      }
     }
 
-    // Close menu when a link is clicked
-    document.querySelectorAll('.nav-links a').forEach(link => {
-      link.addEventListener('click', () => {
-        document.querySelector('.nav-links').classList.remove('open');
+    function updateDrawerThemeBtn() {
+      const isLight = document.body.classList.contains('light');
+      const btn = document.getElementById('drawerThemeBtn');
+      if (btn) btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+    }
+
+    // Close drawer when escape pressed
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('mobileDrawer').style.display = 'none';
         document.getElementById('hamburger').classList.remove('open');
         document.body.style.overflow = '';
-      });
+        document.getElementById('qrModal').classList.remove('active');
+      }
     });
   </script>
 </body>
