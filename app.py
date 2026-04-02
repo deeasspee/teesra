@@ -61,18 +61,18 @@ def get_market():
 def get_trends():
     """Fetch Google India trending searches server-side (no CORS issues)"""
     try:
-        url = "https://trends.google.com/trends/trendingsearches/daily/rss?geo=IN"
+        url = "https://trends.google.com/trending/rss?geo=IN"
         req = urllib.request.Request(url, headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         })
         with urllib.request.urlopen(req, timeout=8) as response:
             xml = response.read().decode('utf-8')
 
-        # Parse CDATA titles
+        # Try CDATA titles first, then plain titles (skip channel title)
         titles = re.findall(r'<title><!\[CDATA\[(.*?)\]\]></title>', xml)
         if not titles:
-            titles = re.findall(r'<title>(.*?)</title>', xml)
-            titles = titles[1:]  # skip feed title
+            all_titles = re.findall(r'<title>(.*?)</title>', xml)
+            titles = [t for t in all_titles[1:] if t and 'trends.google.com' not in t and t != 'Daily Search Trends']
 
         trends = [
             {

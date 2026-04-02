@@ -1192,26 +1192,27 @@
           if (cached) { renderTrends(JSON.parse(cached), scroll); return; }
         } catch(e) {}
 
-        // Try allorigins proxy (more reliable than rss2json)
-        var rssUrl = 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=IN';
+        // Try allorigins proxy
+        var rssUrl = 'https://trends.google.com/trending/rss?geo=IN';
         var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
 
         try {
           var res = await fetch(proxyUrl);
           var json = await res.json();
           var xml = json.contents;
-          // Parse titles from RSS XML
-          var matches = xml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g) || 
-                        xml.match(/<title>(.*?)<\/title>/g) || [];
-          // Remove first match (it's the feed title, not a trend)
-          var trends = matches.slice(1, 16).map(function(m, i) {
+          // Parse titles: try CDATA first, then plain tags (skip channel title)
+          var cdataMatches = xml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g) || [];
+          var matches = cdataMatches.length
+            ? cdataMatches
+            : (xml.match(/<title>(.*?)<\/title>/g) || []).slice(1);
+          var trends = matches.slice(0, 15).map(function(m, i) {
             var title = m.replace(/<title><!\[CDATA\[|\]\]><\/title>|<title>|<\/title>/g, '').trim();
             return {
               title: title,
               link: 'https://www.google.com/search?q=' + encodeURIComponent(title) + '&gl=in',
               rank: i + 1
             };
-          }).filter(t => t.title.length > 0);
+          }).filter(t => t.title.length > 0 && t.title !== 'Daily Search Trends');
 
           if (trends.length === 0) throw new Error('no trends parsed');
           sessionStorage.setItem(CACHE_KEY, JSON.stringify(trends));
