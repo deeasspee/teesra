@@ -1231,9 +1231,21 @@
               return;
             }
           } catch(e2) {}
-          // Both failed — hide bar silently
-          var bar = document.querySelector('.trends-bar');
-          if (bar) bar.style.display = 'none';
+          // Fallback: try local backend /api/trends
+          try {
+            var r3 = await fetch('/api/trends');
+            var d3 = await r3.json();
+            if (d3.trends && d3.trends.length) {
+              var t3 = d3.trends.slice(0, 15).map(function(item, i) {
+                return { title: item.title, link: item.link || 'https://www.google.com/search?q=' + encodeURIComponent(item.title) + '&gl=in', rank: i + 1 };
+              });
+              sessionStorage.setItem(CACHE_KEY, JSON.stringify(t3));
+              renderTrends(t3, scroll);
+              return;
+            }
+          } catch(e3) {}
+          // All sources failed — show placeholder but keep bar visible
+          scroll.innerHTML = '<span class="trend-item" style="color:var(--text-dim);font-size:9px;opacity:0.5;">Trends unavailable</span>';
         }
       }
 
