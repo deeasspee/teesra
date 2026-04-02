@@ -1166,9 +1166,15 @@
       if (dBtn) dBtn.textContent = label;
     }
 
-    // Init theme
-    const savedFeedTheme = localStorage.getItem('teesra-theme') || 'jungle';
-    applyFeedTheme(savedFeedTheme);
+    // Init theme — migrate old light/dark values
+    (function() {
+      var VALID = ['jungle','cosmos','ember','dawn','cloud','parchment'];
+      var saved = localStorage.getItem('teesra-theme');
+      if (saved === 'light') saved = 'dawn';
+      if (!saved || !VALID.includes(saved)) saved = 'jungle';
+      localStorage.setItem('teesra-theme', saved);
+      applyFeedTheme(saved);
+    })();
     syncThemeLabels();
 
     window.addEventListener('DOMContentLoaded', () => { syncThemeLabels(); });

@@ -475,8 +475,15 @@ function toggleTP(e) { e.stopPropagation(); document.getElementById('themePicker
 function closeTP() { document.getElementById('themePicker').classList.remove('open'); }
 document.addEventListener('click', e => { if (!e.target.closest('.theme-wrap')) closeTP(); });
 
-// Init theme
-applyTheme(localStorage.getItem('teesra-theme') || 'jungle');
+// Init theme — migrate old light/dark values to new system
+(function() {
+  var VALID = ['jungle','cosmos','ember','dawn','cloud','parchment'];
+  var saved = localStorage.getItem('teesra-theme');
+  if (saved === 'light') saved = 'dawn';
+  if (!saved || !VALID.includes(saved)) saved = 'jungle';
+  localStorage.setItem('teesra-theme', saved);
+  applyTheme(saved);
+})();
 
 // ── DATE BANNER ────────────────────────────────────────────────────
 const banner = document.getElementById('dateBanner');
