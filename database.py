@@ -55,6 +55,7 @@ def clear_todays_articles():
     from datetime import date, timedelta
     cutoff = str(date.today() - timedelta(days=2))
     try:
+        client = get_client()
         client.table("article").delete().lt("fetched_date", cutoff).execute()
         print(f"  🧹 Cleared articles older than {cutoff}")
     except Exception as e:

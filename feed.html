@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="jungle">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,37 +7,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0a0a08;
-      --surface: rgba(18, 18, 12, 0.92);
-      --border: #2e2e20;
-      --text: #f0ece0;
-      --text-dim: #8a8470;
-      --text-mid: #c4be9e;
-      --facts: #e8c84a;
-      --left: #6aaee0;
-      --right: #e06868;
-      --pulse: #8fd492;
-      --card-max: 720px;
-    }
+    /* ── 6 THEMES ─────────────────────────────────────────────── */
+    [data-theme="jungle"]{--bg:#0a120e;--surface:rgba(22,32,24,0.92);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--card-max:720px;}
+    [data-theme="cosmos"]{--bg:#0d1117;--surface:rgba(26,35,50,0.92);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--card-max:720px;}
+    [data-theme="ember"]{--bg:#141410;--surface:rgba(36,36,32,0.92);--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--card-max:720px;}
+    [data-theme="dawn"]{--bg:#faf7f0;--surface:rgba(255,255,255,0.97);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--card-max:720px;}
+    [data-theme="cloud"]{--bg:#f4f6fa;--surface:rgba(255,255,255,0.97);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--card-max:720px;}
+    [data-theme="parchment"]{--bg:#f5f0e4;--surface:rgba(250,246,236,0.97);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--card-max:720px;}
 
-    body.light {
-      --bg: #f5f3ee;
-      --surface: #ffffff;
-      --border: #ddd9cc;
-      --text: #1a1a14;
-      --text-dim: #6a6450;
-      --text-mid: #3a3828;
-      --facts: #7a5800;
-      --left: #1a5da0;
-      --right: #a02a2a;
-      --pulse: #2a7a2e;
-    }
-
-    body.light .story-card[data-sports="true"] { background: linear-gradient(160deg,#fff 0%,#f0f8f0 100%); }
-    body.light .story-card[data-ipl="true"]    { background: linear-gradient(160deg,#fff 0%,#faf8e8 100%); }
-    body.light .story-card[data-tech="true"]   { background: linear-gradient(160deg,#fff 0%,#f0f4fa 100%); }
-    body.light nav { background: rgba(245,243,238,0.95); }
+    /* ── THEME SWATCH ─────────────────────────────────────────── */
+    .theme-wrap{position:relative;}
+    .theme-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
+    .theme-swatch-btn:hover{border-color:var(--facts);transform:scale(1.1);}
+    .swatch-inner{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .s1{grid-column:1/-1;}
+    .theme-picker{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg);border:1px solid var(--border);padding:12px;z-index:500;width:220px;box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+    .theme-picker.open{display:block;}
+    .theme-picker-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+    .theme-grid-picker{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .theme-opt{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:7px;border:1px solid var(--border);transition:border-color 0.2s;}
+    .theme-opt:hover{border-color:var(--facts);}
+    .theme-opt.active{border-color:var(--facts);background:rgba(255,255,255,0.04);}
+    .tsp{height:26px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .ts1{grid-column:1/-1;}
+    .tnl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -961,14 +954,17 @@
       pointer-events: none;
       line-height: 1;
     }
-    .live-clock {
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      color: var(--facts);
-      letter-spacing: 3px;
-      margin-bottom: 16px;
-      opacity: 0.8;
-    }
+    /* ── Google Trends Ticker ───────────────────────────────── */
+    .trends-bar{background:rgba(10,18,14,0.65);border-bottom:1px solid var(--border);overflow:hidden;height:32px;display:flex;align-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+    [data-theme="dawn"] .trends-bar,[data-theme="cloud"] .trends-bar,[data-theme="parchment"] .trends-bar{background:rgba(245,243,238,0.75);}
+    .trends-label{font-family:'Space Mono','DM Mono',monospace;font-size:8px;letter-spacing:0.15em;color:var(--facts);text-transform:uppercase;padding:0 12px;flex-shrink:0;border-right:1px solid var(--border);height:100%;display:flex;align-items:center;white-space:nowrap;}
+    .trends-scroll-wrap{overflow:hidden;flex:1;height:100%;display:flex;align-items:center;}
+    .trends-scroll{display:flex;animation:trmove 40s linear infinite;white-space:nowrap;}
+    .trends-scroll:hover{animation-play-state:paused;}
+    @keyframes trmove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+    .trend-item{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-mid);padding:0 18px;display:inline-flex;align-items:center;gap:5px;text-decoration:none;transition:color 0.2s;white-space:nowrap;height:32px;border-right:1px solid rgba(255,255,255,0.04);}
+    .trend-item:hover{color:var(--facts);}
+    .trend-num{font-size:8px;color:var(--text-dim);opacity:0.6;}
   </style>
 </head>
 <body>
@@ -993,7 +989,10 @@
   <div class="nav-drawer" id="navDrawer">
     <a href="/" onclick="closeDrawer()">← Home</a>
     <a href="#" onclick="event.preventDefault();closeDrawer();openModal()">☕ Support</a>
-    <button class="drawer-theme" onclick="toggleTheme()" id="drawerThemeBtn">☀️ Light</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
+      <div style="display:grid;grid-template-columns:repeat(3,40px);gap:8px;" id="drawerThemeSwatches"></div>
+    </div>
   </div>
 
   <!-- NAV -->
@@ -1007,6 +1006,16 @@
       <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
       <a href="#" onclick="event.preventDefault();openModal()" class="nav-back">☕ Support</a>
       <a href="/" class="nav-back">← Home</a>
+      <!-- Theme swatch -->
+      <div class="theme-wrap" style="position:relative;">
+        <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleFeedThemePicker(event)" title="Change theme" aria-label="Change theme">
+          <div class="swatch-inner"><div class="s1" id="fsw1"></div><div class="s2" id="fsw2"></div><div class="s3" id="fsw3"></div></div>
+        </button>
+        <div class="theme-picker" id="feedThemePicker">
+          <div class="theme-picker-title">Choose theme</div>
+          <div class="theme-grid-picker" id="feedThemeGrid"></div>
+        </div>
+      </div>
       <!-- Hamburger: mobile only -->
       <button class="nav-hamburger" id="hamburgerBtn" onclick="toggleDrawer()" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -1024,6 +1033,16 @@
       <span class="feed-meta-item" id="articleCount">Loading stories...</span>
       <span class="feed-meta-item">Verified · 3+ sources each</span>
       <span class="feed-meta-item">Facts · Left · Right · Pulse</span>
+    </div>
+  </div>
+
+  <!-- GOOGLE TRENDS TICKER -->
+  <div class="trends-bar">
+    <span class="trends-label">🔥 Trending India</span>
+    <div class="trends-scroll-wrap">
+      <div class="trends-scroll" id="trendsScroll">
+        <span class="trend-item" style="color:var(--text-dim);font-size:9px;opacity:0.5;">Loading trends...</span>
+      </div>
     </div>
   </div>
 
@@ -1059,29 +1078,171 @@
       document.body.style.overflow = '';
     }
 
-    // ── THEME ─────────────────────────────────────────────────────
-    function syncThemeLabels(isLight) {
-      const label = isLight ? '🌙 Dark' : '☀️ Light';
+    // ── 6-THEME SYSTEM ────────────────────────────────────────────
+    const FEED_THEMES = [
+      {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+      {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+      {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+      {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+      {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+      {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+    ];
+
+    function applyFeedTheme(id) {
+      document.documentElement.setAttribute('data-theme', id);
+      localStorage.setItem('teesra-theme', id);
+      const t = FEED_THEMES.find(t => t.id === id);
+      if (t) {
+        const s1 = document.getElementById('fsw1');
+        const s2 = document.getElementById('fsw2');
+        const s3 = document.getElementById('fsw3');
+        if (s1) s1.style.background = t.bg;
+        if (s2) s2.style.background = t.a;
+        if (s3) s3.style.background = t.b;
+      }
+      buildFeedThemeGrid(id);
+      buildDrawerSwatches(id);
+    }
+
+    function buildDrawerSwatches(current) {
+      const wrap = document.getElementById('drawerThemeSwatches');
+      if (!wrap) return;
+      wrap.innerHTML = FEED_THEMES.map(t => `
+        <div onclick="applyFeedTheme('${t.id}');closeDrawer();"
+             title="${t.name}"
+             style="width:40px;height:40px;border-radius:6px;overflow:hidden;cursor:pointer;
+                    display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+                    border:2px solid ${t.id===current?'var(--facts)':'rgba(255,255,255,0.1)'};">
+          <div style="background:${t.bg};grid-column:1/-1;"></div>
+          <div style="background:${t.a};"></div>
+          <div style="background:${t.b};"></div>
+        </div>`).join('');
+    }
+
+    function buildFeedThemeGrid(current) {
+      const grid = document.getElementById('feedThemeGrid');
+      if (!grid) return;
+      grid.innerHTML = FEED_THEMES.map(t => `
+        <div class="theme-opt ${t.id===current?'active':''}" onclick="applyFeedTheme('${t.id}');closeFeedPicker();">
+          <div class="tsp">
+            <div class="ts1" style="background:${t.bg}"></div>
+            <div style="background:${t.a}"></div>
+            <div style="background:${t.b}"></div>
+          </div>
+          <span class="tnl">${t.name}</span>
+        </div>`).join('');
+    }
+
+    function toggleFeedThemePicker(e) {
+      e.stopPropagation();
+      document.getElementById('feedThemePicker').classList.toggle('open');
+    }
+    function closeFeedPicker() {
+      const p = document.getElementById('feedThemePicker');
+      if (p) p.classList.remove('open');
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.theme-wrap')) closeFeedPicker();
+    });
+
+    // Keep old toggleTheme working for drawer button
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'jungle';
+      const dark = ['jungle','cosmos','ember'];
+      const light = ['dawn','cloud','parchment'];
+      if (dark.includes(current)) {
+        applyFeedTheme('dawn');
+      } else {
+        applyFeedTheme('jungle');
+      }
+    }
+    function syncThemeLabels() {
+      const current = document.documentElement.getAttribute('data-theme') || 'jungle';
+      const isDark = ['jungle','cosmos','ember'].includes(current);
       const btn = document.getElementById('themeBtn');
       const dBtn = document.getElementById('drawerThemeBtn');
+      const label = isDark ? '☀️ Light' : '🌙 Dark';
       if (btn) btn.textContent = label;
       if (dBtn) dBtn.textContent = label;
     }
 
-    function toggleTheme() {
-      document.body.classList.toggle('light');
-      const isLight = document.body.classList.contains('light');
-      syncThemeLabels(isLight);
-      localStorage.setItem('teesra-theme', isLight ? 'light' : 'dark');
-    }
+    // Init theme
+    const savedFeedTheme = localStorage.getItem('teesra-theme') || 'jungle';
+    applyFeedTheme(savedFeedTheme);
+    syncThemeLabels();
 
-    if (localStorage.getItem('teesra-theme') === 'light') {
-      document.body.classList.add('light');
-    }
+    window.addEventListener('DOMContentLoaded', () => { syncThemeLabels(); });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      syncThemeLabels(document.body.classList.contains('light'));
-    });
+    // ── GOOGLE TRENDS ─────────────────────────────────────────────
+    (function () {
+      const CACHE_KEY = 'teesra_trends_' + new Date().toISOString().slice(0, 13);
+      async function loadTrends() {
+        const scroll = document.getElementById('trendsScroll');
+        if (!scroll) return;
+
+        // Check cache first
+        try {
+          var cached = sessionStorage.getItem(CACHE_KEY);
+          if (cached) { renderTrends(JSON.parse(cached), scroll); return; }
+        } catch(e) {}
+
+        // Try allorigins proxy (more reliable than rss2json)
+        var rssUrl = 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=IN';
+        var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
+
+        try {
+          var res = await fetch(proxyUrl);
+          var json = await res.json();
+          var xml = json.contents;
+          // Parse titles from RSS XML
+          var matches = xml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g) || 
+                        xml.match(/<title>(.*?)<\/title>/g) || [];
+          // Remove first match (it's the feed title, not a trend)
+          var trends = matches.slice(1, 16).map(function(m, i) {
+            var title = m.replace(/<title><!\[CDATA\[|\]\]><\/title>|<title>|<\/title>/g, '').trim();
+            return {
+              title: title,
+              link: 'https://www.google.com/search?q=' + encodeURIComponent(title) + '&gl=in',
+              rank: i + 1
+            };
+          }).filter(t => t.title.length > 0);
+
+          if (trends.length === 0) throw new Error('no trends parsed');
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(trends));
+          renderTrends(trends, scroll);
+
+        } catch (err) {
+          // Fallback: try rss2json as backup
+          try {
+            var r2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl) + '&count=15');
+            var d2 = await r2.json();
+            if (d2.items && d2.items.length) {
+              var t2 = d2.items.slice(0, 15).map(function(item, i) {
+                return { title: item.title, link: 'https://www.google.com/search?q=' + encodeURIComponent(item.title) + '&gl=in', rank: i + 1 };
+              });
+              sessionStorage.setItem(CACHE_KEY, JSON.stringify(t2));
+              renderTrends(t2, scroll);
+              return;
+            }
+          } catch(e2) {}
+          // Both failed — hide bar silently
+          var bar = document.querySelector('.trends-bar');
+          if (bar) bar.style.display = 'none';
+        }
+      }
+
+      function renderTrends(trends, scroll) {
+        if (!trends || !trends.length) return;
+        var all = trends.concat(trends); // duplicate for seamless loop
+        scroll.innerHTML = all.map(function(t, i) {
+          var rank = (i % trends.length) + 1;
+          return '<a href="' + t.link + '" target="_blank" rel="noopener" class="trend-item">' +
+            '<span class="trend-num">' + rank + '</span>' + t.title + '</a>';
+        }).join('');
+      }
+
+      loadTrends();
+    })();
 
     // ── DATE ──────────────────────────────────────────────────────
     const dateEl = document.getElementById('todayDate');

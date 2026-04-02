@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="jungle">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,18 +7,27 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0a0a08;
-      --surface: #18180f;
-      --border: #2a2a1f;
-      --text: #e8e4d4;
-      --text-dim: #7a7660;
-      --text-mid: #b0aa90;
-      --facts: #e8c84a;
-      --left: #5b9bd5;
-      --right: #d45b5b;
-      --pulse: #7bc67e;
-    }
+    [data-theme="jungle"]{--bg:#0a120e;--surface:#162018;--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;}
+    [data-theme="cosmos"]{--bg:#0d1117;--surface:#1a2332;--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;}
+    [data-theme="ember"]{--bg:#141410;--surface:#242420;--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;}
+    [data-theme="dawn"]{--bg:#faf7f0;--surface:#ffffff;--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;}
+    [data-theme="cloud"]{--bg:#f4f6fa;--surface:#ffffff;--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;}
+    [data-theme="parchment"]{--bg:#f5f0e4;--surface:#faf6ec;--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;}
+    .theme-wrap{position:relative;}
+    .theme-swatch-btn{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s;}
+    .theme-swatch-btn:hover{border-color:var(--facts);}
+    .swatch-inner{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .s1{grid-column:1/-1;}
+    .theme-picker{display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--bg);border:1px solid var(--border);padding:12px;z-index:500;width:210px;box-shadow:0 12px 32px rgba(0,0,0,0.3);}
+    .theme-picker.open{display:block;}
+    .tp-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+    .tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .tp-opt{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:6px;border:1px solid var(--border);transition:border-color 0.2s;}
+    .tp-opt:hover,.tp-opt.active{border-color:var(--facts);}
+    .tp-swatch{height:24px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .ts1{grid-column:1/-1;}
+    .tp-name{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
+    
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
@@ -377,6 +386,15 @@
       <span>तीसरा नज़रिया</span>
     </a>
     <a href="/" class="nav-back">← Home</a>
+    <div class="theme-wrap" style="position:relative;">
+      <button class="theme-swatch-btn" onclick="toggleAboutPicker(event)" title="Change theme" aria-label="Change theme">
+        <div class="swatch-inner"><div class="s1" id="asw1"></div><div class="s2" id="asw2"></div><div class="s3" id="asw3"></div></div>
+      </button>
+      <div class="theme-picker" id="aboutPicker">
+        <div class="tp-title">Choose theme</div>
+        <div class="tp-grid" id="aboutThemeGrid"></div>
+      </div>
+    </div>
   </nav>
 
   <div class="about-wrap">
@@ -640,6 +658,40 @@
     </div>
 
   </div>
-
+  <script>
+    const A_THEMES = [
+      {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+      {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+      {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+      {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+      {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+      {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+    ];
+    function applyAboutTheme(id) {
+      document.documentElement.setAttribute('data-theme', id);
+      localStorage.setItem('teesra-theme', id);
+      const t = A_THEMES.find(t => t.id === id);
+      if (t) {
+        document.getElementById('asw1').style.background = t.bg;
+        document.getElementById('asw2').style.background = t.a;
+        document.getElementById('asw3').style.background = t.b;
+      }
+      buildAboutGrid(id);
+    }
+    function buildAboutGrid(current) {
+      const g = document.getElementById('aboutThemeGrid');
+      if (!g) return;
+      g.innerHTML = A_THEMES.map(t => `
+        <div class="tp-opt ${t.id===current?'active':''}" onclick="applyAboutTheme('${t.id}');closeAboutPicker();">
+          <div class="tp-swatch"><div class="ts1" style="background:${t.bg}"></div><div style="background:${t.a}"></div><div style="background:${t.b}"></div></div>
+          <span class="tp-name">${t.name}</span>
+        </div>`).join('');
+    }
+    function toggleAboutPicker(e) { e.stopPropagation(); document.getElementById('aboutPicker').classList.toggle('open'); }
+    function closeAboutPicker() { document.getElementById('aboutPicker').classList.remove('open'); }
+    document.addEventListener('click', e => { if (!e.target.closest('.theme-wrap')) closeAboutPicker(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAboutPicker(); });
+    applyAboutTheme(localStorage.getItem('teesra-theme') || 'jungle');
+  </script>
 </body>
 </html>

@@ -1,1216 +1,584 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="jungle">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Teesra — News that matters to you</title>
+  <title>Teesra — India's news from three perspectives</title>
+  <meta name="description" content="Every morning, Teesra delivers India's top stories with verified facts, left lens, right lens and street pulse. AI-powered. Bias-aware. Free."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0a0a08;
-      --bg2: #11110e;
-      --surface: #18180f;
-      --border: #2a2a1f;
-      --text: #e8e4d4;
-      --text-dim: #7a7660;
-      --text-mid: #b0aa90;
-      --accent-facts: #e8c84a;
-      --accent-left: #5b9bd5;
-      --accent-right: #d45b5b;
-      --accent-pulse: #7bc67e;
-      --glow: rgba(232, 200, 74, 0.06);
-    }
-    body.light {
-      --bg: #f5f3ee;
-      --bg2: #eeebe3;
-      --surface: #ffffff;
-      --border: #ddd9cc;
-      --text: #1a1a14;
-      --text-dim: #6a6450;
-      --text-mid: #3a3828;
-      --accent-facts: #7a5800;
-      --accent-left: #1a5da0;
-      --accent-right: #a02a2a;
-      --accent-pulse: #2a7a2e;
-      --glow: rgba(122, 88, 0, 0.04);
-    }
+    [data-theme="jungle"]{--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.95);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--accent:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--glow:rgba(212,168,32,0.07);--nav-bg:rgba(10,18,14,0.97);}
+    [data-theme="cosmos"]{--bg:#0d1117;--bg2:#131a24;--surface:rgba(26,35,50,0.95);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--accent:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--glow:rgba(240,165,0,0.07);--nav-bg:rgba(13,17,23,0.97);}
+    [data-theme="ember"]{--bg:#141410;--bg2:#1c1c18;--surface:rgba(36,36,32,0.95);--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--accent:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--glow:rgba(232,68,10,0.07);--nav-bg:rgba(20,20,16,0.97);}
+    [data-theme="dawn"]{--bg:#faf7f0;--bg2:#f2ede4;--surface:rgba(255,255,255,0.98);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--accent:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--glow:rgba(184,116,0,0.06);--nav-bg:rgba(250,247,240,0.97);}
+    [data-theme="cloud"]{--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--accent:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--glow:rgba(26,79,200,0.06);--nav-bg:rgba(244,246,250,0.97);}
+    [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--accent:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--glow:rgba(138,26,42,0.06);--nav-bg:rgba(245,240,228,0.97);}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden;transition:background 0.4s,color 0.4s;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1;opacity:0.35;}
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* Grain overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 10;
-      opacity: 0.4;
-    }
+    /* THEME SWATCH */
+    .theme-wrap{position:relative;}
+    .theme-swatch-btn{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
+    .theme-swatch-btn:hover{border-color:var(--accent);transform:scale(1.1);}
+    .swatch-inner{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .s1{grid-column:1/-1;}
+    .theme-picker{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg2);border:1px solid var(--border);padding:14px;z-index:500;width:230px;box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+    .theme-picker.open{display:block;}
+    .tp-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;}
+    .tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .tp-opt{display:flex;flex-direction:column;gap:6px;cursor:pointer;padding:8px;border:1px solid var(--border);transition:border-color 0.2s;}
+    .tp-opt:hover,.tp-opt.active{border-color:var(--accent);}
+    .tp-sw{height:28px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .tp-sw .t1{grid-column:1/-1;}
+    .tp-nm{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
 
     /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 48px;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.3s, background 0.3s;
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;border-bottom:1px solid transparent;transition:all 0.3s;}
+    nav.scrolled{border-color:var(--border);background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+    .nav-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--accent);letter-spacing:-0.5px;text-decoration:none;flex-shrink:0;}
+    .nav-logo span{color:var(--text-dim);font-size:10px;font-family:'DM Mono',monospace;font-weight:400;display:block;letter-spacing:2px;margin-top:-4px;}
+    .nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
+    .nav-links a{color:var(--text-dim);text-decoration:none;font-size:13px;transition:color 0.2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{background:var(--accent)!important;color:var(--bg)!important;padding:8px 18px!important;font-weight:500!important;}
+    .nav-cta:hover{opacity:0.88;}
+    .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;z-index:1100;}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--text-dim);transition:all 0.3s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+    /* MOBILE DRAWER */
+    #mobileDrawer{display:none;position:fixed;inset:0;z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+    #mobileDrawer.open{display:flex;}
+    #mobileDrawer a{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text);text-decoration:none;}
+    #mobileDrawer a:hover{color:var(--accent);}
+    .drawer-theme-grid{display:grid;grid-template-columns:repeat(3,44px);gap:8px;margin-top:8px;}
+    .drawer-sw{width:44px;height:44px;border-radius:6px;overflow:hidden;cursor:pointer;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:2px solid rgba(255,255,255,0.12);transition:border-color 0.2s;}
+    .drawer-sw.active{border-color:var(--accent);}
+    .drawer-sw-top{grid-column:1/-1;}
+
+    /* DATE BANNER */
+    .date-banner{
+      position:fixed;top:0;left:0;right:0;z-index:300;
+      background:var(--accent);color:var(--bg);
+      text-align:center;padding:7px 20px;
+      font-family:'DM Mono',monospace;font-size:10px;
+      letter-spacing:2px;text-transform:uppercase;font-weight:500;
     }
-
-    nav.scrolled {
-      border-color: var(--border);
-      background: rgba(10, 10, 8, 0.92);
-      backdrop-filter: blur(12px);
+    /* NAV sits below banner */
+    nav{position:fixed;top:35px;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;border-bottom:1px solid transparent;transition:all 0.3s;}
+    nav.scrolled{border-color:var(--border);background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+    /* Hero gets padding to clear banner + nav */
+    .hero{padding:130px 48px 0;position:relative;overflow:hidden;border-bottom:3px double var(--border);}
+    @media(max-width:900px){
+      .date-banner{font-size:9px;padding:6px 12px;letter-spacing:1px;}
+      nav{top:29px;padding:12px 20px;}
+      .hero{padding:110px 20px 0;}
     }
+    .hero-inner{max-width:1200px;margin:0 auto;}
 
-    .nav-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--accent-facts);
-      letter-spacing: -0.5px;
-      text-decoration: none;
-    }
+    .hero-flag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:12px;}
+    .hero-flag::before,.hero-flag::after{content:'';flex:1;height:1px;background:var(--border);}
 
-    .nav-logo span {
-      color: var(--text-dim);
-      font-size: 11px;
-      font-family: 'DM Mono', monospace;
-      font-weight: 400;
-      display: block;
-      letter-spacing: 2px;
-      margin-top: -4px;
-    }
+    .hero-main{display:grid;grid-template-columns:1fr 420px;gap:48px;align-items:start;padding-bottom:48px;}
 
-    .nav-links {
-      display: flex;
-      gap: 36px;
-      list-style: none;
-    }
+    .hero-headline{font-family:'Playfair Display',serif;font-size:clamp(44px,6vw,88px);font-weight:900;line-height:0.92;letter-spacing:-3px;margin-bottom:28px;opacity:0;animation:fadeUp 0.8s 0.2s forwards;}
+    .hero-headline em{font-style:italic;color:var(--accent);}
 
-    .nav-links a {
-      color: var(--text-dim);
-      text-decoration: none;
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      transition: color 0.2s;
-    }
+    .hero-deck{font-size:17px;color:var(--text-mid);line-height:1.7;max-width:520px;margin-bottom:32px;opacity:0;animation:fadeUp 0.8s 0.4s forwards;}
+    .hero-deck strong{color:var(--text);font-weight:500;}
 
-    .nav-links a:hover { color: var(--text); }
+    .hero-cta-row{display:flex;gap:16px;align-items:center;opacity:0;animation:fadeUp 0.8s 0.55s forwards;}
 
-    .nav-cta {
-      background: var(--accent-facts);
-      color: var(--bg) !important;
-      padding: 8px 20px;
-      border-radius: 2px;
-      font-weight: 500 !important;
-      letter-spacing: 0.3px !important;
-      transition: opacity 0.2s !important;
-    }
+    /* LIVE STORIES PANEL */
+    .hero-stories{border-left:1px solid var(--border);padding-left:32px;opacity:0;animation:fadeUp 0.8s 0.35s forwards;}
+    .stories-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+    .stories-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--pulse);animation:pdot 2s ease-in-out infinite;}
+    @keyframes pdot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+    .stories-link{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-dim);text-decoration:none;}
+    .stories-link:hover{color:var(--accent);}
 
-    .nav-cta:hover { opacity: 0.85; color: var(--bg) !important; }
-
-    /* HERO */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 120px 48px 80px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: 'तीसरा';
-      position: absolute;
-      right: -20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(180px, 25vw, 340px);
-      font-weight: 900;
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(232, 200, 74, 0.07);
-      pointer-events: none;
-      line-height: 1;
-      user-select: none;
-    }
-
-    .hero-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: var(--accent-facts);
-      text-transform: uppercase;
-      margin-bottom: 28px;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.2s forwards;
-    }
-
-    .hero-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(52px, 8vw, 110px);
-      font-weight: 900;
-      line-height: 0.95;
-      letter-spacing: -2px;
-      max-width: 800px;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.35s forwards;
-    }
-
-    .hero-title em {
-      font-style: italic;
-      color: var(--accent-facts);
-    }
-
-    .hero-subtitle {
-      margin-top: 36px;
-      font-size: 18px;
-      color: var(--text-mid);
-      max-width: 480px;
-      line-height: 1.7;
-      font-weight: 300;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.5s forwards;
-    }
-
-    .hero-subtitle strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .hero-actions {
-      margin-top: 48px;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.65s forwards;
-    }
-
-    .btn-primary {
-      background: var(--accent-facts);
-      color: var(--bg);
-      padding: 14px 32px;
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
-      border-radius: 2px;
-      cursor: pointer;
-      text-decoration: none;
-      letter-spacing: 0.3px;
-      transition: opacity 0.2s, transform 0.2s;
-      display: inline-block;
-    }
-
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-
-    .btn-ghost {
-      color: var(--text-dim);
-      font-size: 13px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: color 0.2s;
-    }
-
-    .btn-ghost:hover { color: var(--text); }
-
-    .btn-ghost::after {
-      content: '→';
-      transition: transform 0.2s;
-    }
-
-    .btn-ghost:hover::after { transform: translateX(4px); }
+    .story-preview{padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity 0.2s;}
+    .story-preview:last-child{border-bottom:none;}
+    .story-preview:hover{opacity:0.8;}
+    .sp-type{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+    .sp-headline{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:5px;}
+    .sp-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);}
+    .sp-loading{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;padding:20px 0;text-align:center;}
 
     /* TICKER */
-    .ticker-wrap {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 0;
-      overflow: hidden;
-      margin-top: 80px;
-    }
+    .ticker-wrap{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;overflow:hidden;}
+    .ticker{display:flex;animation:tmove 35s linear infinite;white-space:nowrap;width:max-content;}
+    .ticker-item{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--text-dim);padding:0 36px;text-transform:uppercase;}
+    .ticker-item span{color:var(--accent);margin-right:10px;}
+    @keyframes tmove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
-    .ticker {
-      display: flex;
-      gap: 0;
-      animation: ticker 28s linear infinite;
-      white-space: nowrap;
-      width: max-content;
-    }
+    /* HOW IT WORKS */
+    .how-section{padding:80px 48px;border-bottom:1px solid var(--border);}
+    .how-inner{max-width:1200px;margin:0 auto;}
+    .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;}
+    .section-title{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1.1;letter-spacing:-1px;margin-bottom:48px;}
 
-    .ticker-item {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      color: var(--text-dim);
-      padding: 0 40px;
-      text-transform: uppercase;
-    }
+    .three-sides{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+    .side-card{background:var(--bg);padding:36px;position:relative;overflow:hidden;transition:background 0.3s;}
+    .side-card:hover{background:var(--surface);}
+    .side-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+    .side-facts::before{background:var(--accent);}
+    .side-left::before{background:var(--left);}
+    .side-right::before{background:var(--right);}
+    .side-num{font-family:'Playfair Display',serif;font-size:64px;font-weight:900;line-height:1;opacity:0.05;position:absolute;top:16px;right:16px;}
+    .side-facts .side-num{color:var(--accent);}
+    .side-left .side-num{color:var(--left);}
+    .side-right .side-num{color:var(--right);}
+    .side-icon{font-size:24px;margin-bottom:16px;display:block;}
+    .side-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+    .side-facts .side-tag{color:var(--accent);}
+    .side-left .side-tag{color:var(--left);}
+    .side-right .side-tag{color:var(--right);}
+    .side-heading{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+    .side-desc{font-size:13px;color:var(--text-mid);line-height:1.7;}
 
-    .ticker-item span {
-      color: var(--accent-facts);
-      margin-right: 12px;
-    }
+    /* SOURCES STRIP */
+    .sources-strip{padding:40px 48px;border-bottom:1px solid var(--border);background:var(--bg2);}
+    .sources-inner{max-width:1200px;margin:0 auto;}
+    .sources-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:16px;text-align:center;}
+    .sources-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+    .source-chip{font-family:'DM Mono',monospace;font-size:10px;padding:5px 12px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:0.5px;}
 
-    @keyframes ticker {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
+    /* WHY TEESRA */
+    .why-section{padding:80px 48px;border-bottom:1px solid var(--border);}
+    .why-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+    .why-quote{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,44px);font-weight:700;line-height:1.2;letter-spacing:-1px;color:var(--text);}
+    .why-quote em{color:var(--accent);font-style:italic;}
+    .why-body p{font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:18px;}
+    .why-body strong{color:var(--text);font-weight:500;}
+    .why-pillars{display:flex;flex-direction:column;gap:0;}
+    .pillar{display:flex;gap:20px;padding:20px 0;border-top:1px solid var(--border);}
+    .pillar:last-child{border-bottom:1px solid var(--border);}
+    .pillar-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);flex-shrink:0;margin-top:2px;}
+    .pillar-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;}
+    .pillar-desc{font-size:13px;color:var(--text-mid);line-height:1.6;}
 
-    /* THREE SIDES SECTION */
-    .section {
-      padding: 100px 48px;
-    }
-
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(36px, 5vw, 60px);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -1px;
-      max-width: 600px;
-      margin-bottom: 60px;
-    }
-
-    .three-sides {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-    }
-
-    .side-card {
-      background: var(--bg);
-      padding: 40px 36px;
-      position: relative;
-      overflow: hidden;
-      transition: background 0.3s;
-    }
-
-    .side-card:hover { background: var(--surface); }
-
-    .side-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-    }
-
-    .side-facts::before { background: var(--accent-facts); }
-    .side-left::before { background: var(--accent-left); }
-    .side-right::before { background: var(--accent-right); }
-
-    .side-number {
-      font-family: 'Playfair Display', serif;
-      font-size: 72px;
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 20px;
-      opacity: 0.08;
-      position: absolute;
-      top: 24px;
-      right: 24px;
-    }
-
-    .side-facts .side-number { color: var(--accent-facts); }
-    .side-left .side-number { color: var(--accent-left); }
-    .side-right .side-number { color: var(--accent-right); }
-
-    .side-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-
-    .side-facts .side-icon { background: rgba(232, 200, 74, 0.12); }
-    .side-left .side-icon { background: rgba(91, 155, 213, 0.12); }
-    .side-right .side-icon { background: rgba(212, 91, 91, 0.12); }
-
-    .side-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .side-facts .side-tag { color: var(--accent-facts); }
-    .side-left .side-tag { color: var(--accent-left); }
-    .side-right .side-tag { color: var(--accent-right); }
-
-    .side-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      line-height: 1.2;
-    }
-
-    .side-desc {
-      font-size: 14px;
-      color: var(--text-mid);
-      line-height: 1.7;
-    }
-
-    /* DEMO STORY CARD */
-    .demo-section {
-      padding: 0 48px 100px;
-    }
-
-    .demo-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .demo-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .story-card {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      max-width: 780px;
-    }
-
-    .story-header {
-      padding: 28px 32px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .story-meta {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .story-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1.25;
-    }
-
-    .story-sources {
-      display: flex;
-      gap: 6px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .source-tag {
-      font-size: 10px;
-      font-family: 'DM Mono', monospace;
-      padding: 3px 8px;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      border-radius: 2px;
-    }
-
-    .story-coverage {
-      flex-shrink: 0;
-      text-align: center;
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-    }
-
-    .coverage-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--accent-facts);
-      line-height: 1;
-    }
-
-    .coverage-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 1px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-
-    .story-panels {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-    }
-
-    .story-panel {
-      padding: 24px 28px;
-      border-right: 1px solid var(--border);
-      position: relative;
-    }
-
-    .story-panel:last-child { border-right: none; }
-
-    .panel-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .panel-tag::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-    }
-
-    .panel-facts .panel-tag { color: var(--accent-facts); }
-    .panel-facts .panel-tag::before { background: var(--accent-facts); }
-    .panel-left .panel-tag { color: var(--accent-left); }
-    .panel-left .panel-tag::before { background: var(--accent-left); }
-    .panel-right .panel-tag { color: var(--accent-right); }
-    .panel-right .panel-tag::before { background: var(--accent-right); }
-
-    .panel-text {
-      font-size: 13px;
-      color: var(--text-mid);
-      line-height: 1.65;
-    }
-
-    /* MISSION SECTION */
-    .mission {
-      padding: 100px 48px;
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: start;
-    }
-
-    .mission-left .section-title {
-      margin-bottom: 24px;
-    }
-
-    .mission-text {
-      font-size: 16px;
-      color: var(--text-mid);
-      line-height: 1.8;
-      margin-bottom: 20px;
-    }
-
-    .mission-text strong { color: var(--text); font-weight: 500; }
-
-    .mission-values {
-      margin-top: 48px;
-    }
-
-    .value-item {
-      display: flex;
-      gap: 20px;
-      padding: 24px 0;
-      border-top: 1px solid var(--border);
-    }
-
-    .value-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--accent-facts);
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .value-title {
-      font-size: 15px;
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-
-    .value-desc {
-      font-size: 13px;
-      color: var(--text-mid);
-      line-height: 1.6;
-    }
-
-    /* NEWSLETTER SIGNUP */
-    .signup-section {
-      margin: 0 48px 100px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 64px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .signup-section::before {
-      content: '';
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(232, 200, 74, 0.05), transparent 70%);
-      pointer-events: none;
-    }
-
-    .signup-inner {
-      max-width: 520px;
-    }
-
-    .signup-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: var(--accent-facts);
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .signup-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 36px;
-      font-weight: 700;
-      line-height: 1.15;
-      margin-bottom: 16px;
-      letter-spacing: -0.5px;
-    }
-
-    .signup-desc {
-      font-size: 15px;
-      color: var(--text-mid);
-      line-height: 1.6;
-      margin-bottom: 32px;
-    }
-
-    .signup-form {
-      display: flex;
-      gap: 0;
-    }
-
-    .signup-input {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-right: none;
-      color: var(--text);
-      padding: 14px 20px;
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .signup-input::placeholder { color: var(--text-dim); }
-    .signup-input:focus { border-color: var(--accent-facts); }
-
-    .signup-btn {
-      background: var(--accent-facts);
-      color: var(--bg);
-      border: none;
-      padding: 14px 28px;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: opacity 0.2s;
-      white-space: nowrap;
-    }
-
-    .signup-btn:hover { opacity: 0.88; }
-
-    .signup-note {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 14px;
-    }
+    /* SIGNUP */
+    .signup-section{padding:80px 48px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+    .signup-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,var(--glow) 0%,transparent 70%);pointer-events:none;}
+    .signup-inner{max-width:560px;margin:0 auto;text-align:center;position:relative;z-index:1;}
+    .signup-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:16px;}
+    .signup-title{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);font-weight:900;line-height:1.1;letter-spacing:-1.5px;margin-bottom:16px;}
+    .signup-desc{font-size:15px;color:var(--text-mid);margin-bottom:32px;line-height:1.7;}
+    .signup-form{display:flex;border:1px solid var(--border);margin-bottom:12px;background:var(--surface);}
+    .signup-input{flex:1;background:transparent;border:none;padding:14px 18px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+    .signup-input::placeholder{color:var(--text-dim);}
+    .signup-btn{background:var(--accent);color:var(--bg);border:none;padding:14px 28px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity 0.2s;white-space:nowrap;}
+    .signup-btn:hover{opacity:0.88;}
+    .signup-note{font-size:12px;color:var(--text-dim);}
 
     /* FOOTER */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 40px 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+    footer{display:flex;justify-content:space-between;align-items:center;padding:28px 48px;border-top:1px solid var(--border);}
+    .footer-left{display:flex;align-items:baseline;gap:16px;}
+    .footer-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--accent);}
+    .footer-tagline{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);}
+    .footer-right{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);text-align:right;line-height:1.8;}
 
-    .footer-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 900;
-      color: var(--accent-facts);
-    }
+    /* QR MODAL */
+    #qrModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+    #qrModal.active{display:flex;}
 
-    .footer-tagline {
-      font-size: 12px;
-      color: var(--text-dim);
-      font-style: italic;
-    }
+    /* BUTTONS */
+    .btn-primary{background:var(--accent);color:var(--bg);padding:14px 32px;font-size:14px;font-weight:500;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:opacity 0.2s,transform 0.2s;}
+    .btn-primary:hover{opacity:0.88;transform:translateY(-1px);}
+    .btn-ghost{color:var(--text-dim);font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.2s;}
+    .btn-ghost:hover{color:var(--text);}
+    .btn-ghost::after{content:'→';transition:transform 0.2s;}
+    .btn-ghost:hover::after{transform:translateX(4px);}
 
-    .footer-right {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
-      letter-spacing: 1px;
-      text-align: right;
-    }
-
-    /* STATUS BADGE */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(123, 198, 126, 0.08);
-      border: 1px solid rgba(123, 198, 126, 0.2);
-      padding: 6px 14px;
-      border-radius: 100px;
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      color: var(--accent-pulse);
-      text-transform: uppercase;
-      margin-bottom: 32px;
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent-pulse);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
     /* RESPONSIVE */
-    @media (max-width: 768px) {
-      nav { padding: 16px 20px; }
-      .nav-links { display: none; }
-      .hero { padding: 100px 20px 60px; }
-      .hero::after { display: none; }
-      .section, .demo-section, .signup-section { padding: 60px 20px; }
-      .mission { grid-template-columns: 1fr; gap: 40px; padding: 60px 20px; }
-      .three-sides { grid-template-columns: 1fr; }
-      .story-panels { grid-template-columns: 1fr; }
-      .story-panel { border-right: none; border-top: 1px solid var(--border); }
-      .story-header { flex-direction: column; }
-      .signup-section { margin: 0 20px 60px; padding: 40px 24px; }
-      .signup-form { flex-direction: column; }
-      .signup-input { border-right: 1px solid var(--border); border-bottom: none; }
-      footer { flex-direction: column; gap: 16px; text-align: center; padding: 32px 20px; }
-      .footer-right { text-align: center; }
+    @media(max-width:900px){
+      nav{padding:12px 20px;}
+      .nav-links{display:none;}
+      .hamburger{display:flex;}
+      .hero-main{grid-template-columns:1fr;gap:40px;}
+      .hero-stories{border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:28px;}
+      .hero-headline{font-size:clamp(44px,12vw,72px);letter-spacing:-2px;}
+      .how-section,.why-section,.signup-section,.sources-strip{padding:60px 20px;}
+      .three-sides{grid-template-columns:1fr;}
+      .why-inner{grid-template-columns:1fr;gap:40px;}
+      footer{flex-direction:column;gap:12px;text-align:center;padding:24px 20px;}
+      .footer-right{text-align:center;}
+      .ticker-wrap{margin:0 -20px;}
+      .theme-picker{right:-60px;width:210px;}
     }
-    #qrModal { display: none !important; }
-    #qrModal.active { display: flex !important; }
-  /* HAMBURGER */
-  .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-      z-index: 200;
-    }
-
-    .hamburger span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--text-dim);
-      transition: all 0.3s;
-    }
-
-    .hamburger.open span:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-    }
-    .hamburger.open span:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.open span:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-    }
-
-    @media (max-width: 768px) {
-      .hamburger { display: flex; z-index: 1100; }
-
-      .nav-links {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(8, 8, 6, 0.98);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 32px;
-        z-index: 1050;
-      }
-
-      .nav-links.open { display: flex; }
-
-      .nav-links a {
-        font-size: 22px;
-        letter-spacing: 1px;
-        color: var(--text);
-      }
-
-      .nav-links li { list-style: none; }
-
-      .nav-cta {
-        padding: 12px 32px !important;
-        font-size: 16px !important;
-      }
-    }  
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <!-- QR MODAL -->
-  <div id="qrModal" onclick="if(event.target===this)this.classList.remove('active')" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
-    <div style="background:#18180f;border:1px solid #2a2a1f;padding:32px;text-align:center;max-width:320px;width:90%;position:relative;">
-      <button onclick="document.getElementById('qrModal').classList.remove('active')" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#7a7660;font-size:18px;cursor:pointer;">✕</button>
-      <p style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#e8e4d4;margin-bottom:6px;">☕ Buy a chai</p>
-      <p style="font-size:12px;color:#7a7660;margin-bottom:20px;">Scan with GPay, PhonePe or any UPI app</p>
-      <img src="/upi-qr.png" alt="UPI QR" style="width:220px;height:220px;padding:10px;background:white;border:1px solid #ddd;display:block;margin:0 auto 12px;" onerror="this.style.opacity='0.3'"/>
-      <p style="font-family:'DM Mono',monospace;font-size:12px;color:#e8c84a;letter-spacing:1px;">UPI: divyendu.shekhar@ptyes</p>
-    </div>
+<!-- QR MODAL -->
+<div id="qrModal" onclick="if(event.target===this)this.classList.remove('active')">
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:32px;text-align:center;max-width:320px;width:90%;position:relative;">
+    <button onclick="document.getElementById('qrModal').classList.remove('active')" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+    <p style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;">☕ Buy a chai</p>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:20px;">Scan with GPay, PhonePe or any UPI app</p>
+    <img src="/upi-qr.png" alt="UPI QR" style="width:200px;height:200px;padding:8px;background:white;display:block;margin:0 auto 12px;" onerror="this.style.opacity='0.3'"/>
+    <p style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);">UPI: divyendu.shekhar@ptyes</p>
   </div>
+</div>
 
-  <!-- MOBILE NAV DRAWER — outside nav to avoid stacking context issues -->
-  <div id="mobileDrawer" style="
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: #0a0a08;
-    z-index: 9999;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 36px;
-  ">
-    <!-- Close button -->
-    <button onclick="toggleMenu()" style="
-      position: absolute; top: 20px; right: 20px;
-      background: none; border: none;
-      color: var(--text-dim); font-size: 28px;
-      cursor: pointer; line-height: 1;
-    ">✕</button>
-
-    <a href="#how" onclick="toggleMenu()" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8e4d4;text-decoration:none;">How it works</a>
-    <a href="#mission" onclick="toggleMenu()" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8e4d4;text-decoration:none;">Mission</a>
-    <a href="/feed" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8c84a;text-decoration:none;">Today's Brief ✦</a>
-    <a href="/about" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8e4d4;text-decoration:none;">About</a>
-    <a href="#signup" onclick="toggleMenu()" style="display:inline-block;margin-top:8px;background:#e8c84a;color:#0a0a08;padding:14px 36px;font-size:15px;font-weight:500;text-decoration:none;font-family:'DM Sans',sans-serif;">Subscribe →</a>
-    <button onclick="toggleTheme();updateDrawerThemeBtn();" id="drawerThemeBtn" style="background:none;border:1px solid #2a2a1f;color:#7a7660;padding:8px 18px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;letter-spacing:1px;margin-top:4px;">☀️ Light</button>
+<!-- MOBILE DRAWER -->
+<div id="mobileDrawer">
+  <button onclick="toggleMenu()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:var(--text-dim);font-size:28px;cursor:pointer;">✕</button>
+  <a href="#how" onclick="toggleMenu()">How it works</a>
+  <a href="/feed" style="color:var(--accent)!important;">Today's Brief ✦</a>
+  <a href="/about" onclick="toggleMenu()">About</a>
+  <a href="#signup" onclick="toggleMenu()" style="display:inline-block;background:var(--accent);color:var(--bg)!important;padding:12px 32px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;">Subscribe →</a>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px;">
+    <span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
+    <div class="drawer-theme-grid" id="drawerSwatches"></div>
   </div>
+</div>
 
-  <!-- NAV -->
-  <nav id="navbar">
-    <a href="#" class="nav-logo">
-      Teesra
-      <span></span>
-    </a>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
-      <span></span><span></span><span></span>
-    </button>
-    <ul class="nav-links">
-      <li><a href="#how">How it works</a></li>
-      <li><a href="#mission">Mission</a></li>
-      <li><a href="/feed">Today's Brief ✦</a></li>
-      <li><a href="/about">About</a></li>
-      <li><button onclick="toggleTheme()" id="themeBtn" style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:6px 12px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;letter-spacing:0.5px;">☀️ Light</button></li>
-      <li><a href="#" onclick="event.preventDefault(); document.getElementById('qrModal').classList.add('active')">☕ Support</a></li>
-      <li><a href="#signup" class="nav-cta">Subscribe →</a></li>
-    </ul>
-  </nav>
+<!-- DATE BANNER -->
+<div class="date-banner" id="dateBanner">Loading...</div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="status-badge">
-      <div class="status-dot"></div>
-      Building in public — Live at teesra.in
-    </div>
-    <p class="hero-eyebrow">India's third perspective on news</p>
-    <h1 class="hero-title">One story.<br><em>Three truths.</em></h1>
-    <p class="hero-subtitle">
-      Every morning, <strong>Teesra</strong> cuts through India's media noise —
-      the facts, the left lens, the right lens.
-      You decide what to believe.
-    </p>
-    <div class="hero-actions">
-      <a href="#signup" class="btn-primary">Get the morning brief</a>
-      <a href="#how" class="btn-ghost">See how it works</a>
-    </div>
-
-    <!-- TICKER -->
-    <div class="ticker-wrap" style="margin-left: -48px; margin-right: -48px; margin-top: 80px;">
-      <div class="ticker">
-        <div class="ticker-item"><span>●</span> RBI Policy · 8 sources · 3 perspectives</div>
-        <div class="ticker-item"><span>●</span> India vs Australia · 12 sources · Full analysis</div>
-        <div class="ticker-item"><span>●</span> Budget 2025 · 15 sources · Left + Right + Facts</div>
-        <div class="ticker-item"><span>●</span> Delhi Elections · 10 sources · Street pulse</div>
-        <div class="ticker-item"><span>●</span> India GDP · 9 sources · 3 perspectives</div>
-        <div class="ticker-item"><span>●</span> RBI Policy · 8 sources · 3 perspectives</div>
-        <div class="ticker-item"><span>●</span> India vs Australia · 12 sources · Full analysis</div>
-        <div class="ticker-item"><span>●</span> Budget 2025 · 15 sources · Left + Right + Facts</div>
-        <div class="ticker-item"><span>●</span> Delhi Elections · 10 sources · Street pulse</div>
-        <div class="ticker-item"><span>●</span> India GDP · 9 sources · 3 perspectives</div>
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Teesra<span>तीसरा नज़रिया</span></a>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="/feed">Today's Brief ✦</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="#" onclick="event.preventDefault();document.getElementById('qrModal').classList.add('active')">☕ Support</a></li>
+    <li><a href="#signup" class="nav-cta">Subscribe →</a></li>
+    <li class="theme-wrap">
+      <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleTP(event)" title="Change theme">
+        <div class="swatch-inner"><div class="s1" id="sw1"></div><div class="s2" id="sw2"></div><div class="s3" id="sw3"></div></div>
+      </button>
+      <div class="theme-picker" id="themePicker">
+        <div class="tp-title">Choose your theme</div>
+        <div class="tp-grid" id="themeGrid"></div>
       </div>
-    </div>
-  </section>
+    </li>
+  </ul>
+</nav>
 
-  <!-- THREE SIDES -->
-  <section class="section" id="how">
-    <p class="section-label">How Teesra works</p>
-    <h2 class="section-title">Every story, dissected three ways.</h2>
-
-    <div class="three-sides">
-      <div class="side-card side-facts">
-        <div class="side-number">01</div>
-        <div class="side-icon">⚖️</div>
-        <p class="side-tag">The Facts</p>
-        <h3 class="side-heading">What actually happened</h3>
-        <p class="side-desc">AI reads 10+ sources per story and extracts only verified, cross-referenced facts. No spin. No agenda. Minimum 3 sources must agree before a story appears.</p>
-      </div>
-      <div class="side-card side-left">
-        <div class="side-number">02</div>
-        <div class="side-icon">🔵</div>
-        <p class="side-tag">Left Lens</p>
-        <h3 class="side-heading">How the left frames it</h3>
-        <p class="side-desc">See how progressive, liberal outlets like The Wire, Scroll, and The Hindu frame this story — their angle, their emphasis, their concerns.</p>
-      </div>
-      <div class="side-card side-right">
-        <div class="side-number">03</div>
-        <div class="side-icon">🔴</div>
-        <p class="side-tag">Right Lens</p>
-        <h3 class="side-heading">How the right frames it</h3>
-        <p class="side-desc">See how conservative outlets like Swarajya, OpIndia, and Times Now frame the same story — their narrative, their priorities, their reading of events.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEMO STORY CARD -->
-  <div class="demo-section">
-    <p class="demo-label">Sample story card</p>
-    <div class="story-card">
-      <div class="story-header">
-        <div>
-          <p class="story-meta">Economy · 22 March 2025 · 7:30 AM</p>
-          <h3 class="story-title">RBI cuts repo rate by 25bps to 6.25%, signals growth focus</h3>
-          <div class="story-sources">
-            <span class="source-tag">Mint</span>
-            <span class="source-tag">The Hindu</span>
-            <span class="source-tag">NDTV</span>
-            <span class="source-tag">Swarajya</span>
-            <span class="source-tag">+7 more</span>
-          </div>
-        </div>
-        <div class="story-coverage">
-          <div class="coverage-num">11</div>
-          <div class="coverage-label">Sources</div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-flag">India's news · Three perspectives · Every morning</div>
+    <div class="hero-main">
+      <!-- LEFT: Headline + CTA -->
+      <div>
+        <h1 class="hero-headline">One story.<br><em>Three truths.</em></h1>
+        <p class="hero-deck">Every morning, <strong>Teesra</strong> cuts through India's media noise. Verified facts, left lens, right lens, and what people on the street are really saying. <strong>15 stories. 16 sources. Free.</strong></p>
+        <div class="hero-cta-row">
+          <a href="#signup" class="btn-primary">Get the morning brief</a>
+          <a href="/feed" class="btn-ghost">Today's stories</a>
         </div>
       </div>
-      <div class="story-panels">
-        <div class="story-panel panel-facts">
-          <p class="panel-tag">Facts</p>
-          <p class="panel-text">RBI's MPC voted 4-2 to cut the benchmark rate. EMIs on home and auto loans will reduce marginally. Inflation at 4.1%, within target band. Next review in June 2025.</p>
+
+      <!-- RIGHT: Live stories from API -->
+      <div class="hero-stories">
+        <div class="stories-header">
+          <span class="stories-label"><span class="live-dot"></span>Today's brief</span>
+          <a href="/feed" class="stories-link">Read all 15 →</a>
         </div>
-        <div class="story-panel panel-left">
-          <p class="panel-tag">Left Lens</p>
-          <p class="panel-text">Rate cut welcomed but critics say it's too little — real wages still stagnant, rural demand weak. Experts worry banks may not pass on benefits to common borrowers.</p>
-        </div>
-        <div class="story-panel panel-right">
-          <p class="panel-tag">Right Lens</p>
-          <p class="panel-text">Bold growth signal from RBI. Modi government's fiscal discipline creating room for monetary easing. Business confidence likely to surge, investment cycle to revive.</p>
+        <div id="heroStories">
+          <div class="sp-loading">Fetching today's stories...</div>
         </div>
       </div>
     </div>
   </div>
-<!-- SMART LENS SECTION -->
-<section class="section" style="border-top: 1px solid var(--border);">
-  <p class="section-label">The Teesra difference</p>
-  <h2 class="section-title">Not every story needs the same lens.</h2>
 
-  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 48px;">
-
-    <div style="background: var(--bg); padding: 36px; transition: background 0.3s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='var(--bg)'">
-      <p style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent-left); text-transform: uppercase; margin-bottom: 12px;">🔵 🔴 Political & Policy</p>
-      <h4 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 10px;">Left + Right lenses weighted high</h4>
-      <p style="font-size: 13px; color: var(--text-mid); line-height: 1.65;">When narratives diverge sharply across the spectrum, understanding both sides matters more than public chatter.</p>
+  <!-- TICKER -->
+  <div class="ticker-wrap" style="margin:0 -48px;">
+    <div class="ticker">
+      <div class="ticker-item"><span>●</span>Facts first · No spin · No agenda</div>
+      <div class="ticker-item"><span>●</span>16 sources · Verified daily</div>
+      <div class="ticker-item"><span>●</span>Left lens · Right lens · Street pulse</div>
+      <div class="ticker-item"><span>●</span>AI-powered · Editor-reviewed</div>
+      <div class="ticker-item"><span>●</span>Delivered 7:30 AM IST</div>
+      <div class="ticker-item"><span>●</span>Free forever · No ads</div>
+      <div class="ticker-item"><span>●</span>Facts first · No spin · No agenda</div>
+      <div class="ticker-item"><span>●</span>16 sources · Verified daily</div>
+      <div class="ticker-item"><span>●</span>Left lens · Right lens · Street pulse</div>
+      <div class="ticker-item"><span>●</span>AI-powered · Editor-reviewed</div>
+      <div class="ticker-item"><span>●</span>Delivered 7:30 AM IST</div>
+      <div class="ticker-item"><span>●</span>Free forever · No ads</div>
     </div>
-
-    <div style="background: var(--bg); padding: 36px; transition: background 0.3s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='var(--bg)'">
-      <p style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent-pulse); text-transform: uppercase; margin-bottom: 12px;">🏏 Sports & Entertainment</p>
-      <h4 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 10px;">Street pulse weighted high</h4>
-      <p style="font-size: 13px; color: var(--text-mid); line-height: 1.65;">Less political bias, more human reaction. What fans and people feel is the real story here.</p>
-    </div>
-
-    <div style="background: var(--bg); padding: 36px; transition: background 0.3s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='var(--bg)'">
-      <p style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent-facts); text-transform: uppercase; margin-bottom: 12px;">⚖️ Economic & Geopolitical</p>
-      <h4 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 10px;">Facts first, always</h4>
-      <p style="font-size: 13px; color: var(--text-mid); line-height: 1.65;">High stakes, high noise. We slow down, verify harder, and let data speak before opinion does.</p>
-    </div>
-
-    <div style="background: var(--bg); padding: 36px; transition: background 0.3s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='var(--bg)'">
-      <p style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent-right); text-transform: uppercase; margin-bottom: 12px;">⚠️ Sensitive & Communal</p>
-      <h4 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 10px;">Verified facts only — perspectives with caution</h4>
-      <p style="font-size: 13px; color: var(--text-mid); line-height: 1.65;">Some stories can inflame. We show verified facts first and label perspectives clearly before presenting them.</p>
-    </div>
-
   </div>
 </section>
-  <!-- MISSION -->
-  <section class="mission" id="mission">
-    <div class="mission-left">
-      <p class="section-label">Our mission</p>
-      <h2 class="section-title">Built for India's first internet generation.</h2>
-      <p class="mission-text">
-        We grew up on Twitter, Instagram, and YouTube. We saw media go from neutral to loud. We watched <strong>the same event reported 10 different ways</strong> depending on who you followed.
-      </p>
-      <p class="mission-text">
-        Teesra exists because <strong>informed citizens need all sides of a story</strong> — not just the bubble they already live in.
-      </p>
-    </div>
-    <div class="mission-right">
-      <div class="mission-values">
-        <div class="value-item">
-          <span class="value-num">01</span>
-          <div>
-            <p class="value-title">Verified first, fast second</p>
-            <p class="value-desc">A story appears only when 3+ credible publishers have covered it. We will never break news. We will always get it right.</p>
-          </div>
-        </div>
-        <div class="value-item">
-          <span class="value-num">02</span>
-          <div>
-            <p class="value-title">Your conclusions, not ours</p>
-            <p class="value-desc">Teesra has no editorial line. We show you how others frame a story so you can form your own view — not adopt ours.</p>
-          </div>
-        </div>
-        <div class="value-item">
-          <span class="value-num">03</span>
-          <div>
-            <p class="value-title">Under 5 minutes every morning</p>
-            <p class="value-desc">The entire Teesra brief is designed to be read before your chai goes cold. Dense, honest, fast.</p>
-          </div>
-        </div>
-        <div class="value-item">
-          <span class="value-num">04</span>
-          <div>
-            <p class="value-title">India-first, always</p>
-            <p class="value-desc">Built for young Indians who care about what's happening in their country and the world — in that order.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- SIGNUP -->
-  <div class="signup-section" id="signup">
-    <div class="signup-inner">
-      <p class="signup-tag">Early access</p>
-      <h2 class="signup-title">Get Teesra in your inbox every morning.</h2>
-      <p class="signup-desc">Free. No noise. Just India's three sides — delivered every morning.</p>
-      <div class="signup-form">
-        <input type="email" class="signup-input" placeholder="yourname@gmail.com" />
-        <button class="signup-btn" onclick="handleSignup()">Subscribe →</button>
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <p class="section-label">How Teesra works</p>
+    <h2 class="section-title">Every story, cut three ways.</h2>
+    <div class="three-sides">
+      <div class="side-card side-facts">
+        <span class="side-num">01</span>
+        <span class="side-icon">⚖️</span>
+        <p class="side-tag">The Facts</p>
+        <h3 class="side-heading">What actually happened</h3>
+        <p class="side-desc">Claude AI reads every source, extracts only what's verified, and cross-references across outlets. A story doesn't appear unless 3+ credible publishers agree on the core facts. No spin. No filler.</p>
       </div>
-      <p class="signup-note">No spam. No politics. Just clarity. Unsubscribe anytime.</p>
+      <div class="side-card side-left">
+        <span class="side-num">02</span>
+        <span class="side-icon">🔵</span>
+        <p class="side-tag">Left Lens</p>
+        <h3 class="side-heading">How the left frames it</h3>
+        <p class="side-desc">The Wire, Scroll, The Hindu, Indian Express — their framing, their emphasis, their concerns. Written in the authentic voice of progressive Indian media, not a description of it.</p>
+      </div>
+      <div class="side-card side-right">
+        <span class="side-num">03</span>
+        <span class="side-icon">🔴</span>
+        <p class="side-tag">Right Lens</p>
+        <h3 class="side-heading">How the right frames it</h3>
+        <p class="side-desc">OpIndia, Swarajya, Republic, Times Now — their narrative, their priorities, their reading of events. Same story, completely different emphasis. See the gap yourself.</p>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
+<!-- SOURCES STRIP -->
+<div class="sources-strip">
+  <div class="sources-inner">
+    <p class="sources-label">16 sources monitored daily</p>
+    <div class="sources-list">
+      <span class="source-chip">The Hindu</span>
+      <span class="source-chip">Indian Express</span>
+      <span class="source-chip">NDTV</span>
+      <span class="source-chip">Times of India</span>
+      <span class="source-chip">Mint</span>
+      <span class="source-chip">Scroll</span>
+      <span class="source-chip">Hindustan Times</span>
+      <span class="source-chip">BBC India</span>
+      <span class="source-chip">OpIndia</span>
+      <span class="source-chip">News18</span>
+      <span class="source-chip">The Caravan</span>
+      <span class="source-chip">ESPNcricinfo</span>
+      <span class="source-chip">TechCrunch</span>
+      <span class="source-chip">The Verge</span>
+      <span class="source-chip">BBC World</span>
+      <span class="source-chip">Reuters</span>
+    </div>
+  </div>
+</div>
+
+<!-- WHY TEESRA -->
+<section class="why-section">
+  <div class="why-inner">
     <div>
-      <div class="footer-logo">Teesra</div>
-      <div class="footer-tagline">Ek khabar, teen nazariye.</div>
+      <h2 class="why-quote">India has a news problem.<br><em>Not a shortage of it.</em></h2>
     </div>
-    <div class="footer-right">
-      Built by Divyendu<br>
-      IIM Amritsar · 2025<br>
-      <span style="color: var(--accent-facts);">teesra.in</span>
+    <div class="why-body">
+      <p>We grew up on Twitter, Instagram, and YouTube. We watched the same event get reported <strong>ten different ways</strong> depending on who you followed. We learned, sometimes the hard way, that every headline has an agenda.</p>
+      <p>Teesra is the tool we wished existed. Not another news app that shoves breaking news at you. A <strong>thinking tool</strong> — one that shows you the facts, then shows you how the left sees it, how the right sees it, and what people on the street are actually saying.</p>
+      <div class="why-pillars">
+        <div class="pillar"><span class="pillar-num">01</span><div><p class="pillar-title">Verified before visible</p><p class="pillar-desc">3+ sources must cover a story before it appears. We never break news. We get it right.</p></div></div>
+        <div class="pillar"><span class="pillar-num">02</span><div><p class="pillar-title">Show the lens, not the view</p><p class="pillar-desc">No editorial opinion. We show how others frame a story so you can see the frame.</p></div></div>
+        <div class="pillar"><span class="pillar-num">03</span><div><p class="pillar-title">Under 5 minutes, every morning</p><p class="pillar-desc">Dense, honest, fast. Read before your chai goes cold, then back to your life.</p></div></div>
+      </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script>
-    function toggleTheme() {
-  document.body.classList.toggle('light');
-  const isLight = document.body.classList.contains('light');
-  document.getElementById('themeBtn').textContent = isLight ? '🌙 Dark' : '☀️ Light';
-  localStorage.setItem('teesra-theme', isLight ? 'light' : 'dark');
+<!-- SIGNUP -->
+<div class="signup-section" id="signup">
+  <div class="signup-inner">
+    <p class="signup-tag">Free · No spam · Unsubscribe anytime</p>
+    <h2 class="signup-title">Read smarter every morning.</h2>
+    <p class="signup-desc">Join readers who start their day with Teesra — India's news from all three sides, delivered before 8 AM.</p>
+    <div class="signup-form">
+      <input type="email" class="signup-input" id="signupEmail" placeholder="yourname@gmail.com"/>
+      <button class="signup-btn" id="signupBtn" onclick="handleSignup()">Subscribe →</button>
+    </div>
+    <p class="signup-note">No spam. No politics. Just clarity.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="footer-logo">Teesra</div>
+    <div class="footer-tagline">Ek khabar, teen nazariye.</div>
+  </div>
+  <div class="footer-right">
+    Built by Divyendu · IIM Amritsar · 2026<br>
+    <a href="https://www.linkedin.com/in/divyendu22" target="_blank" style="color:var(--accent);text-decoration:none;">LinkedIn</a>
+    &nbsp;·&nbsp;
+    <a href="/about" style="color:var(--text-dim);text-decoration:none;">About</a>
+    &nbsp;·&nbsp;
+    <a href="/feed" style="color:var(--text-dim);text-decoration:none;">Feed</a>
+    &nbsp;·&nbsp;
+    <span style="color:var(--accent);">teesra.in</span>
+  </div>
+</footer>
+
+<script>
+// ── THEMES ────────────────────────────────────────────────────────
+const THEMES = [
+  {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+  {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+  {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+  {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+  {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+  {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+];
+const TYPE_COLORS = {political:'var(--accent)',sports:'var(--pulse)',tech:'var(--left)',international:'#b48cff',general:'var(--text-mid)',sensitive:'var(--right)'};
+
+function applyTheme(id) {
+  document.documentElement.setAttribute('data-theme', id);
+  localStorage.setItem('teesra-theme', id);
+  const t = THEMES.find(t => t.id === id);
+  if (!t) return;
+  ['sw1','sw2','sw3'].forEach((el,i) => {
+    const e = document.getElementById(el);
+    if (e) e.style.background = [t.bg, t.a, t.b][i];
+  });
+  const drawer = document.getElementById('mobileDrawer');
+  if (drawer) drawer.style.background = t.bg;
+  buildThemeGrid(id);
+  buildDrawerSwatches(id);
 }
 
-if (localStorage.getItem('teesra-theme') === 'light') {
-  document.body.classList.add('light');
-  document.getElementById('themeBtn').textContent = '🌙 Dark';
+function buildThemeGrid(current) {
+  const g = document.getElementById('themeGrid');
+  if (!g) return;
+  g.innerHTML = THEMES.map(t => `
+    <div class="tp-opt ${t.id===current?'active':''}" onclick="applyTheme('${t.id}');closeTP();">
+      <div class="tp-sw"><div class="t1" style="background:${t.bg};grid-column:1/-1;"></div><div style="background:${t.a};"></div><div style="background:${t.b};"></div></div>
+      <span class="tp-nm">${t.name}</span>
+    </div>`).join('');
 }
 
-    
-    // Navbar scroll effect
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.classList.toggle('scrolled', window.scrollY > 40);
-    });
-
-    async function handleSignup() {
-    const input = document.querySelector('.signup-input');
-    const btn = document.querySelector('.signup-btn');
-    const email = input.value.trim();
-
-    // Basic validation
-    if (!email || !email.includes('@')) {
-        input.style.borderColor = 'var(--accent-right)';
-        input.placeholder = 'Enter a valid email';
-        setTimeout(() => {
-            input.style.borderColor = '';
-            input.placeholder = 'yourname@gmail.com';
-        }, 2000);
-        return;
-    }
-
-    // Show loading state
-    btn.textContent = '✓ Subscribed!';
-    btn.style.opacity = '0.7';
-    btn.disabled = true;
-
-    try {
-        const response = await fetch('/subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-
-        const data = await response.json();
-
-        if (data.message === 'already_subscribed') {
-            btn.textContent = 'Already subscribed ✓';
-            btn.style.background = 'var(--text-dim)';
-        } else {
-            btn.textContent = '✓ Check your inbox!';
-            btn.style.background = 'var(--accent-pulse)';
-            input.value = '';
-            input.disabled = true;
-            input.placeholder = 'See you at 7:30 AM ☀️';
-        }
-
-    } catch (error) {
-        btn.textContent = 'Try again';
-        btn.style.opacity = '1';
-        btn.disabled = false;
-    }
+function buildDrawerSwatches(current) {
+  const g = document.getElementById('drawerSwatches');
+  if (!g) return;
+  g.innerHTML = THEMES.map(t => `
+    <div class="drawer-sw ${t.id===current?'active':''}" onclick="applyTheme('${t.id}');toggleMenu();" title="${t.name}">
+      <div class="drawer-sw-top" style="background:${t.bg};"></div>
+      <div style="background:${t.a};"></div>
+      <div style="background:${t.b};"></div>
+    </div>`).join('');
 }
-    // Intersection observer for subtle fade-in on scroll
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(el => {
-        if (el.isIntersecting) {
-          el.target.style.opacity = '1';
-          el.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.side-card, .story-card, .value-item').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      observer.observe(el);
-    });
-    // Close QR modal on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') document.getElementById('qrModal').classList.remove('active');
-    });
-    function toggleMenu() {
-      const drawer = document.getElementById('mobileDrawer');
-      const btn    = document.getElementById('hamburger');
-      const isOpen = drawer.style.display === 'flex';
-      if (isOpen) {
-        drawer.style.display = 'none';
-        btn.classList.remove('open');
-        document.body.style.overflow = '';
-      } else {
-        drawer.style.display = 'flex';
-        btn.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        updateDrawerThemeBtn();
-      }
+function toggleTP(e) { e.stopPropagation(); document.getElementById('themePicker').classList.toggle('open'); }
+function closeTP() { document.getElementById('themePicker').classList.remove('open'); }
+document.addEventListener('click', e => { if (!e.target.closest('.theme-wrap')) closeTP(); });
+
+// Init theme
+applyTheme(localStorage.getItem('teesra-theme') || 'jungle');
+
+// ── DATE BANNER ────────────────────────────────────────────────────
+const banner = document.getElementById('dateBanner');
+if (banner) {
+  const d = new Date();
+  const opts = {weekday:'long',day:'numeric',month:'long',year:'numeric'};
+  banner.textContent = d.toLocaleDateString('en-IN', opts) + ' · Morning Edition';
+}
+
+// ── NAV SCROLL ─────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ── MOBILE MENU ────────────────────────────────────────────────────
+function toggleMenu() {
+  const d = document.getElementById('mobileDrawer');
+  const b = document.getElementById('hamburger');
+  const open = d.classList.contains('open');
+  if (open) {
+    d.classList.remove('open'); b.classList.remove('open'); document.body.style.overflow = '';
+  } else {
+    d.classList.add('open'); b.classList.add('open'); document.body.style.overflow = 'hidden';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('mobileDrawer').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('qrModal').classList.remove('active');
+    closeTP();
+  }
+});
+
+// ── LIVE STORIES IN HERO ──────────────────────────────────────────
+async function loadHeroStories() {
+  const container = document.getElementById('heroStories');
+  if (!container) return;
+  try {
+    const res  = await fetch('/api/articles');
+    const data = await res.json();
+    if (!data.articles || !data.articles.length) {
+      container.innerHTML = '<div class="sp-loading">Stories load at 7:30 AM daily</div>';
+      return;
     }
+    // Show top 5 stories
+    const stories = data.articles.slice(0, 5);
+    container.innerHTML = stories.map(a => {
+      const typeColor = TYPE_COLORS[a.story_type] || 'var(--text-mid)';
+      const typeLabel = (a.story_type || 'general').toUpperCase();
+      return `
+        <a href="/feed" style="text-decoration:none;display:block;">
+          <div class="story-preview">
+            <div class="sp-type" style="color:${typeColor}">${typeLabel}</div>
+            <div class="sp-headline">${a.headline}</div>
+            <div class="sp-meta">${a.source} · ${a.source_bias}</div>
+          </div>
+        </a>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div class="sp-loading" style="font-size:9px;">Start Flask server to load stories</div>';
+  }
+}
+loadHeroStories();
 
-    function updateDrawerThemeBtn() {
-      const isLight = document.body.classList.contains('light');
-      const btn = document.getElementById('drawerThemeBtn');
-      if (btn) btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+// ── SIGNUP ─────────────────────────────────────────────────────────
+async function handleSignup() {
+  const input = document.getElementById('signupEmail');
+  const btn   = document.getElementById('signupBtn');
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) {
+    input.style.borderColor = 'var(--right)';
+    input.placeholder = 'Enter a valid email';
+    setTimeout(() => { input.style.borderColor=''; input.placeholder='yourname@gmail.com'; }, 2000);
+    return;
+  }
+  btn.textContent = '...'; btn.style.opacity = '0.7'; btn.disabled = true;
+  try {
+    const res  = await fetch('/subscribe', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+    const data = await res.json();
+    if (data.message === 'already_subscribed') {
+      btn.textContent = 'Already subscribed ✓';
+    } else {
+      btn.textContent = '✓ Welcome to Teesra!';
+      btn.style.background = 'var(--pulse)'; btn.style.color = 'var(--bg)';
+      input.value = ''; input.disabled = true;
+      input.placeholder = 'Check your inbox ☀️';
     }
+  } catch(e) { btn.textContent = 'Try again'; btn.style.opacity='1'; btn.disabled=false; }
+}
 
-    // Close drawer when escape pressed
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.getElementById('mobileDrawer').style.display = 'none';
-        document.getElementById('hamburger').classList.remove('open');
-        document.body.style.overflow = '';
-        document.getElementById('qrModal').classList.remove('active');
-      }
-    });
-  </script>
+// Scroll animations
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(el => { if (el.isIntersecting) { el.target.style.opacity='1'; el.target.style.transform='none'; } });
+}, {threshold:0.1});
+document.querySelectorAll('.side-card,.pillar').forEach(el => {
+  el.style.opacity='0'; el.style.transform='translateY(16px)';
+  el.style.transition='opacity 0.5s ease,transform 0.5s ease';
+  obs.observe(el);
+});
+</script>
 </body>
 </html>
