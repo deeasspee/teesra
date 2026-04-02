@@ -50,15 +50,15 @@ def save_article(analysis: dict) -> bool:
         return False
 
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
-def clear_todays_articles() -> bool:
+def clear_todays_articles():
+    """Delete articles older than 2 days to keep DB clean"""
+    from datetime import date, timedelta
+    cutoff = str(date.today() - timedelta(days=2))
     try:
-        client = get_client()
-        client.table("article").delete().eq("fetched_date", str(date.today())).execute()
-        print(f"  🗑️  Cleared today's existing articles from Supabase")
-        return True
+        client.table("article").delete().lt("fetched_date", cutoff).execute()
+        print(f"  🧹 Cleared articles older than {cutoff}")
     except Exception as e:
-        print(f"  ❌ Failed to clear articles: {e}")
-        return False
+        print(f"  ⚠️ Could not clear old articles: {e}")
 # ── GET TODAY'S ARTICLES ──────────────────────────────────────────
 def get_todays_articles() -> list:
     try:
