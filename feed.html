@@ -8,12 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* ── 6 THEMES ─────────────────────────────────────────────── */
-    [data-theme="jungle"]{--bg:#0a120e;--surface:rgba(22,32,24,0.92);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--card-max:720px;}
-    [data-theme="cosmos"]{--bg:#0d1117;--surface:rgba(26,35,50,0.92);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--card-max:720px;}
-    [data-theme="ember"]{--bg:#141410;--surface:rgba(36,36,32,0.92);--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--card-max:720px;}
-    [data-theme="dawn"]{--bg:#faf7f0;--surface:rgba(255,255,255,0.97);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--card-max:720px;}
-    [data-theme="cloud"]{--bg:#f4f6fa;--surface:rgba(255,255,255,0.97);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--card-max:720px;}
-    [data-theme="parchment"]{--bg:#f5f0e4;--surface:rgba(250,246,236,0.97);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--card-max:720px;}
+    [data-theme="jungle"]{--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.92);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--glow:rgba(212,168,32,0.06);--card-max:720px;}
+    [data-theme="cosmos"]{--bg:#0d1117;--bg2:#131a24;--surface:rgba(26,35,50,0.92);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--glow:rgba(240,165,0,0.06);--card-max:720px;}
+    [data-theme="ember"]{--bg:#141410;--bg2:#1c1c18;--surface:rgba(36,36,32,0.92);--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--glow:rgba(232,68,10,0.06);--card-max:720px;}
+    [data-theme="dawn"]{--bg:#faf7f0;--bg2:#f2ede4;--surface:rgba(255,255,255,0.98);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--glow:rgba(184,116,0,0.06);--card-max:720px;}
+    [data-theme="cloud"]{--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--glow:rgba(26,79,200,0.06);--card-max:720px;}
+    [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--glow:rgba(138,26,42,0.06);--card-max:720px;}
 
     /* ── THEME SWATCH ─────────────────────────────────────────── */
     .theme-wrap{position:relative;}
@@ -56,7 +56,7 @@
       backdrop-filter: blur(1px) saturate(0.85);
       -webkit-backdrop-filter: blur(1px) saturate(0.85);
     }
-    body.light #painting-overlay {
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] #painting-overlay {
       background: rgba(240, 238, 232, 0.72);
     }
 
@@ -74,7 +74,7 @@
       pointer-events: none;
     }
     #painting-credit a { color: inherit; text-decoration: none; pointer-events: all; }
-    body.light #painting-credit { color: rgba(0,0,0,0.3); }
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] #painting-credit { color: rgba(0,0,0,0.3); }
 
     body {
       background: transparent;
@@ -99,7 +99,7 @@
       -webkit-backdrop-filter: blur(16px);
       transition: background 0.3s;
     }
-    body.light nav { background: rgba(245,243,238,0.96); }
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] nav { background: rgba(245,243,238,0.96); }
 
     .nav-logo {
       font-family: 'Playfair Display', serif;
@@ -142,7 +142,7 @@
     }
     .nav-back:hover { color: var(--text); }
 
-    .theme-toggle {
+    .theme-toggle { display: none;
       background: none;
       border: 1px solid var(--border);
       color: var(--text-dim);
@@ -194,7 +194,7 @@
       gap: 32px;
       padding: 80px 32px 48px;
     }
-    body.light .nav-drawer { background: rgba(245,243,238,0.97); }
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] .nav-drawer { background: rgba(245,243,238,0.97); }
     .nav-drawer.open { display: flex; }
 
     .nav-drawer a, .nav-drawer button {
@@ -337,7 +337,7 @@
       -ms-overflow-style: none; /* IE */
     }
     .market-ticker::-webkit-scrollbar { display: none; } /* Chrome/Safari */
-    body.light .market-ticker {
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] .market-ticker {
       background: rgba(255,255,255,0.72);
       border-color: rgba(0,0,0,0.1);
     }
@@ -370,7 +370,7 @@
       margin: 0 14px;
       flex-shrink: 0;
     }
-    body.light .market-div { background: rgba(0,0,0,0.1); }
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] .market-div { background: rgba(0,0,0,0.1); }
 
     .market-item { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
 
@@ -416,7 +416,7 @@
       font-style: normal;
       white-space: nowrap;
     }
-    body.light .market-mood { border-left-color: rgba(0,0,0,0.1); }
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] .market-mood { border-left-color: rgba(0,0,0,0.1); }
 
     .articles-feed {
       max-width: var(--card-max);
@@ -451,7 +451,7 @@
     }
 
     .story-card.visible { opacity: 1; transform: translateY(0); }
-    .story-card:hover { border-color: #3a3a28; }
+    .story-card:hover { border-color: var(--facts); }
     .story-card:hover .card-headline { color: var(--facts); }
 
     .card-header {
@@ -573,7 +573,7 @@
     }
 
     .panel:last-child { border-right: none; }
-    .panel:hover { background: rgba(255,255,255,0.02); }
+    .panel:hover { background: var(--glow); }
 
     .panel-label {
       font-family: 'DM Mono', monospace;
@@ -670,7 +670,7 @@
 
     .story-card[data-sports="true"] {
       border-color: rgba(123,198,126,0.25);
-      background: linear-gradient(160deg, var(--surface) 0%, #0d160e 100%);
+      background: linear-gradient(160deg, var(--surface) 0%, var(--bg2) 100%);
     }
 
     .story-card[data-sports="true"]::before {
@@ -686,7 +686,7 @@
 
     .story-card[data-ipl="true"] {
       border-color: rgba(232,200,74,0.3);
-      background: linear-gradient(160deg, var(--surface) 0%, #181400 100%);
+      background: linear-gradient(160deg, var(--surface) 0%, var(--bg2) 100%);
     }
 
     .story-card[data-ipl="true"]::before {
@@ -702,7 +702,7 @@
 
     .story-card[data-tech="true"] {
       border-color: rgba(91,155,213,0.25);
-      background: linear-gradient(160deg, var(--surface) 0%, #0d1218 100%);
+      background: linear-gradient(160deg, var(--surface) 0%, var(--bg2) 100%);
     }
 
     .story-card[data-tech="true"]::before {
@@ -909,7 +909,7 @@
         padding-bottom: 8px;
         border-bottom: 1px solid rgba(255,255,255,0.07);
       }
-      body.light .market-label { border-bottom-color: rgba(0,0,0,0.08); }
+      [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] .market-label { border-bottom-color: rgba(0,0,0,0.08); }
       /* Row 2: three indices side by side */
       .market-item {
         flex-direction: column;
@@ -941,7 +941,7 @@
 
     .story-card[data-intl="true"] {
       border-color: rgba(180,140,255,0.25);
-      background: linear-gradient(160deg, var(--surface) 0%, #120d18 100%);
+      background: linear-gradient(160deg, var(--surface) 0%, var(--bg2) 100%);
     }
 
     .story-card[data-intl="true"]::before {
@@ -1003,7 +1003,6 @@
     </a>
     <div class="nav-right">
       <span class="nav-date" id="todayDate"></span>
-      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
       <a href="#" onclick="event.preventDefault();openModal()" class="nav-back">☕ Support</a>
       <a href="/" class="nav-back">← Home</a>
       <!-- Theme swatch -->
@@ -1192,27 +1191,26 @@
           if (cached) { renderTrends(JSON.parse(cached), scroll); return; }
         } catch(e) {}
 
-        // Try allorigins proxy
-        var rssUrl = 'https://trends.google.com/trending/rss?geo=IN';
+        // Try allorigins proxy (more reliable than rss2json)
+        var rssUrl = 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=IN';
         var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
 
         try {
           var res = await fetch(proxyUrl);
           var json = await res.json();
           var xml = json.contents;
-          // Parse titles: try CDATA first, then plain tags (skip channel title)
-          var cdataMatches = xml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g) || [];
-          var matches = cdataMatches.length
-            ? cdataMatches
-            : (xml.match(/<title>(.*?)<\/title>/g) || []).slice(1);
-          var trends = matches.slice(0, 15).map(function(m, i) {
+          // Parse titles from RSS XML
+          var matches = xml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g) || 
+                        xml.match(/<title>(.*?)<\/title>/g) || [];
+          // Remove first match (it's the feed title, not a trend)
+          var trends = matches.slice(1, 16).map(function(m, i) {
             var title = m.replace(/<title><!\[CDATA\[|\]\]><\/title>|<title>|<\/title>/g, '').trim();
             return {
               title: title,
               link: 'https://www.google.com/search?q=' + encodeURIComponent(title) + '&gl=in',
               rank: i + 1
             };
-          }).filter(t => t.title.length > 0 && t.title !== 'Daily Search Trends');
+          }).filter(t => t.title.length > 0);
 
           if (trends.length === 0) throw new Error('no trends parsed');
           sessionStorage.setItem(CACHE_KEY, JSON.stringify(trends));
@@ -1232,21 +1230,9 @@
               return;
             }
           } catch(e2) {}
-          // Fallback: try local backend /api/trends
-          try {
-            var r3 = await fetch('/api/trends');
-            var d3 = await r3.json();
-            if (d3.trends && d3.trends.length) {
-              var t3 = d3.trends.slice(0, 15).map(function(item, i) {
-                return { title: item.title, link: item.link || 'https://www.google.com/search?q=' + encodeURIComponent(item.title) + '&gl=in', rank: i + 1 };
-              });
-              sessionStorage.setItem(CACHE_KEY, JSON.stringify(t3));
-              renderTrends(t3, scroll);
-              return;
-            }
-          } catch(e3) {}
-          // All sources failed — show placeholder but keep bar visible
-          scroll.innerHTML = '<span class="trend-item" style="color:var(--text-dim);font-size:9px;opacity:0.5;">Trends unavailable</span>';
+          // Both failed — hide bar silently
+          var bar = document.querySelector('.trends-bar');
+          if (bar) bar.style.display = 'none';
         }
       }
 
