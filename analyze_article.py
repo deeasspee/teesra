@@ -104,6 +104,10 @@ ACCURACY RULES:
 - If you are unsure of a fact, omit it rather than guess
 - Facts section must read like a wire report — dry, sourced, no color
 
+WRITING STYLE RULES:
+- Write facts in direct journalistic style. Never say "The article states", "The article examines", "According to the article", or any meta-reference to the source material. State facts directly as if you are reporting them.
+- Write all sections in first-person active voice: not "The article says X happened" but "X happened."
+
 STREET PULSE RULES:
 - NEVER use the words "mixed", "divided", "varied", "split" or "reactions"
 - NEVER start with "People" or "The public"
@@ -263,6 +267,16 @@ def analyze_article(article):
         analysis["source"] = article["source"]
         analysis["source_bias"] = article["bias"]
         analysis["url"] = article["url"]
+
+        # Reject weak Claude outputs
+        weak_phrases = [
+            "cannot process", "unable to", "does not provide",
+            "no substantive content", "social media prompt"
+        ]
+        facts_text = analysis.get("facts", "").lower()
+        if any(p in facts_text for p in weak_phrases):
+            print(f"  ⚠️  Rejected weak analysis (facts field flagged)")
+            return None
 
         return analysis
 

@@ -5,6 +5,7 @@
 
 from collections import defaultdict
 import re
+import urllib.parse
 
 
 # ── CLEAN TITLE ───────────────────────────────────────────────────
@@ -166,7 +167,8 @@ def score_group(group: list) -> dict:
         'body found', 'missing person', 'honour killing', 'lover',
         'allegedly killed', 'murder accused', 'alleged murder',
         'killed over', 'skips birthday', 'birthday cake',
-        'domestic dispute', 'quarrel', 'eve teasing'
+        'domestic dispute', 'quarrel', 'eve teasing',
+        'killed by', 'shot dead', 'custody dispute', 'murdered by'
     ]
     systemic_context = [
         'politician', 'minister', 'mla ', 'mp ', 'judge ', 'police officer',
@@ -175,7 +177,7 @@ def score_group(group: list) -> dict:
     ]
     if any(kw in title_lower for kw in petty_crime):
         if not any(kw in title_lower for kw in systemic_context):
-            score -= 35
+            score -= 40
 
     # ── Penalty: celebrity/trivial ────────────────────────────────
     trivial = [
@@ -221,9 +223,61 @@ def pick_best_article(articles: list) -> dict:
     return articles[0]
 
 
+# ── FILTER INCOMPLETE ANALYSIS ────────────────────────────────────
+def filter_incomplete_analysis(article: dict) -> bool:
+    """Returns False if Claude analysis is empty or unusable."""
+    bad_phrases = ["unable to", "cannot"]
+    for field in ("facts", "left_lens", "right_lens", "public_pulse"):
+        val = article.get(field, "").strip()
+        if not val:
+            return False
+        if any(p in val.lower() for p in bad_phrases):
+            return False
+    return True
+
+
+# ── CROSS-DAY DUPLICATE CHECK ─────────────────────────────────────
+def check_not_duplicate_of_yesterday(headline: str, yesterday_headlines: list) -> bool:
+    """Returns True if headline is safe to use (not a repeat of yesterday)."""
+    words = headline.lower().split()
+    for yh in yesterday_headlines:
+        ywords = yh.lower().split()
+        # Slide a window of 4 consecutive words over yesterday's headline
+        for i in range(len(ywords) - 3):
+            window = ywords[i:i + 4]
+            # Check if this 4-word sequence appears anywhere in today's headline
+            for j in range(len(words) - 3):
+                if words[j:j + 4] == window:
+                    return False
+    return True
+
+
+# ── SOURCE DOMAIN EXTRACTOR ───────────────────────────────────────
+def source_domain(article: dict) -> str:
+    """Returns a normalised key for capping articles per portal."""
+    url = article.get("url", "")
+    if url:
+        try:
+            host = urllib.parse.urlparse(url).netloc.lower()
+            # Strip www. prefix
+            return host[4:] if host.startswith("www.") else host
+        except Exception:
+            pass
+    return article.get("source", "").lower()
+
+
 # ── SELECT TOP STORIES ────────────────────────────────────────────
 def select_top_stories(all_articles: list, n: int = 15) -> list:
     print(f"\n🧠 Selecting top {n} stories from {len(all_articles)} articles...")
+
+    # Load yesterday's headlines for cross-day dedup
+    yesterday_headlines = []
+    try:
+        from database import get_yesterday_headlines
+        yesterday_headlines = get_yesterday_headlines()
+        print(f"   Loaded {len(yesterday_headlines)} yesterday's headlines for dedup")
+    except Exception as e:
+        print(f"   ⚠️  Could not load yesterday's headlines: {e}")
 
     # Step 1: Group + score
     groups = group_articles(all_articles)
@@ -248,6 +302,7 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
         'sports':        1,
     }
     topic_counts   = defaultdict(int)
+    source_counts  = defaultdict(int)  # per-portal cap
     conflict_used  = set()   # one story per conflict zone
     selected       = []
     selected_titles = set()
@@ -269,6 +324,11 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
         if topic_counts[topic] >= topic_max.get(topic, 4):
             continue
 
+        # Cross-day duplicate check
+        if yesterday_headlines and not check_not_duplicate_of_yesterday(story['title'], yesterday_headlines):
+            print(f"   ⛔ Yesterday's story: {story['title'][:60]}")
+            continue
+
         # One story per conflict zone
         conflict_zone = None
         for zone in ['gaza', 'ukraine', 'myanmar', 'taiwan', 'sudan']:
@@ -283,6 +343,13 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
 
         # Pick best source from group
         best = pick_best_article(story['articles'])
+
+        # Source cap: max 2 articles per portal
+        domain = source_domain(best)
+        if source_counts[domain] >= 2:
+            print(f"   ⛔ Source cap ({domain}): {story['title'][:55]}")
+            continue
+
         best['covered_by']   = story['sources']
         best['source_count'] = story['source_count']
         if topic == 'ipl':           best['is_ipl'] = True
@@ -292,6 +359,7 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
         selected.append(best)
         selected_titles.add(story['title'])
         topic_counts[topic] += 1
+        source_counts[domain] += 1
         print(f"   ✅ [{topic.upper():13}] {story['score']:+3d} | {story['title'][:55]}...")
 
     # Step 4: Guarantee minimums — force one in if topic missing

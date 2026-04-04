@@ -148,11 +148,6 @@ def format_market_for_email(market: dict) -> str:
           </table>
         </td>
       </tr>
-      <tr>
-        <td style="padding:8px 20px; border-top:1px solid #2a2a1f;">
-          <p style="margin:0; font-size:11px; color:#7a7660;">As of {market.get('as_of', 'last close')}</p>
-        </td>
-      </tr>
     </table>"""
 
 

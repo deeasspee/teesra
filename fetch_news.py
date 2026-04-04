@@ -160,13 +160,19 @@ def fetch_from_source(source):
 
             raw_url = entry.get("link", "")
             title = entry.get("title", "No title")
-            if ' - ' in title:
-                title = title.rsplit(' - ', 1)[0].strip()
+            # For Google News feeds, extract the real publisher from the title suffix
+            if source["name"].startswith("Google News") and ' - ' in title:
+                real_source = title.rsplit(' - ', 1)[-1].strip()
+                title       = title.rsplit(' - ', 1)[0].strip()
+            else:
+                real_source = source["name"]
+                if ' - ' in title:
+                    title = title.rsplit(' - ', 1)[0].strip()
             article = {
                 "title":     title,
                 "summary":   entry.get("summary", "No summary"),
                 "url":       resolve_google_url(raw_url),
-                "source":    source["name"],
+                "source":    real_source,
                 "bias":      source["bias"],
                 "fetched_at": str(datetime.now())
             }

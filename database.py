@@ -5,7 +5,7 @@
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from datetime import date
+from datetime import date, timedelta
 
 load_dotenv()
 
@@ -49,10 +49,27 @@ def save_article(analysis: dict) -> bool:
         print(f"  ❌ Supabase save failed: {e}")
         return False
 
+# ── GET YESTERDAY'S HEADLINES ─────────────────────────────────────
+def get_yesterday_headlines() -> list:
+    """Return headline strings from yesterday for cross-day dedup."""
+    try:
+        client = get_client()
+        yesterday = str(date.today() - timedelta(days=1))
+        response = (
+            client.table("article")
+            .select("headline")
+            .eq("fetched_date", yesterday)
+            .execute()
+        )
+        return [row["headline"] for row in response.data if row.get("headline")]
+    except Exception as e:
+        print(f"❌ Failed to fetch yesterday's headlines: {e}")
+        return []
+
+
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
 def clear_todays_articles():
     """Delete articles older than 2 days to keep DB clean"""
-    from datetime import date, timedelta
     cutoff = str(date.today() - timedelta(days=2))
     try:
         client = get_client()
