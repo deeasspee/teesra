@@ -278,7 +278,7 @@ def get_cricscore():
         live_r      = [m for m in results if m["live"]]
         completed_r = list(reversed([m for m in results if m["completed"]]))
         upcoming_r  = [m for m in results if m["upcoming"]]
-        results     = (live_r + completed_r + upcoming_r)[:12]
+        results     = (upcoming_r + completed_r + live_r)[:20]
         print(f"Cricket API returned {len(all_matches)} matches, filtered to {len(results)}")
         for m in results[:3]:
             print(f"  - {m.get('t1','')} vs {m.get('t2','')} | status: {m.get('status','')[:50]}")
