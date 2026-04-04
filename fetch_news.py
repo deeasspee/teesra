@@ -3,6 +3,7 @@
 # This file fetches real headlines from Indian news sources
 
 import feedparser
+import urllib.request
 from datetime import datetime
 
 # ── 1. OUR NEWS SOURCES ──────────────────────────────────────────
@@ -94,9 +95,54 @@ SOURCES = [
         "name": "Reuters",
         "url": "https://feeds.reuters.com/reuters/topNews",
         "bias": "center"
+    },
+    {
+        "name": "Google News India",
+        "url": "https://news.google.com/rss/search?q=india&hl=en-IN&gl=IN&ceid=IN:en",
+        "bias": "center"
+    },
+    {
+        "name": "Google News Politics",
+        "url": "https://news.google.com/rss/search?q=india+politics&hl=en-IN&gl=IN&ceid=IN:en",
+        "bias": "center"
+    },
+    {
+        "name": "Google News Economy",
+        "url": "https://news.google.com/rss/search?q=india+economy+budget&hl=en-IN&gl=IN&ceid=IN:en",
+        "bias": "center"
+    },
+    {
+        "name": "Google News Tech",
+        "url": "https://news.google.com/rss/search?q=india+technology+startup&hl=en-IN&gl=IN&ceid=IN:en",
+        "bias": "center"
+    },
+    {
+        "name": "Google News Top Stories",
+        "url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
+        "bias": "center"
     }
 
 ]
+
+
+# ── GOOGLE URL HELPER ─────────────────────────────────────────────
+# Google News RSS links are sometimes proxied through news.google.com.
+# This helper follows the redirect to recover the real article URL.
+
+def resolve_google_url(url):
+    """If url is a Google News proxy link, follow redirect to get real URL."""
+    if "news.google.com" not in url:
+        return url
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0"},
+            method="HEAD"
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return resp.url
+    except Exception:
+        return url
 
 
 # ── 2. THE FETCHER FUNCTION ───────────────────────────────────────
@@ -112,10 +158,11 @@ def fetch_from_source(source):
         # Loop through first 5 articles from this source
         for entry in feed.entries[:5]:
 
+            raw_url = entry.get("link", "")
             article = {
                 "title":     entry.get("title", "No title"),
                 "summary":   entry.get("summary", "No summary"),
-                "url":       entry.get("link", ""),
+                "url":       resolve_google_url(raw_url),
                 "source":    source["name"],
                 "bias":      source["bias"],
                 "fetched_at": str(datetime.now())
