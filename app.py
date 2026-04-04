@@ -18,8 +18,8 @@ CORS(app)
 FEED_API_KEY = os.getenv("FEED_API_KEY")
 CRICAPI_KEY  = os.getenv("CRICAPI_KEY")
 
-# Simple in-memory cache for IPL data
-_ipl_cache = {"data": None, "ts": 0}
+# Simple in-memory cache for cricket data
+_cricket_cache = {"data": None, "ts": 0}
 IPL_CACHE_SECS = 1800  # 30 minutes
 
 # ── API KEY CHECK ─────────────────────────────────────────────────
@@ -109,73 +109,73 @@ def get_articles():
     except Exception as e:
         return jsonify({"articles": [], "count": 0, "error": str(e)})
 
-# ── IPL CRICKET DATA ──────────────────────────────────────────────
-@app.route("/api/ipl")
-def get_ipl():
-    global _ipl_cache
+# ── CRICKET DATA ──────────────────────────────────────────────────
+@app.route("/api/cricket")
+def get_cricket():
+    global _cricket_cache
     if not CRICAPI_KEY:
-        return jsonify({"error": "No CRICAPI_KEY set"}), 500
-
-    # Return cached data if fresh
-    if _ipl_cache["data"] and (time.time() - _ipl_cache["ts"]) < IPL_CACHE_SECS:
-        return jsonify(_ipl_cache["data"])
-
+        return jsonify({"error": "No CRICAPI_KEY"}), 500
+    if _cricket_cache["data"] and (time.time() - _cricket_cache["ts"]) < IPL_CACHE_SECS:
+        return jsonify(_cricket_cache["data"])
     try:
         base = f"https://api.cricapi.com/v1"
-
         def fetch(endpoint):
             url = f"{base}/{endpoint}&apikey={CRICAPI_KEY}"
             req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
             with urllib.request.urlopen(req, timeout=10) as r:
                 return json.loads(r.read().decode())
 
-        # Fetch current matches
         matches_data = fetch("currentMatches?offset=0")
-        all_matches  = matches_data.get("data", [])
+        all_matches = matches_data.get("data", [])
 
-        # Filter IPL matches only
-        ipl_keywords = ["indian premier league", "ipl", "ipl 2026"]
-        ipl_matches  = [
-            m for m in all_matches
-            if any(k in m.get("name", "").lower() or k in m.get("matchType", "").lower()
-                   for k in ipl_keywords)
-            or (m.get("series_id") and "ipl" in str(m.get("series_id", "")).lower())
-        ]
+        # IPL filter
+        ipl_teams = ["Mumbai Indians","Chennai Super Kings","Royal Challengers","Kolkata Knight Riders",
+                     "Delhi Capitals","Punjab Kings","Rajasthan Royals","Sunrisers Hyderabad",
+                     "Gujarat Titans","Lucknow Super Giants"]
+        ipl_keywords = ["indian premier league","ipl 2026","ipl"]
 
-        # If no IPL found by keyword, try broader search
-        if not ipl_matches:
-            ipl_matches = [
-                m for m in all_matches
-                if m.get("matchType") == "t20" and
-                any(team in ["Mumbai Indians","Chennai Super Kings","Royal Challengers Bangalore",
-                             "Kolkata Knight Riders","Delhi Capitals","Punjab Kings",
-                             "Rajasthan Royals","Sunrisers Hyderabad","Gujarat Titans",
-                             "Lucknow Super Giants"]
-                    for team in m.get("teams", []))
-            ]
+        def is_ipl(m):
+            name = m.get("name","").lower()
+            teams = m.get("teams", [])
+            return (any(k in name for k in ipl_keywords) or
+                    sum(1 for t in teams if any(it in t for it in ipl_teams)) >= 2)
 
-        # Separate live, recent (completed), upcoming
-        live     = [m for m in ipl_matches if m.get("matchStarted") and not m.get("matchEnded")]
-        completed = [m for m in ipl_matches if m.get("matchEnded")]
-        upcoming  = [m for m in ipl_matches if not m.get("matchStarted") and not m.get("matchEnded")]
+        ipl_matches = [m for m in all_matches if is_ipl(m)]
+        other_matches = [m for m in all_matches if not is_ipl(m)]
 
-        recent   = completed[-1] if completed else None
-        next_up  = upcoming[0]   if upcoming  else None
-        live_now = live[0]       if live       else None
+        # For all cricket: show live first, then recent completed, then upcoming — max 8
+        def classify(m):
+            started = m.get("matchStarted", False)
+            ended   = m.get("matchEnded", False)
+            if started and not ended: return "live"
+            if ended: return "completed"
+            return "upcoming"
+
+        for m in all_matches:
+            m["_status"] = classify(m)
+
+        live_matches      = [m for m in other_matches if m["_status"] == "live"]
+        completed_matches = [m for m in other_matches if m["_status"] == "completed"]
+        upcoming_matches  = [m for m in other_matches if m["_status"] == "upcoming"]
+
+        cricket_feed = (live_matches + completed_matches[-4:] + upcoming_matches[:2])[:8]
+
+        # IPL
+        ipl_live     = next((m for m in ipl_matches if m["_status"] == "live"), None)
+        ipl_recent   = next((m for m in reversed(ipl_matches) if m["_status"] == "completed"), None)
+        ipl_upcoming = next((m for m in ipl_matches if m["_status"] == "upcoming"), None)
 
         result = {
-            "live_match":    live_now,
-            "recent_match":  recent,
-            "upcoming_match": next_up,
-            "all_matches":   ipl_matches,
-            "total_ipl":     len(ipl_matches)
+            "cricket_feed": cricket_feed,
+            "ipl_live":     ipl_live,
+            "ipl_recent":   ipl_recent,
+            "ipl_upcoming": ipl_upcoming,
+            "has_ipl":      len(ipl_matches) > 0
         }
-
-        _ipl_cache = {"data": result, "ts": time.time()}
+        _cricket_cache = {"data": result, "ts": time.time()}
         return jsonify(result)
-
     except Exception as e:
-        return jsonify({"error": str(e), "recent_match": None, "upcoming_match": None, "points_table": []}), 500
+        return jsonify({"error": str(e), "cricket_feed": [], "has_ipl": False}), 500
 
 # ── EMAIL SUBSCRIPTION ────────────────────────────────────────────
 @app.route("/subscribe", methods=["POST"])
