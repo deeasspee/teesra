@@ -148,6 +148,14 @@
     .drawer-theme-grid{display:grid;grid-template-columns:repeat(3,44px);gap:8px;margin-top:8px;}
     .drawer-sw{width:44px;height:44px;border-radius:6px;overflow:hidden;cursor:pointer;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:2px solid rgba(255,255,255,0.12);transition:border-color 0.2s;}
     .drawer-sw.active{border-color:var(--accent);}
+    /* Light theme drawer fixes */
+    #mobileDrawer[data-light="true"] { border: 1px solid var(--border); }
+    #mobileDrawer[data-light="true"] a { color: var(--text) !important; }
+    #mobileDrawer[data-light="true"] a:hover { color: var(--accent) !important; }
+    #mobileDrawer[data-light="true"] a[href="\feed"] { color: var(--accent) !important; }
+    #mobileDrawer[data-light="true"] a[href="#signup"] { color: var(--bg) !important; background: var(--accent) !important; }
+    #mobileDrawer[data-light="true"] .drawer-sw { border-color: rgba(0,0,0,0.15); }
+    #mobileDrawer[data-light="true"] span { color: var(--text) !important; }
     .drawer-sw-top{grid-column:1/-1;}
 
     /* DATE BANNER */
@@ -538,7 +546,15 @@ function applyTheme(id) {
     if (e) e.style.background = [t.bg, t.a, t.b][i];
   });
   const drawer = document.getElementById('mobileDrawer');
-  if (drawer) drawer.style.background = t.bg;
+  if (drawer) {
+    drawer.style.background = t.bg;
+    const lightThemes = ['dawn', 'cloud', 'parchment'];
+    if (lightThemes.includes(id)) {
+      drawer.setAttribute('data-light', 'true');
+    } else {
+      drawer.removeAttribute('data-light');
+    }
+  }
   buildThemeGrid(id);
   buildDrawerSwatches(id);
 }
