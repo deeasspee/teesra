@@ -129,10 +129,40 @@
     [data-theme="jungle"] body { background-color: #080f0a; }
     [data-theme="cosmos"] body { background-color: #08090f; }
     [data-theme="ember"]  body { background-color: #0f0a08; }
-    [data-theme="dawn"] body, [data-theme="cloud"] body, [data-theme="parchment"] body {
-      background-color: var(--bg);
-      background-image: none;
-      animation: none;
+    @keyframes blobshift-light {
+      0%   { filter: hue-rotate(0deg); }
+      50%  { filter: hue-rotate(15deg); }
+      100% { filter: hue-rotate(0deg); }
+    }
+    [data-theme="dawn"] body {
+      background-color: #faf7f0;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(184, 116, 0, 0.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(180, 100, 20, 0.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(200, 140, 40, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(160, 80, 0, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(140, 60, 0, 0.10) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="cloud"] body {
+      background-color: #f4f6fa;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(26, 79, 200, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(10, 138, 122, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(40, 80, 200, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(60, 100, 220, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(20, 60, 180, 0.08) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="parchment"] body {
+      background-color: #f5f0e4;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(138, 26, 42, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(106, 42, 10, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(120, 40, 30, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(100, 30, 20, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(90, 20, 10, 0.08) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
     }
 
     nav {
@@ -1039,8 +1069,6 @@
       padding: 24px 16px;
       position: sticky;
       top: 56px;
-      overflow-y: auto;
-      max-height: calc(100vh - 80px);
     }
     .sidebar-widget {
       background: var(--surface);
@@ -1052,7 +1080,7 @@
     }
     #cricketFeed {
       overflow-y: auto;
-      max-height: calc(100vh - 160px);
+      max-height: calc(100vh - 200px);
       scrollbar-width: thin;
       scrollbar-color: var(--border) transparent;
     }
@@ -1890,8 +1918,10 @@
       }
 
       function process(data) {
+        console.log('Cricket API response:', data);
         // Left sidebar: all cricket
-        renderCricketFeed(data.matches);
+        const matches = data.matches || data.cricket_feed || data.data || [];
+        renderCricketFeed(matches);
 
         // Right sidebar: IPL only
         const iplSidebar = document.getElementById('iplSidebar');

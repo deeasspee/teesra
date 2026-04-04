@@ -30,12 +30,96 @@
     
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--bg);
+      background-color: #0a0e14;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      animation: blobshift 20s ease-in-out infinite alternate;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
       line-height: 1.6;
+      transition: color 0.4s;
     }
+    @keyframes blobshift {
+      0% {
+        background-image:
+          radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+          radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+          radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      }
+      33% {
+        background-image:
+          radial-gradient(ellipse at 70% 30%, rgba(88, 28, 135, 0.30) 0%, transparent 50%),
+          radial-gradient(ellipse at 20% 60%, rgba(15, 118, 110, 0.35) 0%, transparent 45%),
+          radial-gradient(ellipse at 80% 70%, rgba(30, 27, 75, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 10%, rgba(127, 29, 29, 0.25) 0%, transparent 45%),
+          radial-gradient(ellipse at 30% 80%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      }
+      66% {
+        background-image:
+          radial-gradient(ellipse at 50% 70%, rgba(88, 28, 135, 0.25) 0%, transparent 50%),
+          radial-gradient(ellipse at 90% 40%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 20% 30%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 80%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 20%, rgba(12, 74, 110, 0.35) 0%, transparent 40%);
+      }
+      100% {
+        background-image:
+          radial-gradient(ellipse at 30% 50%, rgba(88, 28, 135, 0.30) 0%, transparent 50%),
+          radial-gradient(ellipse at 60% 20%, rgba(15, 118, 110, 0.25) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 90%, rgba(30, 27, 75, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 30%, rgba(127, 29, 29, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 10% 40%, rgba(12, 74, 110, 0.25) 0%, transparent 40%);
+      }
+    }
+    @keyframes blobshift-light {
+      0%   { filter: hue-rotate(0deg); }
+      50%  { filter: hue-rotate(15deg); }
+      100% { filter: hue-rotate(0deg); }
+    }
+    [data-theme="jungle"] body { background-color: #080f0a; }
+    [data-theme="cosmos"] body { background-color: #08090f; }
+    [data-theme="ember"]  body { background-color: #0f0a08; }
+    [data-theme="dawn"] body {
+      background-color: #faf7f0;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(184, 116, 0, 0.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(180, 100, 20, 0.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(200, 140, 40, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(160, 80, 0, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(140, 60, 0, 0.10) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="cloud"] body {
+      background-color: #f4f6fa;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(26, 79, 200, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(10, 138, 122, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(40, 80, 200, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(60, 100, 220, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(20, 60, 180, 0.08) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="parchment"] body {
+      background-color: #f5f0e4;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(138, 26, 42, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(106, 42, 10, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(120, 40, 30, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(100, 30, 20, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(90, 20, 10, 0.08) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    /* Light theme about-wrap frosted glass */
+    [data-theme="dawn"] .about-wrap      { background: rgba(250,247,240,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
+    [data-theme="cloud"] .about-wrap     { background: rgba(244,246,250,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
+    [data-theme="parchment"] .about-wrap { background: rgba(245,240,228,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
 
     nav {
       display: flex;

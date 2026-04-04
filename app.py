@@ -216,19 +216,24 @@ def get_cricscore():
                 return "completed"
             return "upcoming"
 
+        def get_date_variants(d):
+            day   = d.day
+            month = d.strftime('%b')
+            return [f"{month} {day}", f"{month} {day:02d}", f"{day} {month}"]
+
+        allowed_dates = []
+        for d in [yesterday, today, tomorrow]:
+            allowed_dates.extend(get_date_variants(d))
+
         def is_relevant(m):
-            status  = (m.get("status", "") or "").lower()
+            status  = (m.get("status", "") or "")
             started = m.get("matchStarted", False)
             ended   = m.get("matchEnded",   False)
             if started and not ended:
                 return True  # always include live
-            for d in [today, yesterday, tomorrow]:
-                month = d.strftime("%b").lower()
-                day   = str(d.day)
-                if month in status and day in status:
+            for date_str in allowed_dates:
+                if date_str in status:
                     return True
-            if ended:
-                return True  # include all recent completed as fallback
             return False
 
         results = []
@@ -257,10 +262,13 @@ def get_cricscore():
                 "upcoming":  t_status == "upcoming",
             })
 
-        # Sort: live first, completed second, upcoming last — cap at 10
+        # Sort: live first, completed second, upcoming last — cap at 12
         order = {"live": 0, "completed": 1, "upcoming": 2}
         results.sort(key=lambda x: order["live" if x["live"] else "completed" if x["completed"] else "upcoming"])
-        results = results[:10]
+        results = results[:12]
+        print(f"Cricket API returned {len(all_matches)} matches, filtered to {len(results)}")
+        for m in results[:3]:
+            print(f"  - {m.get('t1','')} vs {m.get('t2','')} | status: {m.get('status','')[:50]}")
 
         out = {"matches": results, "count": len(results)}
         _cricscore_cache = {"data": out, "ts": time.time()}
