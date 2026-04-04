@@ -158,7 +158,7 @@ def get_cricket():
         completed_matches = [m for m in other_matches if m["_status"] == "completed"]
         upcoming_matches  = [m for m in other_matches if m["_status"] == "upcoming"]
 
-        cricket_feed = (live_matches + completed_matches[-4:] + upcoming_matches[:2])[:8]
+        cricket_feed = (live_matches + list(reversed(completed_matches[-4:])) + upcoming_matches[:2])[:8]
 
         # IPL
         ipl_live     = next((m for m in ipl_matches if m["_status"] == "live"), None)
@@ -180,6 +180,18 @@ def get_cricket():
 # ── CRICSCORE — live scores with logos and abbr ───────────────────
 _cricscore_cache = {"data": None, "ts": 0}
 CRICSCORE_CACHE_SECS = 300  # 5 minutes
+
+def convert_gmt_to_ist(status_str):
+    """Convert GMT time mentions to IST (+5:30) in status strings"""
+    from datetime import datetime, timedelta
+    def replace_time(match):
+        try:
+            t = datetime.strptime(match.group(1), "%H:%M")
+            ist = t + timedelta(hours=5, minutes=30)
+            return f"{ist.strftime('%H:%M')} IST"
+        except:
+            return match.group(0)
+    return re.sub(r'(\d{2}:\d{2})\s*GMT', replace_time, status_str or "")
 
 @app.route("/api/cricscore")
 def get_cricscore():
@@ -240,7 +252,7 @@ def get_cricscore():
         for m in all_matches:
             if not is_relevant(m):
                 continue
-            status_str = m.get("status", "") or ""
+            status_str = convert_gmt_to_ist(m.get("status", "") or "")
             t_status   = classify(m)
 
             t1abbr, t1name = parse_team(m.get("t1", ""))
@@ -262,10 +274,11 @@ def get_cricscore():
                 "upcoming":  t_status == "upcoming",
             })
 
-        # Sort: live first, completed second, upcoming last — cap at 12
-        order = {"live": 0, "completed": 1, "upcoming": 2}
-        results.sort(key=lambda x: order["live" if x["live"] else "completed" if x["completed"] else "upcoming"])
-        results = results[:12]
+        # Sort: live first, completed newest→oldest, upcoming soonest→farthest
+        live_r      = [m for m in results if m["live"]]
+        completed_r = list(reversed([m for m in results if m["completed"]]))
+        upcoming_r  = [m for m in results if m["upcoming"]]
+        results     = (live_r + completed_r + upcoming_r)[:12]
         print(f"Cricket API returned {len(all_matches)} matches, filtered to {len(results)}")
         for m in results[:3]:
             print(f"  - {m.get('t1','')} vs {m.get('t2','')} | status: {m.get('status','')[:50]}")
