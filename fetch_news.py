@@ -159,8 +159,11 @@ def fetch_from_source(source):
         for entry in feed.entries[:5]:
 
             raw_url = entry.get("link", "")
+            title = entry.get("title", "No title")
+            if ' - ' in title:
+                title = title.rsplit(' - ', 1)[0].strip()
             article = {
-                "title":     entry.get("title", "No title"),
+                "title":     title,
                 "summary":   entry.get("summary", "No summary"),
                 "url":       resolve_google_url(raw_url),
                 "source":    source["name"],
