@@ -15,6 +15,48 @@
     [data-theme="cloud"]{--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--glow:rgba(26,79,200,0.06);--card-max:720px;}
     [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--glow:rgba(138,26,42,0.06);--card-max:720px;}
 
+    /* ── DARK HERO OVERLAY ───────────────────────────────────── */
+    .feed-hero {
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    /* ── LIGHT THEME READABILITY ─────────────────────────────── */
+    [data-theme="dawn"] .feed-hero,
+    [data-theme="cloud"] .feed-hero,
+    [data-theme="parchment"] .feed-hero {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 12px;
+      margin: 8px 12px;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    [data-theme="dawn"] .feed-hero      { background: rgba(250, 247, 240, 0.88); }
+    [data-theme="cloud"] .feed-hero     { background: rgba(244, 246, 250, 0.88); }
+    [data-theme="parchment"] .feed-hero { background: rgba(245, 240, 228, 0.88); }
+    [data-theme="dawn"] .feed-hero *,
+    [data-theme="cloud"] .feed-hero *,
+    [data-theme="parchment"] .feed-hero * { color: var(--text) !important; }
+    [data-theme="dawn"] .live-clock,
+    [data-theme="cloud"] .live-clock,
+    [data-theme="parchment"] .live-clock { color: var(--facts) !important; }
+    [data-theme="dawn"] .market-ticker,
+    [data-theme="cloud"] .market-ticker,
+    [data-theme="parchment"] .market-ticker {
+      background: rgba(255, 255, 255, 0.88) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    [data-theme="dawn"] .trends-bar,
+    [data-theme="cloud"] .trends-bar,
+    [data-theme="parchment"] .trends-bar {
+      background: rgba(255, 255, 255, 0.80) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
     /* ── THEME SWATCH ─────────────────────────────────────────── */
     .theme-wrap{position:relative;}
     .theme-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
@@ -36,26 +78,62 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: linear-gradient(125deg, #0a120e, #0d1117, #12080e);
-      background-size: 300% 300%;
-      animation: gradshift 18s ease infinite;
+      background-color: #0a0e14;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      animation: blobshift 20s ease-in-out infinite alternate;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
       line-height: 1.6;
       transition: color 0.3s;
     }
-    @keyframes gradshift {
-      0%   { background-position: 0% 50%; }
-      25%  { background-position: 100% 0%; }
-      50%  { background-position: 100% 100%; }
-      75%  { background-position: 0% 100%; }
-      100% { background-position: 0% 50%; }
+    @keyframes blobshift {
+      0% {
+        background-image:
+          radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+          radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+          radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      }
+      33% {
+        background-image:
+          radial-gradient(ellipse at 70% 30%, rgba(88, 28, 135, 0.30) 0%, transparent 50%),
+          radial-gradient(ellipse at 20% 60%, rgba(15, 118, 110, 0.35) 0%, transparent 45%),
+          radial-gradient(ellipse at 80% 70%, rgba(30, 27, 75, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 10%, rgba(127, 29, 29, 0.25) 0%, transparent 45%),
+          radial-gradient(ellipse at 30% 80%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      }
+      66% {
+        background-image:
+          radial-gradient(ellipse at 50% 70%, rgba(88, 28, 135, 0.25) 0%, transparent 50%),
+          radial-gradient(ellipse at 90% 40%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 20% 30%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 80%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 20%, rgba(12, 74, 110, 0.35) 0%, transparent 40%);
+      }
+      100% {
+        background-image:
+          radial-gradient(ellipse at 30% 50%, rgba(88, 28, 135, 0.30) 0%, transparent 50%),
+          radial-gradient(ellipse at 60% 20%, rgba(15, 118, 110, 0.25) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 90%, rgba(30, 27, 75, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 30%, rgba(127, 29, 29, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 10% 40%, rgba(12, 74, 110, 0.25) 0%, transparent 40%);
+      }
     }
-    [data-theme="jungle"] body { background: linear-gradient(125deg, #0a120e, #0d1a12, #101408); background-size: 300% 300%; animation: gradshift 18s ease infinite; }
-    [data-theme="cosmos"] body { background: linear-gradient(125deg, #0d1117, #0a0e1a, #10080f); background-size: 300% 300%; animation: gradshift 18s ease infinite; }
-    [data-theme="ember"]  body { background: linear-gradient(125deg, #141410, #1a0e08, #100a14); background-size: 300% 300%; animation: gradshift 18s ease infinite; }
-    [data-theme="dawn"] body, [data-theme="cloud"] body, [data-theme="parchment"] body { background: var(--bg); animation: none; }
+    [data-theme="jungle"] body { background-color: #080f0a; }
+    [data-theme="cosmos"] body { background-color: #08090f; }
+    [data-theme="ember"]  body { background-color: #0f0a08; }
+    [data-theme="dawn"] body, [data-theme="cloud"] body, [data-theme="parchment"] body {
+      background-color: var(--bg);
+      background-image: none;
+      animation: none;
+    }
 
     nav {
       position: sticky;
@@ -160,6 +238,7 @@
       background: rgba(10,10,8,0.97);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
+      border-radius: 0 0 16px 16px;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -266,6 +345,7 @@
       justify-content: center;
       padding: 80px 40px;
       gap: 16px;
+      border-radius: 12px;
     }
 
     .loading-spinner {
@@ -296,7 +376,8 @@
       height: 48px;
       background: rgba(15, 15, 12, 0.72);
       border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 4px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       font-family: 'Space Mono', 'DM Mono', monospace;
@@ -402,6 +483,7 @@
       gap: 8px;
       background: rgba(232,200,74,0.07);
       border: 1px solid rgba(232,200,74,0.15);
+      border-radius: 20px;
       padding: 5px 12px;
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -420,10 +502,12 @@
       transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
       position: relative;
       overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.18);
     }
 
     .story-card.visible { opacity: 1; transform: translateY(0); }
-    .story-card:hover { border-color: var(--facts); }
+    .story-card:hover { border-color: var(--facts); box-shadow: 0 6px 28px rgba(0,0,0,0.25); }
     .story-card:hover .card-headline { color: var(--facts); }
 
     .card-header {
@@ -482,6 +566,7 @@
       width: 48px;
       height: 48px;
       border: 1px solid var(--border);
+      border-radius: 20px;
       background: var(--bg);
       cursor: default;
       transition: border-color 0.2s;
@@ -532,6 +617,8 @@
     .card-panels {
       display: grid;
       border-bottom: 1px solid var(--border);
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
     }
 
     .grid-3 { grid-template-columns: repeat(3,1fr); }
@@ -632,6 +719,7 @@
 
     .card-caution {
       border-top: 1px solid rgba(212,91,91,0.2);
+      border-radius: 0 0 12px 12px;
       padding: 10px 20px;
       background: rgba(212,91,91,0.04);
       font-size: 11px;
@@ -696,6 +784,8 @@
 
     .support-card {
       border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
       background: var(--surface);
       padding: 24px;
       display: flex;
@@ -925,7 +1015,7 @@
       line-height: 1;
     }
     /* ── Google Trends Ticker ───────────────────────────────── */
-    .trends-bar{background:rgba(10,18,14,0.65);border-bottom:1px solid var(--border);overflow:hidden;height:32px;display:flex;align-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+    .trends-bar{background:rgba(10,18,14,0.65);border-bottom:1px solid var(--border);overflow:hidden;height:32px;display:flex;align-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;}
     [data-theme="dawn"] .trends-bar,[data-theme="cloud"] .trends-bar,[data-theme="parchment"] .trends-bar{background:rgba(245,243,238,0.75);}
     .trends-label{font-family:'Space Mono','DM Mono',monospace;font-size:8px;letter-spacing:0.15em;color:var(--facts);text-transform:uppercase;padding:0 12px;flex-shrink:0;border-right:1px solid var(--border);height:100%;display:flex;align-items:center;white-space:nowrap;}
     .trends-scroll-wrap{overflow:hidden;flex:1;height:100%;display:flex;align-items:center;}
@@ -957,10 +1047,14 @@
       border: 1px solid var(--border);
       margin-bottom: 16px;
       overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
     }
     #cricketFeed {
       overflow-y: auto;
-      max-height: calc(100vh - 140px);
+      max-height: calc(100vh - 160px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
     #cricketFeed::-webkit-scrollbar { width: 3px; }
     #cricketFeed::-webkit-scrollbar-track { background: transparent; }
@@ -1680,7 +1774,7 @@
         const sk  = document.getElementById('cricketSkeleton');
         const wid = document.getElementById('cricketWidget');
         if (!el) return;
-        if (!matches || !matches.length) {
+        if (!matches) {
           if (wid) wid.style.display = 'none'; return;
         }
 
@@ -1725,7 +1819,7 @@
               : `<div style="font-size:9px;color:var(--text-dim);margin-top:4px;">${statusText}</div>`
             : '';
 
-          return `<div style="padding:9px 14px;border-bottom:1px solid var(--border);">
+          return `<div style="padding:9px 14px;border-bottom:1px solid var(--border);border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;">
             <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px;letter-spacing:0.5px;">
               ${seriesShort} · ${indicator}
             </div>
@@ -1775,8 +1869,15 @@
       async function loadCricket() {
         try {
           const cached = sessionStorage.getItem(CACHE_KEY);
-          if (cached) { process(JSON.parse(cached)); return; }
-        } catch(e) {}
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && (parsed.matches || parsed.cricket_feed || parsed.cricscore)) {
+              process(parsed); return;
+            } else {
+              sessionStorage.removeItem(CACHE_KEY);
+            }
+          }
+        } catch(e) { sessionStorage.removeItem(CACHE_KEY); }
         try {
           const res  = await fetch('/api/cricscore');
           const data = await res.json();

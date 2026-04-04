@@ -179,7 +179,7 @@ def get_cricket():
 
 # ── CRICSCORE — live scores with logos and abbr ───────────────────
 _cricscore_cache = {"data": None, "ts": 0}
-CRICSCORE_CACHE_SECS = 600  # 10 minutes
+CRICSCORE_CACHE_SECS = 300  # 5 minutes
 
 @app.route("/api/cricscore")
 def get_cricscore():
@@ -193,14 +193,6 @@ def get_cricscore():
         today     = date.today()
         yesterday = today - timedelta(days=1)
         tomorrow  = today + timedelta(days=1)
-        # Build date strings like "Apr 5" (strip leading zero)
-        def fmt_date(d):
-            s = d.strftime("%b %d")
-            parts = s.split()
-            return parts[0] + " " + parts[1].lstrip("0")
-        today_str     = fmt_date(today)
-        yesterday_str = fmt_date(yesterday)
-        tomorrow_str  = fmt_date(tomorrow)
 
         url = f"https://api.cricapi.com/v1/cricScore?apikey={CRICAPI_KEY}"
         req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
@@ -224,18 +216,27 @@ def get_cricscore():
                 return "completed"
             return "upcoming"
 
+        def is_relevant(m):
+            status  = (m.get("status", "") or "").lower()
+            started = m.get("matchStarted", False)
+            ended   = m.get("matchEnded",   False)
+            if started and not ended:
+                return True  # always include live
+            for d in [today, yesterday, tomorrow]:
+                month = d.strftime("%b").lower()
+                day   = str(d.day)
+                if month in status and day in status:
+                    return True
+            if ended:
+                return True  # include all recent completed as fallback
+            return False
+
         results = []
         for m in all_matches:
+            if not is_relevant(m):
+                continue
             status_str = m.get("status", "") or ""
             t_status   = classify(m)
-
-            # Date filter
-            if t_status == "completed":
-                if today_str not in status_str and yesterday_str not in status_str:
-                    continue
-            elif t_status == "upcoming":
-                if today_str not in status_str and tomorrow_str not in status_str:
-                    continue
 
             t1abbr, t1name = parse_team(m.get("t1", ""))
             t2abbr, t2name = parse_team(m.get("t2", ""))
