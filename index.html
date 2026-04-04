@@ -141,14 +141,32 @@
     .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
     /* MOBILE DRAWER */
-    #mobileDrawer{display:none;position:fixed;inset:0;z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:#0a120e;}
-    #mobileDrawer.open{display:flex;}
-    #mobileDrawer a{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#e8f0e4;text-decoration:none;}
-    #mobileDrawer a:hover{color:#d4a820;}
-    .drawer-theme-grid{display:grid;grid-template-columns:repeat(3,44px);gap:8px;margin-top:8px;}
-    .drawer-sw{width:44px;height:44px;border-radius:6px;overflow:hidden;cursor:pointer;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:2px solid rgba(255,255,255,0.12);transition:border-color 0.2s;}
-    .drawer-sw.active{border-color:#d4a820;}
-    .drawer-sw-top{grid-column:1/-1;}
+    #mobileDrawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      background: #0a120e;
+    }
+    #mobileDrawer.open { display: flex; }
+    #mobileDrawer a {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #e8f0e4 !important;
+      text-decoration: none;
+    }
+    #mobileDrawer a:hover { color: #d4a820 !important; }
+    #mobileDrawer button { color: #426048 !important; }
+    #mobileDrawer span { color: #426048 !important; }
+    .drawer-theme-grid { display:grid; grid-template-columns:repeat(3,44px); gap:8px; margin-top:8px; }
+    .drawer-sw { width:44px; height:44px; border-radius:6px; overflow:hidden; cursor:pointer; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; border:2px solid rgba(255,255,255,0.15); transition:border-color 0.2s; }
+    .drawer-sw.active { border-color:#d4a820; }
+    .drawer-sw-top { grid-column:1/-1; }
 
     /* DATE BANNER */
     .date-banner{
@@ -327,13 +345,13 @@
 
 <!-- MOBILE DRAWER -->
 <div id="mobileDrawer">
-  <button onclick="toggleMenu()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#426048;font-size:28px;cursor:pointer;">✕</button>
-  <a href="#how" onclick="toggleMenu()">How it works</a>
-  <a href="/feed" style="color:#d4a820!important;">Today's Brief ✦</a>
-  <a href="/about" onclick="toggleMenu()">About</a>
-  <a href="#signup" onclick="toggleMenu()" style="display:inline-block;background:#d4a820;color:#0a120e!important;padding:12px 32px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;">Subscribe →</a>
+  <button onclick="toggleMenu()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#426048 !important;font-size:28px;cursor:pointer;z-index:10000;">✕</button>
+  <a href="#how" onclick="toggleMenu()" style="color:#e8f0e4 !important;">How it works</a>
+  <a href="/feed" style="color:#d4a820 !important;">Today's Brief ✦</a>
+  <a href="/about" onclick="toggleMenu()" style="color:#e8f0e4 !important;">About</a>
+  <a href="#signup" onclick="toggleMenu()" style="display:inline-block;background:#d4a820 !important;color:#0a120e !important;padding:12px 32px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;text-decoration:none;">Subscribe →</a>
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px;">
-    <span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#426048;">Theme</span>
+    <span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#426048 !important;">Theme</span>
     <div class="drawer-theme-grid" id="drawerSwatches"></div>
   </div>
 </div>
@@ -600,6 +618,7 @@ function toggleMenu() {
     d.classList.remove('open'); b.classList.remove('open'); document.body.style.overflow = '';
   } else {
     d.classList.add('open'); b.classList.add('open'); document.body.style.overflow = 'hidden';
+    d.setAttribute('data-theme', 'jungle');
   }
 }
 
