@@ -177,6 +177,96 @@ def get_cricket():
     except Exception as e:
         return jsonify({"error": str(e), "cricket_feed": [], "has_ipl": False}), 500
 
+# ── CRICSCORE — live scores with logos and abbr ───────────────────
+_cricscore_cache = {"data": None, "ts": 0}
+CRICSCORE_CACHE_SECS = 600  # 10 minutes
+
+@app.route("/api/cricscore")
+def get_cricscore():
+    global _cricscore_cache
+    if not CRICAPI_KEY:
+        return jsonify({"error": "No CRICAPI_KEY"}), 500
+    if _cricscore_cache["data"] and (time.time() - _cricscore_cache["ts"]) < CRICSCORE_CACHE_SECS:
+        return jsonify(_cricscore_cache["data"])
+    try:
+        from datetime import date, timedelta
+        today     = date.today()
+        yesterday = today - timedelta(days=1)
+        tomorrow  = today + timedelta(days=1)
+        # Build date strings like "Apr 5" (strip leading zero)
+        def fmt_date(d):
+            s = d.strftime("%b %d")
+            parts = s.split()
+            return parts[0] + " " + parts[1].lstrip("0")
+        today_str     = fmt_date(today)
+        yesterday_str = fmt_date(yesterday)
+        tomorrow_str  = fmt_date(tomorrow)
+
+        url = f"https://api.cricapi.com/v1/cricScore?apikey={CRICAPI_KEY}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            raw = json.loads(r.read().decode())
+
+        all_matches = raw.get("data", [])
+
+        def parse_team(name):
+            m = re.search(r'\[(\w+)\]', name or "")
+            abbr     = m.group(1) if m else (name or "")[:4].upper()
+            fullname = re.sub(r'\s*\[.*?\]', '', name or "").strip()
+            return abbr, fullname
+
+        def classify(m):
+            started = m.get("matchStarted", False)
+            ended   = m.get("matchEnded",   False)
+            if started and not ended:
+                return "live"
+            if ended:
+                return "completed"
+            return "upcoming"
+
+        results = []
+        for m in all_matches:
+            status_str = m.get("status", "") or ""
+            t_status   = classify(m)
+
+            # Date filter
+            if t_status == "completed":
+                if today_str not in status_str and yesterday_str not in status_str:
+                    continue
+            elif t_status == "upcoming":
+                if today_str not in status_str and tomorrow_str not in status_str:
+                    continue
+
+            t1abbr, t1name = parse_team(m.get("t1", ""))
+            t2abbr, t2name = parse_team(m.get("t2", ""))
+
+            results.append({
+                "name":      m.get("name", ""),
+                "t1":        t1name,
+                "t2":        t2name,
+                "t1abbr":    t1abbr,
+                "t2abbr":    t2abbr,
+                "t1img":     m.get("t1img", ""),
+                "t2img":     m.get("t2img", ""),
+                "t1s":       m.get("t1s", ""),
+                "t2s":       m.get("t2s", ""),
+                "status":    status_str,
+                "live":      t_status == "live",
+                "completed": t_status == "completed",
+                "upcoming":  t_status == "upcoming",
+            })
+
+        # Sort: live first, completed second, upcoming last — cap at 10
+        order = {"live": 0, "completed": 1, "upcoming": 2}
+        results.sort(key=lambda x: order["live" if x["live"] else "completed" if x["completed"] else "upcoming"])
+        results = results[:10]
+
+        out = {"matches": results, "count": len(results)}
+        _cricscore_cache = {"data": out, "ts": time.time()}
+        return jsonify(out)
+    except Exception as e:
+        return jsonify({"error": str(e), "matches": [], "count": 0}), 500
+
 # ── EMAIL SUBSCRIPTION ────────────────────────────────────────────
 @app.route("/subscribe", methods=["POST"])
 def subscribe():

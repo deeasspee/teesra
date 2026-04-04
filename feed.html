@@ -36,26 +36,26 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: linear-gradient(135deg, #0a120e 0%, #0d1117 50%, #120a0e 100%);
-      background-attachment: fixed;
-      animation: bgshift 25s ease infinite alternate;
+      background: linear-gradient(125deg, #0a120e, #0d1117, #12080e);
+      background-size: 300% 300%;
+      animation: gradshift 18s ease infinite;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
       line-height: 1.6;
       transition: color 0.3s;
     }
-    @keyframes bgshift {
-      0%   { background-position: 0% 50%; filter: hue-rotate(0deg); }
-      50%  { background-position: 100% 50%; filter: hue-rotate(8deg); }
-      100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+    @keyframes gradshift {
+      0%   { background-position: 0% 50%; }
+      25%  { background-position: 100% 0%; }
+      50%  { background-position: 100% 100%; }
+      75%  { background-position: 0% 100%; }
+      100% { background-position: 0% 50%; }
     }
-    [data-theme="dawn"] body,
-    [data-theme="cloud"] body,
-    [data-theme="parchment"] body {
-      background: var(--bg);
-      animation: none;
-    }
+    [data-theme="jungle"] body { background: linear-gradient(125deg, #0a120e, #0d1a12, #101408); background-size: 300% 300%; animation: gradshift 18s ease infinite; }
+    [data-theme="cosmos"] body { background: linear-gradient(125deg, #0d1117, #0a0e1a, #10080f); background-size: 300% 300%; animation: gradshift 18s ease infinite; }
+    [data-theme="ember"]  body { background: linear-gradient(125deg, #141410, #1a0e08, #100a14); background-size: 300% 300%; animation: gradshift 18s ease infinite; }
+    [data-theme="dawn"] body, [data-theme="cloud"] body, [data-theme="parchment"] body { background: var(--bg); animation: none; }
 
     nav {
       position: sticky;
@@ -949,6 +949,8 @@
       padding: 24px 16px;
       position: sticky;
       top: 56px;
+      overflow-y: auto;
+      max-height: calc(100vh - 80px);
     }
     .sidebar-widget {
       background: var(--surface);
@@ -956,6 +958,13 @@
       margin-bottom: 16px;
       overflow: hidden;
     }
+    #cricketFeed {
+      overflow-y: auto;
+      max-height: calc(100vh - 140px);
+    }
+    #cricketFeed::-webkit-scrollbar { width: 3px; }
+    #cricketFeed::-webkit-scrollbar-track { background: transparent; }
+    #cricketFeed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     .sidebar-header {
       padding: 10px 14px;
       border-bottom: 1px solid var(--border);
@@ -1674,43 +1683,53 @@
         if (!matches || !matches.length) {
           if (wid) wid.style.display = 'none'; return;
         }
+
+        function teamLogo(img, abbr) {
+          if (img) {
+            return `<img src="${img}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">`;
+          }
+          return `<div style="width:16px;height:16px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:7px;color:var(--text-mid);font-weight:700;flex-shrink:0;">${(abbr||'?').slice(0,2)}</div>`;
+        }
+
         el.innerHTML = matches.map(m => {
-          const teams   = m.teams || [];
-          const scores  = m.score || [];
-          const status  = m._status || '';
-          const mStatus = m.status || '';
-          const name    = m.name || '';
+          const name        = m.name || '';
           const seriesParts = name.split(',');
-          const seriesShort = seriesParts[seriesParts.length-1]?.trim().replace(/\d{4}/g,'').trim() || '';
+          const seriesShort = (seriesParts[seriesParts.length - 1] || '').trim().replace(/\d{4}/g, '').trim();
+          const statusText  = (m.status || '').slice(0, 45);
 
-          const statusDot = status === 'live'
-            ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--pulse);margin-right:4px;animation:blink 1s infinite;"></span>`
-            : status === 'upcoming' ? '📅 ' : '✅ ';
+          const indicator = m.live
+            ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--pulse);margin-right:4px;vertical-align:middle;"></span>LIVE`
+            : m.upcoming ? '📅 upcoming' : '✅ result';
 
-          const teamsHtml = teams.slice(0,2).map(t => {
-            const sc = scores.find(s => s.inning && s.inning.toLowerCase().includes(t.toLowerCase().slice(0,5)));
-            const scoreStr = sc ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--facts);">${sc.r}/${sc.w}(${sc.o})</span>` : '';
-            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0;">
-              <div style="display:flex;align-items:center;gap:5px;">
-                ${badge(t, 14)}
-                <span style="font-size:10px;color:var(--text);font-weight:500;">${getAbbr(t)}</span>
-              </div>
-              ${scoreStr}
-            </div>`;
-          }).join('');
+          const t1Row = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+            <div style="display:flex;align-items:center;gap:5px;">
+              ${teamLogo(m.t1img, m.t1abbr)}
+              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);font-weight:500;">${m.t1abbr}</span>
+            </div>
+            ${m.t1s ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);">${m.t1s}</span>` : ''}
+          </div>`;
 
-          const resultStr = status === 'completed' && mStatus
-            ? `<div style="font-size:9px;color:var(--text-mid);margin-top:4px;line-height:1.3;">${mStatus.split(' won')[0]} won</div>`
-            : status === 'live' && mStatus
-            ? `<div style="font-size:9px;color:var(--pulse);margin-top:4px;">${mStatus}</div>`
+          const t2Row = `<div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:5px;">
+              ${teamLogo(m.t2img, m.t2abbr)}
+              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);font-weight:500;">${m.t2abbr}</span>
+            </div>
+            ${m.t2s ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);">${m.t2s}</span>` : (m.upcoming ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);">vs</span>` : '')}
+          </div>`;
+
+          const statusRow = statusText
+            ? m.live
+              ? `<div style="font-size:9px;color:var(--pulse);margin-top:4px;">● LIVE · ${statusText}</div>`
+              : m.completed
+              ? `<div style="font-size:9px;color:var(--text-mid);margin-top:4px;">${statusText}</div>`
+              : `<div style="font-size:9px;color:var(--text-dim);margin-top:4px;">${statusText}</div>`
             : '';
 
-          return `<div style="padding:10px 14px;border-bottom:1px solid var(--border);">
-            <div style="font-family:'DM Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;">
-              ${statusDot}${seriesShort}
+          return `<div style="padding:9px 14px;border-bottom:1px solid var(--border);">
+            <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px;letter-spacing:0.5px;">
+              ${seriesShort} · ${indicator}
             </div>
-            ${teamsHtml}
-            ${resultStr}
+            ${t1Row}${t2Row}${statusRow}
           </div>`;
         }).join('');
 
@@ -1759,7 +1778,7 @@
           if (cached) { process(JSON.parse(cached)); return; }
         } catch(e) {}
         try {
-          const res  = await fetch('/api/cricket');
+          const res  = await fetch('/api/cricscore');
           const data = await res.json();
           sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
           process(data);
@@ -1771,7 +1790,7 @@
 
       function process(data) {
         // Left sidebar: all cricket
-        renderCricketFeed(data.cricket_feed);
+        renderCricketFeed(data.matches);
 
         // Right sidebar: IPL only
         const iplSidebar = document.getElementById('iplSidebar');
