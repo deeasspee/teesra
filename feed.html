@@ -15,6 +15,45 @@
     [data-theme="cloud"]{--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--glow:rgba(26,79,200,0.06);--card-max:720px;}
     [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--glow:rgba(138,26,42,0.06);--card-max:720px;}
 
+    /* Dawn + Cloud — hero section needs light overlay since NASA bg is dark */
+[data-theme="dawn"] .feed-hero,
+[data-theme="cloud"] .feed-hero {
+  background: rgba(250, 247, 240, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Dawn + Cloud — trends bar needs light bg */
+[data-theme="dawn"] .trends-bar,
+[data-theme="cloud"] .trends-bar {
+  background: rgba(250, 247, 240, 0.90) !important;
+}
+
+/* Dawn + Cloud — market ticker needs light bg */
+[data-theme="dawn"] .market-ticker,
+[data-theme="cloud"] .market-ticker {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+}
+
+/* Dawn — force dark text on all hero elements */
+[data-theme="dawn"] .feed-hero *,
+[data-theme="cloud"] .feed-hero * {
+  color: var(--text) !important;
+}
+
+/* Dawn + Cloud — market divider */
+[data-theme="dawn"] .market-div,
+[data-theme="cloud"] .market-div {
+  background: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Dawn + Cloud — market mood border */
+[data-theme="dawn"] .market-mood,
+[data-theme="cloud"] .market-mood {
+  border-left-color: rgba(0, 0, 0, 0.12) !important;
+}
+
     /* ── THEME SWATCH ─────────────────────────────────────────── */
     .theme-wrap{position:relative;}
     .theme-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
@@ -975,6 +1014,140 @@
     .trend-item{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-mid);padding:0 18px;display:inline-flex;align-items:center;gap:5px;text-decoration:none;transition:color 0.2s;white-space:nowrap;height:32px;border-right:1px solid rgba(255,255,255,0.04);}
     .trend-item:hover{color:var(--facts);}
     .trend-num{font-size:8px;color:var(--text-dim);opacity:0.6;}
+    /* ── IPL SIDEBARS ────────────────────────────────────────── */
+    .feed-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 260px;
+      gap: 0;
+      max-width: 1280px;
+      margin: 0 auto;
+      align-items: start;
+      padding: 0 16px;
+    }
+    .feed-sidebar {
+      padding: 24px 16px;
+      position: sticky;
+      top: 56px;
+    }
+    .sidebar-widget {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sidebar-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--facts);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-subtitle {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      color: var(--text-dim);
+    }
+    /* Points table */
+    .pt-row {
+      display: grid;
+      grid-template-columns: 18px 1fr 28px 28px 28px 36px;
+      gap: 4px;
+      align-items: center;
+      padding: 7px 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .pt-row:last-child { border-bottom: none; }
+    .pt-row:hover { background: var(--glow); }
+    .pt-row.pt-header {
+      font-family: 'DM Mono', monospace;
+      font-size: 7px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      background: var(--bg2);
+      padding: 5px 14px;
+    }
+    .pt-pos { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-dim); }
+    .pt-team { font-size: 11px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .pt-logo { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--border); }
+    .pt-team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+    .pt-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-mid); text-align: center; }
+    .pt-pts { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--facts); font-weight: 700; text-align: center; }
+    .pt-qual { background: var(--pulse); }
+    /* Match card */
+    .match-card { padding: 12px 14px; }
+    .match-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--pulse);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .match-status.completed { color: var(--text-dim); }
+    .match-teams { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .match-team {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .match-team-left { display: flex; align-items: center; gap: 8px; }
+    .match-logo { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: var(--border); flex-shrink: 0; }
+    .match-team-name { font-size: 12px; font-weight: 500; color: var(--text); }
+    .match-score { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--facts); font-weight: 700; }
+    .match-result {
+      font-size: 11px;
+      color: var(--text-mid);
+      line-height: 1.4;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .match-venue {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+    .match-datetime {
+      font-family: 'DM Mono', monospace;
+      font-size: 8px;
+      color: var(--facts);
+      margin-top: 4px;
+    }
+    .ipl-skeleton {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skel-line {
+      height: 10px;
+      background: var(--border);
+      border-radius: 2px;
+      animation: skel-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes skel-pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+
+    /* Hide sidebars on smaller screens */
+    @media(max-width:1100px) {
+      .feed-layout { grid-template-columns: 1fr; padding: 0; }
+      .feed-sidebar { display: none; }
+    }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
   crossorigin="anonymous"></script>
@@ -1057,12 +1230,68 @@
     </div>
   </div>
 
-  <!-- FEED CONTAINER -->
-  <div id="feedContainer">
-    <div class="loading">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Fetching today's brief...</p>
+  <!-- 3-COLUMN LAYOUT: IPL Left | Feed | IPL Right -->
+  <div class="feed-layout">
+
+    <!-- LEFT SIDEBAR: Recent Matches -->
+    <aside class="feed-sidebar">
+      <div class="sidebar-widget" id="iplRecentListWidget">
+        <div class="sidebar-header">
+          <span class="sidebar-title">🏏 IPL 2026</span>
+          <span class="sidebar-subtitle">Recent Results</span>
+        </div>
+        <div class="ipl-skeleton" id="recentListSkeleton">
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:95%"></div>
+          <div class="skel-line" style="width:85%"></div>
+        </div>
+        <div id="iplRecentList" style="display:none;"></div>
+      </div>
+    </aside>
+
+    <!-- CENTER: Feed -->
+    <div id="feedContainer">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Fetching today's brief...</p>
+      </div>
     </div>
+
+    <!-- RIGHT SIDEBAR: Live / Recent / Upcoming -->
+    <aside class="feed-sidebar">
+      <div class="sidebar-widget" id="iplLiveWidget" style="display:none;">
+        <div class="sidebar-header">
+          <span class="sidebar-title" style="color:var(--pulse);">🔴 Live Now</span>
+        </div>
+        <div id="iplLiveMatch"></div>
+      </div>
+      <div class="sidebar-widget" id="iplRecentWidget">
+        <div class="sidebar-header">
+          <span class="sidebar-title">✅ Last Match</span>
+        </div>
+        <div class="ipl-skeleton" id="recentSkeleton">
+          <div class="skel-line" style="width:60%"></div>
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:80%"></div>
+        </div>
+        <div id="iplRecentMatch" style="display:none;"></div>
+      </div>
+      <div class="sidebar-widget" id="iplUpcomingWidget">
+        <div class="sidebar-header">
+          <span class="sidebar-title">📅 Next Match</span>
+        </div>
+        <div class="ipl-skeleton" id="upcomingSkeleton">
+          <div class="skel-line" style="width:60%"></div>
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:70%"></div>
+        </div>
+        <div id="iplUpcomingMatch" style="display:none;"></div>
+      </div>
+    </aside>
+
   </div>
 
   <script>
@@ -1559,6 +1788,173 @@
       }
 
       loadBackground();
+    })();
+
+    // ── IPL CRICKET WIDGET ────────────────────────────────────────
+    (function() {
+      const CACHE_KEY = 'teesra_ipl_' + new Date().toISOString().slice(0, 13);
+
+      const TEAM_META = {
+        'Mumbai Indians':              { abbr: 'MI',  color: '#004BA0' },
+        'Chennai Super Kings':         { abbr: 'CSK', color: '#d4a820' },
+        'Royal Challengers Bangalore': { abbr: 'RCB', color: '#C8102E' },
+        'Royal Challengers Bengaluru': { abbr: 'RCB', color: '#C8102E' },
+        'Kolkata Knight Riders':       { abbr: 'KKR', color: '#3A225D' },
+        'Delhi Capitals':              { abbr: 'DC',  color: '#004BA0' },
+        'Punjab Kings':                { abbr: 'PBKS',color: '#ED1F27' },
+        'Rajasthan Royals':            { abbr: 'RR',  color: '#EA1A85' },
+        'Sunrisers Hyderabad':         { abbr: 'SRH', color: '#F7A721' },
+        'Gujarat Titans':              { abbr: 'GT',  color: '#1C4B6E' },
+        'Lucknow Super Giants':        { abbr: 'LSG', color: '#56CCF2' },
+      };
+
+      function badge(name, size) {
+        const m = TEAM_META[name] || { abbr: (name||'').slice(0,3).toUpperCase(), color: '#666' };
+        const s = size || 22;
+        return `<div style="width:${s}px;height:${s}px;border-radius:50%;background:${m.color};
+          display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+          font-family:'DM Mono',monospace;font-size:${Math.floor(s*0.3)}px;color:#fff;font-weight:700;
+          border:1px solid rgba(255,255,255,0.15);">${m.abbr.slice(0,2)}</div>`;
+      }
+
+      function abbr(name) {
+        return (TEAM_META[name] || {}).abbr || (name||'').split(' ').map(w=>w[0]).join('').slice(0,4);
+      }
+
+      // Render a single match card (used for live, recent, upcoming)
+      function renderMatchCard(match, elId, skelId, type) {
+        const el = document.getElementById(elId);
+        const sk = document.getElementById(skelId);
+        if (!el) return;
+        if (!match) {
+          const w = el.closest ? el.closest('.sidebar-widget') : null;
+          if (w) w.style.display = 'none';
+          if (sk) sk.style.display = 'none';
+          return;
+        }
+
+        const teams  = match.teams || [];
+        const scores = match.score || [];
+        const status = match.status || '';
+        const venue  = match.venue || '';
+        const isLive = type === 'live';
+        const isUpcoming = type === 'upcoming';
+
+        const teamsHtml = teams.map(t => {
+          const sc = scores.find(s => s.inning && s.inning.toLowerCase().startsWith(t.toLowerCase().slice(0,6)));
+          const scoreStr = sc ? `${sc.r}/${sc.w} <span style="font-size:9px;opacity:0.7;">(${sc.o})</span>` : '';
+          return `<div class="match-team">
+            <div class="match-team-left">
+              ${badge(t, 22)}
+              <span class="match-team-name">${abbr(t)}</span>
+            </div>
+            ${scoreStr ? `<span class="match-score">${scoreStr}</span>` : ''}
+          </div>`;
+        }).join('');
+
+        // Only show result text for completed matches, not datetime
+        const bottomHtml = isUpcoming
+          ? (venue ? `<div class="match-venue">📍 ${venue}</div>` : '')
+          : (status && !isLive ? `<div class="match-result">${status}</div>` : '');
+
+        // For live — show current status as running score indicator
+        const liveStatus = isLive && status
+          ? `<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--pulse);margin-top:6px;">${status}</div>` : '';
+
+        el.innerHTML = `<div class="match-card">
+          <div class="match-teams">${teamsHtml}</div>
+          ${bottomHtml}
+          ${liveStatus}
+          ${venue && !isUpcoming ? `<div class="match-venue">📍 ${venue}</div>` : ''}
+        </div>`;
+
+        if (sk) sk.style.display = 'none';
+        el.style.display = 'block';
+      }
+
+      // Render compact recent match list in left sidebar
+      function renderRecentList(matches) {
+        const el = document.getElementById('iplRecentList');
+        const sk = document.getElementById('recentListSkeleton');
+        const widget = document.getElementById('iplRecentListWidget');
+        if (!el) return;
+
+        const completed = matches.filter(m =>
+          m.status && !['', 'upcoming', 'scheduled'].includes(m.status.toLowerCase())
+        ).slice(0, 5);
+
+        if (!completed.length) {
+          if (widget) widget.style.display = 'none';
+          return;
+        }
+
+        el.innerHTML = completed.map(m => {
+          const teams = m.teams || [];
+          const status = m.status || '';
+          // Extract winner from status
+          const winner = status.split(' won')[0] || '';
+          return `<div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;">
+              ${teams.map(t => `<span style="display:flex;align-items:center;gap:4px;">
+                ${badge(t, 14)}
+                <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-mid);">${abbr(t)}</span>
+              </span>`).join('<span style="color:var(--text-dim);font-size:10px;margin:0 2px;">vs</span>')}
+            </div>
+            ${winner ? `<div style="font-size:10px;color:var(--text-mid);">${winner} won</div>` : ''}
+          </div>`;
+        }).join('');
+
+        if (sk) sk.style.display = 'none';
+        el.style.display = 'block';
+      }
+
+      async function loadIPL() {
+        try {
+          var cached = sessionStorage.getItem(CACHE_KEY);
+          if (cached) {
+            processIPLData(JSON.parse(cached));
+            return;
+          }
+        } catch(e) {}
+
+        try {
+          var res  = await fetch('/api/ipl');
+          var data = await res.json();
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+          processIPLData(data);
+        } catch(e) {
+          hideAll();
+        }
+      }
+
+      function processIPLData(data) {
+        // Live match
+        if (data.live_match) {
+          const lw = document.getElementById('iplLiveWidget');
+          if (lw) lw.style.display = 'block';
+          renderMatchCard(data.live_match, 'iplLiveMatch', null, 'live');
+        }
+
+        // Recent match (right sidebar)
+        renderMatchCard(data.recent_match, 'iplRecentMatch', 'recentSkeleton', 'completed');
+
+        // Upcoming match (right sidebar)
+        renderMatchCard(data.upcoming_match, 'iplUpcomingMatch', 'upcomingSkeleton', 'upcoming');
+
+        // Recent list (left sidebar)
+        if (data.all_matches) {
+          renderRecentList(data.all_matches);
+        } else if (data.recent_match) {
+          renderRecentList([data.recent_match]);
+        }
+      }
+
+      function hideAll() {
+        ['iplPointsWidget','iplRecentWidget','iplUpcomingWidget','iplLiveWidget','iplRecentListWidget']
+          .forEach(id => { var e = document.getElementById(id); if (e) e.style.display = 'none'; });
+      }
+
+      loadIPL();
     })();
   </script>
 

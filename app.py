@@ -10,11 +10,17 @@ import os
 import urllib.request
 import urllib.parse
 import re
+import time
 
 app = Flask(__name__)
 CORS(app)
 
 FEED_API_KEY = os.getenv("FEED_API_KEY")
+CRICAPI_KEY  = os.getenv("CRICAPI_KEY")
+
+# Simple in-memory cache for IPL data
+_ipl_cache = {"data": None, "ts": 0}
+IPL_CACHE_SECS = 1800  # 30 minutes
 
 # ── API KEY CHECK ─────────────────────────────────────────────────
 def is_authorised() -> bool:
@@ -102,6 +108,74 @@ def get_articles():
         return jsonify({"articles": articles, "count": len(articles)})
     except Exception as e:
         return jsonify({"articles": [], "count": 0, "error": str(e)})
+
+# ── IPL CRICKET DATA ──────────────────────────────────────────────
+@app.route("/api/ipl")
+def get_ipl():
+    global _ipl_cache
+    if not CRICAPI_KEY:
+        return jsonify({"error": "No CRICAPI_KEY set"}), 500
+
+    # Return cached data if fresh
+    if _ipl_cache["data"] and (time.time() - _ipl_cache["ts"]) < IPL_CACHE_SECS:
+        return jsonify(_ipl_cache["data"])
+
+    try:
+        base = f"https://api.cricapi.com/v1"
+
+        def fetch(endpoint):
+            url = f"{base}/{endpoint}&apikey={CRICAPI_KEY}"
+            req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return json.loads(r.read().decode())
+
+        # Fetch current matches
+        matches_data = fetch("currentMatches?offset=0")
+        all_matches  = matches_data.get("data", [])
+
+        # Filter IPL matches only
+        ipl_keywords = ["indian premier league", "ipl", "ipl 2026"]
+        ipl_matches  = [
+            m for m in all_matches
+            if any(k in m.get("name", "").lower() or k in m.get("matchType", "").lower()
+                   for k in ipl_keywords)
+            or (m.get("series_id") and "ipl" in str(m.get("series_id", "")).lower())
+        ]
+
+        # If no IPL found by keyword, try broader search
+        if not ipl_matches:
+            ipl_matches = [
+                m for m in all_matches
+                if m.get("matchType") == "t20" and
+                any(team in ["Mumbai Indians","Chennai Super Kings","Royal Challengers Bangalore",
+                             "Kolkata Knight Riders","Delhi Capitals","Punjab Kings",
+                             "Rajasthan Royals","Sunrisers Hyderabad","Gujarat Titans",
+                             "Lucknow Super Giants"]
+                    for team in m.get("teams", []))
+            ]
+
+        # Separate live, recent (completed), upcoming
+        live     = [m for m in ipl_matches if m.get("matchStarted") and not m.get("matchEnded")]
+        completed = [m for m in ipl_matches if m.get("matchEnded")]
+        upcoming  = [m for m in ipl_matches if not m.get("matchStarted") and not m.get("matchEnded")]
+
+        recent   = completed[-1] if completed else None
+        next_up  = upcoming[0]   if upcoming  else None
+        live_now = live[0]       if live       else None
+
+        result = {
+            "live_match":    live_now,
+            "recent_match":  recent,
+            "upcoming_match": next_up,
+            "all_matches":   ipl_matches,
+            "total_ipl":     len(ipl_matches)
+        }
+
+        _ipl_cache = {"data": result, "ts": time.time()}
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e), "recent_match": None, "upcoming_match": None, "points_table": []}), 500
 
 # ── EMAIL SUBSCRIPTION ────────────────────────────────────────────
 @app.route("/subscribe", methods=["POST"])
