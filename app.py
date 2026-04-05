@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
 from market_data import fetch_market_data
+from anthropic import Anthropic
 import json
 import os
 import urllib.request
@@ -15,8 +16,9 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-FEED_API_KEY = os.getenv("FEED_API_KEY")
-CRICAPI_KEY  = os.getenv("CRICAPI_KEY")
+FEED_API_KEY    = os.getenv("FEED_API_KEY")
+CRICAPI_KEY     = os.getenv("CRICAPI_KEY")
+anthropic_client = Anthropic()
 
 # Simple in-memory cache for cricket data
 _cricket_cache = {"data": None, "ts": 0}
@@ -288,6 +290,69 @@ def get_cricscore():
         return jsonify(out)
     except Exception as e:
         return jsonify({"error": str(e), "matches": [], "count": 0}), 500
+
+# ── CHAT HELPER ───────────────────────────────────────────────────
+def format_articles_for_prompt(articles):
+    if not articles:
+        return "No articles available today yet."
+    lines = []
+    for a in articles:
+        lines.append("---")
+        lines.append(f"[{a.get('story_type','general').upper()}] {a.get('headline','')}")
+        lines.append(f"Source: {a.get('source','')}")
+        lines.append(f"Facts: {a.get('facts','')}")
+        lines.append(f"Left lens: {a.get('left_lens','')}")
+        lines.append(f"Right lens: {a.get('right_lens','')}")
+        lines.append(f"Street pulse: {a.get('public_pulse','')}")
+        lines.append("---")
+    return "\n".join(lines)
+
+# ── CHAT ──────────────────────────────────────────────────────────
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    data    = request.get_json()
+    message = data.get("message", "").strip()
+    history = data.get("history", [])
+
+    if not message:
+        return jsonify({"reply": "Please send a message.", "history": history}), 400
+
+    try:
+        articles      = get_todays_articles()
+        articles_text = format_articles_for_prompt(articles)
+
+        system_prompt = f"""You are Teesra Assistant — a smart, friendly news companion built into Teesra, India's bias-aware news digest for young Indians aged 18–30.
+
+You have access to today's curated articles below. Use them as your primary context when answering questions about today's news. You also have web search capability for anything beyond today's articles.
+
+Keep responses concise and conversational. Use plain English. No jargon. When referencing an article, briefly mention the headline. If asked for a summary, give a punchy 3–5 bullet rundown of today's top stories.
+
+TODAY'S TEESRA ARTICLES:
+{articles_text}"""
+
+        messages = history + [{"role": "user", "content": message}]
+
+        response = anthropic_client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1024,
+            system=system_prompt,
+            tools=[{"type": "web_search_20250305", "name": "web_search"}],
+            messages=messages,
+        )
+
+        full_text = "".join(
+            block.text for block in response.content if hasattr(block, "text")
+        )
+
+        updated_history = history + [
+            {"role": "user",      "content": message},
+            {"role": "assistant", "content": full_text},
+        ]
+        return jsonify({"reply": full_text, "history": updated_history})
+
+    except Exception as e:
+        print(f"❌ Chat error: {e}")
+        return jsonify({"reply": "Sorry, something went wrong. Try again.", "history": history})
 
 # ── EMAIL SUBSCRIPTION ────────────────────────────────────────────
 @app.route("/subscribe", methods=["POST"])
