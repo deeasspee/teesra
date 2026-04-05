@@ -130,12 +130,13 @@
     [data-theme="cosmos"] body { background-color: #08090f; }
     [data-theme="ember"]  body { background-color: #0f0a08; }
     @keyframes blobshift-light {
-      0%   { filter: hue-rotate(0deg); }
-      50%  { filter: hue-rotate(15deg); }
-      100% { filter: hue-rotate(0deg); }
-    }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
     [data-theme="dawn"] body {
       background-color: #faf7f0;
+      background-size: 200% 200%;
       background-image:
         radial-gradient(ellipse at 20% 20%, rgba(184, 116, 0, 0.14) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 10%, rgba(180, 100, 20, 0.10) 0%, transparent 45%),
