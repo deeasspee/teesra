@@ -2055,6 +2055,71 @@
       #chatPanel { left: 12px; right: 12px; bottom: 80px; width: auto; }
       #chatBtn   { bottom: 16px; right: 16px; }
     }
+
+    /* Chat widget — break out of blobshift-light filter stacking context */
+    #chatPanel, #chatBtn {
+      isolation: isolate;
+      transform: translateZ(0);
+    }
+
+    /* Chat widget — force readable colors in light themes */
+    [data-theme="dawn"] #chatPanel,
+    [data-theme="cloud"] #chatPanel,
+    [data-theme="parchment"] #chatPanel {
+      background: #ffffff !important;
+      border-color: #d4d0c4 !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+    }
+    [data-theme="dawn"] .chat-header,
+    [data-theme="cloud"] .chat-header,
+    [data-theme="parchment"] .chat-header {
+      background: #f0ece0 !important;
+      border-color: #d4d0c4 !important;
+      color: #1a1608 !important;
+    }
+    [data-theme="dawn"] #chatMessages,
+    [data-theme="cloud"] #chatMessages,
+    [data-theme="parchment"] #chatMessages {
+      background: #f8f6f0 !important;
+    }
+    [data-theme="dawn"] .chat-bubble.assistant,
+    [data-theme="cloud"] .chat-bubble.assistant,
+    [data-theme="parchment"] .chat-bubble.assistant,
+    [data-theme="dawn"] .chat-bubble.loading,
+    [data-theme="cloud"] .chat-bubble.loading,
+    [data-theme="parchment"] .chat-bubble.loading {
+      background: #f0ece0 !important;
+      color: #1a1608 !important;
+    }
+    [data-theme="dawn"] .chat-bubble.user,
+    [data-theme="cloud"] .chat-bubble.user,
+    [data-theme="parchment"] .chat-bubble.user {
+      color: #1a1608 !important;
+    }
+    [data-theme="dawn"] .chat-chip,
+    [data-theme="cloud"] .chat-chip,
+    [data-theme="parchment"] .chat-chip {
+      background: #f0ece0 !important;
+      color: #1a1608 !important;
+      border-color: #d4d0c4 !important;
+    }
+    [data-theme="dawn"] #chatInput,
+    [data-theme="cloud"] #chatInput,
+    [data-theme="parchment"] #chatInput {
+      background: #ffffff !important;
+      color: #1a1608 !important;
+      border-color: #d4d0c4 !important;
+    }
+    [data-theme="dawn"] .chat-input-row,
+    [data-theme="cloud"] .chat-input-row,
+    [data-theme="parchment"] .chat-input-row {
+      border-color: #d4d0c4 !important;
+    }
+    [data-theme="dawn"] .chat-close-btn,
+    [data-theme="cloud"] .chat-close-btn,
+    [data-theme="parchment"] .chat-close-btn {
+      color: #8a7e60 !important;
+    }
   </style>
 
   <!-- Floating button -->
