@@ -70,7 +70,7 @@ def get_yesterday_headlines() -> list:
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
 def clear_todays_articles():
     """Delete articles older than 2 days to keep DB clean"""
-    cutoff = str(date.today() - timedelta(days=2))
+    cutoff = str(date.today() - timedelta(days=7))
     try:
         client = get_client()
         client.table("article").delete().lt("fetched_date", cutoff).execute()
@@ -94,6 +94,26 @@ def get_todays_articles() -> list:
 
     except Exception as e:
         print(f"❌ Failed to fetch articles: {e}")
+        return []
+
+
+# ── GET RECENT ARTICLES ───────────────────────────────────────────
+def get_recent_articles(days=7) -> list:
+    """Fetch articles from last N days, ordered by date descending"""
+    try:
+        client = get_client()
+        cutoff = str(date.today() - timedelta(days=days))
+        response = (
+            client.table("article")
+            .select("*")
+            .gte("fetched_date", cutoff)
+            .order("fetched_date", desc=True)
+            .order("id", desc=False)
+            .execute()
+        )
+        return response.data
+    except Exception as e:
+        print(f"❌ Failed to fetch recent articles: {e}")
         return []
 
 

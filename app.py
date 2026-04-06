@@ -1,6 +1,6 @@
 # app.py
 # Teesra local server
-from database import get_todays_articles, save_subscriber
+from database import get_todays_articles, save_subscriber, get_recent_articles
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
@@ -16,8 +16,9 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-FEED_API_KEY    = os.getenv("FEED_API_KEY")
-CRICAPI_KEY     = os.getenv("CRICAPI_KEY")
+FEED_API_KEY     = os.getenv("FEED_API_KEY")
+CRICAPI_KEY      = os.getenv("CRICAPI_KEY")
+FOOTBALL_API_KEY = os.getenv("FOOTBALL_API_KEY")
 anthropic_client = Anthropic()
 
 # Simple in-memory cache for cricket data
@@ -100,13 +101,18 @@ def get_articles():
     if not is_authorised():
         return jsonify({"error": "Unauthorized"}), 401
     try:
-        articles = get_todays_articles()
-        if not articles:
-            try:
-                with open("analyzed_articles.json", "r", encoding="utf-8") as f:
-                    articles = json.load(f)
-            except FileNotFoundError:
-                articles = []
+        days = int(request.args.get('days', 1))
+        days = min(days, 7)
+        if days == 1:
+            articles = get_todays_articles()
+            if not articles:
+                try:
+                    with open("analyzed_articles.json", "r", encoding="utf-8") as f:
+                        articles = json.load(f)
+                except FileNotFoundError:
+                    articles = []
+        else:
+            articles = get_recent_articles(days)
         return jsonify({"articles": articles, "count": len(articles)})
     except Exception as e:
         return jsonify({"articles": [], "count": 0, "error": str(e)})
@@ -290,6 +296,67 @@ def get_cricscore():
         return jsonify(out)
     except Exception as e:
         return jsonify({"error": str(e), "matches": [], "count": 0}), 500
+
+# ── FOOTBALL ─────────────────────────────────────────────────────
+_football_cache = {"data": None, "ts": 0}
+FOOTBALL_CACHE_SECS = 1800  # 30 minutes
+
+@app.route("/api/football")
+def get_football():
+    global _football_cache
+    if not FOOTBALL_API_KEY:
+        return jsonify({"error": "No FOOTBALL_API_KEY", "matches": []}), 200
+    if _football_cache["data"] and (time.time() - _football_cache["ts"]) < FOOTBALL_CACHE_SECS:
+        return jsonify(_football_cache["data"])
+    try:
+        from datetime import date, timedelta
+        today     = date.today()
+        date_from = today.strftime("%Y-%m-%d")
+        date_to   = (today + timedelta(days=3)).strftime("%Y-%m-%d")
+
+        headers = {"X-Auth-Token": FOOTBALL_API_KEY}
+
+        def fetch_football(url):
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return json.loads(r.read().decode())
+
+        # 2021=PL, 2001=UCL, 2014=La Liga, 2019=Serie A
+        competitions = [2021, 2001, 2014, 2019]
+        all_matches  = []
+
+        for comp_id in competitions:
+            try:
+                url  = f"https://api.football-data.org/v4/competitions/{comp_id}/matches?dateFrom={date_from}&dateTo={date_to}&status=SCHEDULED,LIVE,IN_PLAY,PAUSED,FINISHED"
+                data = fetch_football(url)
+                for m in data.get("matches", []):
+                    all_matches.append({
+                        "id":               m.get("id"),
+                        "competition":      m.get("competition", {}).get("name", ""),
+                        "competition_code": m.get("competition", {}).get("code", ""),
+                        "home":             m.get("homeTeam", {}).get("shortName") or m.get("homeTeam", {}).get("name", ""),
+                        "away":             m.get("awayTeam", {}).get("shortName") or m.get("awayTeam", {}).get("name", ""),
+                        "home_crest":       m.get("homeTeam", {}).get("crest", ""),
+                        "away_crest":       m.get("awayTeam", {}).get("crest", ""),
+                        "status":           m.get("status", ""),
+                        "score_home":       m.get("score", {}).get("fullTime", {}).get("home"),
+                        "score_away":       m.get("score", {}).get("fullTime", {}).get("away"),
+                        "utc_date":         m.get("utcDate", ""),
+                        "minute":           m.get("minute"),
+                    })
+            except Exception as comp_err:
+                print(f"Football comp {comp_id} failed: {comp_err}")
+                continue
+
+        order = {"LIVE": 0, "IN_PLAY": 0, "PAUSED": 0, "SCHEDULED": 1, "TIMED": 1, "FINISHED": 2}
+        all_matches.sort(key=lambda x: (order.get(x["status"], 3), x.get("utc_date", "")))
+        all_matches = all_matches[:15]
+
+        result = {"matches": all_matches, "count": len(all_matches)}
+        _football_cache = {"data": result, "ts": time.time()}
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e), "matches": []}), 500
 
 # ── CHAT HELPER ───────────────────────────────────────────────────
 def format_articles_for_prompt(articles):
