@@ -1,6 +1,6 @@
 # app.py
 # Teesra local server
-from database import get_todays_articles, save_subscriber, get_recent_articles
+from database import get_todays_articles, save_subscriber, get_recent_articles, unsubscribe_email
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
@@ -438,6 +438,77 @@ def subscribe():
     send_welcome_email(email)
     print(f"📧 New subscriber saved to Supabase: {email}")
     return jsonify({"message": "subscribed"}), 200
+
+
+# ── UNSUBSCRIBE ───────────────────────────────────────────────────
+@app.route("/unsubscribe")
+def unsubscribe():
+    email = request.args.get("email", "").strip()
+    if not email or "@" not in email:
+        return """
+        <html><body style="font-family:sans-serif;max-width:480px;margin:80px auto;text-align:center;padding:20px;">
+          <h2>Invalid unsubscribe link</h2>
+          <p>This link appears to be invalid. Please contact brief@teesra.in</p>
+        </body></html>
+        """, 400
+
+    success = unsubscribe_email(email)
+
+    if success:
+        return f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+          <title>Unsubscribed — Teesra</title>
+          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+          <style>
+            body{{background:#0a120e;color:#e8f0e4;font-family:'DM Sans',sans-serif;
+              display:flex;align-items:center;justify-content:center;
+              min-height:100vh;margin:0;padding:20px;box-sizing:border-box;}}
+            .card{{max-width:440px;text-align:center;}}
+            .logo{{font-family:'Playfair Display',serif;font-size:32px;color:#d4a820;margin-bottom:32px;}}
+            h1{{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:16px;}}
+            p{{color:#90b094;line-height:1.7;margin-bottom:12px;}}
+            .email{{font-family:'DM Mono',monospace;font-size:12px;color:#d4a820;margin:16px 0;}}
+            .resubscribe{{display:inline-block;margin-top:24px;background:#d4a820;color:#0a120e;
+              padding:12px 28px;text-decoration:none;font-weight:500;border-radius:4px;}}
+            .home{{display:inline-block;margin-top:12px;color:#426048;font-family:'DM Mono',monospace;
+              font-size:11px;text-decoration:none;letter-spacing:1px;}}
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="logo">Teesra</div>
+            <h1>You've been unsubscribed.</h1>
+            <p>We're sorry to see you go.</p>
+            <div class="email">{email}</div>
+            <p>You won't receive any more emails from us.<br>Changed your mind?</p>
+            <a href="https://teesra.in/#signup" class="resubscribe">Resubscribe</a><br>
+            <a href="https://teesra.in" class="home">← Back to Teesra</a>
+          </div>
+        </body>
+        </html>
+        """
+    else:
+        return f"""
+        <!DOCTYPE html>
+        <html><head><meta charset="UTF-8"/>
+        <style>
+          body{{background:#0a120e;color:#e8f0e4;font-family:sans-serif;
+            display:flex;align-items:center;justify-content:center;
+            min-height:100vh;margin:0;text-align:center;padding:20px;}}
+        </style></head>
+        <body>
+          <div>
+            <h2>Something went wrong</h2>
+            <p style="color:#90b094;">We couldn't process your request.<br>
+            Please email us at brief@teesra.in to unsubscribe.</p>
+            <a href="https://teesra.in" style="color:#d4a820;">← Back to Teesra</a>
+          </div>
+        </body></html>
+        """, 500
 
 
 if __name__ == "__main__":

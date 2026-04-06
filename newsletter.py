@@ -199,8 +199,13 @@ def build_email_html(articles, market_data=None):
       <p style="margin:0 0 4px 0; font-family:Georgia,serif; font-size:15px; font-weight:900; color:#e8c84a;">Teesra</p>
       <p style="margin:0 0 10px 0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:2px; text-transform:uppercase;">तीसरा नज़रिया · One story, three perspectives</p>
       <p style="margin:0 0 6px 0; font-size:11px; color:#7a7660; font-style:italic;">We don't tell you what to think. We give you everything you need to think for yourself.</p>
-      <p style="margin:0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:1px;">
+      <p style="margin:0 0 12px 0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:1px;">
         Built by Divyendu · IIM Amritsar · No ads, ever.
+      </p>
+      <p style="margin:0; font-size:11px; color:#4a5568; font-family:monospace; letter-spacing:0.5px;">
+        Don't want these emails?
+        <a href="https://teesra.in/unsubscribe?email={to_email}"
+           style="color:#718096; text-decoration:underline;">Unsubscribe</a>
       </p>
     </td>
   </tr>

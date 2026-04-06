@@ -155,6 +155,21 @@ def save_subscriber(email: str) -> bool:
         return False
 
 
+# ── UNSUBSCRIBE ───────────────────────────────────────────────────
+def unsubscribe_email(email: str) -> bool:
+    """Mark subscriber as inactive"""
+    try:
+        client = get_client()
+        client.table("subscribers").update(
+            {"is_active": False}
+        ).eq("email", email).execute()
+        print(f"  ✅ Unsubscribed: {email}")
+        return True
+    except Exception as e:
+        print(f"  ❌ Failed to unsubscribe: {e}")
+        return False
+
+
 # ── GET ALL SUBSCRIBERS ───────────────────────────────────────────
 def get_all_subscribers() -> list:
     try:
