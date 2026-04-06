@@ -240,7 +240,7 @@ def send_newsletter(to_email: str):
     params = {
         "from": FROM_ADDRESS,
         "to": [to_email],
-        "subject": f"☀️ Teesra Brief — {today} · {len(articles)} stories (Updated ✦)",
+        "subject": f"☀️ Teesra Brief — {today} · {len(articles)} stories ",
         "html": html
     }
 
