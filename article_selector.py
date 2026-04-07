@@ -267,7 +267,7 @@ def source_domain(article: dict) -> str:
 
 
 # ── SELECT TOP STORIES ────────────────────────────────────────────
-def select_top_stories(all_articles: list, n: int = 15) -> list:
+def select_top_stories(all_articles: list, n: int = 20) -> list:
     print(f"\n🧠 Selecting top {n} stories from {len(all_articles)} articles...")
 
     # Load yesterday's headlines for cross-day dedup
@@ -288,15 +288,18 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
     # Step 2: Topic slot limits — flexible, prevents domination
     topic_max = {
         'politics':      5,
-        'general':       4,
-        'economy':       3,
-        'international': 2,
-        'tech':          2,
-        'sports':        2,
-        'ipl':           1,
+        'general':       5,
+        'economy':       4,
+        'international': 3,
+        'tech':          3,
+        'sports':        3,
+        'ipl':           2,
+        'sensitive':     2,
     }
     # Minimum guaranteed slots
     topic_min = {
+        'politics':      1,
+        'general':       1,
         'international': 1,
         'tech':          1,
         'sports':        1,
@@ -344,9 +347,12 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
         # Pick best source from group
         best = pick_best_article(story['articles'])
 
-        # Source cap: max 2 articles per portal
+        # Source cap: max 2 articles per portal (Google News feeds exempt)
         domain = source_domain(best)
-        if source_counts[domain] >= 2:
+        google_sources = ['google news india', 'google news politics', 'google news economy',
+                          'google news tech', 'google news top stories', 'google news']
+        is_google = any(g in best.get('source', '').lower() for g in google_sources)
+        if not is_google and source_counts[domain] >= 2:
             print(f"   ⛔ Source cap ({domain}): {story['title'][:55]}")
             continue
 
@@ -359,7 +365,8 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
         selected.append(best)
         selected_titles.add(story['title'])
         topic_counts[topic] += 1
-        source_counts[domain] += 1
+        if not is_google:
+            source_counts[domain] += 1
         print(f"   ✅ [{topic.upper():13}] {story['score']:+3d} | {story['title'][:55]}...")
 
     # Step 4: Guarantee minimums — force one in if topic missing
@@ -410,7 +417,7 @@ def select_top_stories(all_articles: list, n: int = 15) -> list:
 if __name__ == "__main__":
     from fetch_news import fetch_all_news
     articles = fetch_all_news()
-    top = select_top_stories(articles, n=15)
+    top = select_top_stories(articles, n=20)
     print("\nFinal selection:")
     for i, a in enumerate(top):
         t = detect_topic(a.get('title',''), a.get('source',''))

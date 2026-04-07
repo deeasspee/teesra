@@ -4,7 +4,7 @@ from database import get_todays_articles, save_subscriber, get_recent_articles, 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
-from market_data import fetch_market_data
+from market_data import fetch_market_data, fetch_commodity_data
 from anthropic import Anthropic
 import json
 import os
@@ -16,9 +16,10 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-FEED_API_KEY     = os.getenv("FEED_API_KEY")
-CRICAPI_KEY      = os.getenv("CRICAPI_KEY")
-FOOTBALL_API_KEY = os.getenv("FOOTBALL_API_KEY")
+FEED_API_KEY        = os.getenv("FEED_API_KEY")
+CRICAPI_KEY         = os.getenv("CRICAPI_KEY")
+FOOTBALL_API_KEY    = os.getenv("FOOTBALL_API_KEY")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 anthropic_client = Anthropic()
 
 # Simple in-memory cache for cricket data
@@ -61,7 +62,60 @@ def get_market():
         return jsonify({"error": "Unauthorized"}), 401
     try:
         data = fetch_market_data()
+        try:
+            c = fetch_commodity_data()
+            if c:
+                data.update(c)
+        except Exception:
+            pass
         return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ── WEATHER ───────────────────────────────────────────────────────
+@app.route("/api/weather")
+def get_weather():
+    lat = request.args.get("lat", "28.6139")
+    lon = request.args.get("lon", "77.2090")
+    if not OPENWEATHER_API_KEY:
+        return jsonify({"error": "no key"}), 200
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+        req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            d = json.loads(r.read().decode())
+        temp  = round(d["main"]["temp"])
+        feels = round(d["main"]["feels_like"])
+        main  = d["weather"][0]["main"].lower()
+        import datetime as _dt
+        hour  = _dt.datetime.now().hour
+        tod   = "morning" if hour < 12 else "afternoon" if hour < 17 else "evening"
+        phrases = {
+            "clear":       f"Clear skies ☀️",
+            "clouds":      f"Cloudy {tod} 🌤️",
+            "rain":        "Carry umbrella 🌧️",
+            "drizzle":     "Light showers 🌦️",
+            "thunderstorm":"Thunderstorms ⛈️",
+            "snow":        "Snow today ❄️",
+            "mist":        "Misty conditions 🌫️",
+            "fog":         "Dense fog 🌫️",
+            "haze":        "Hazy skies 🌫️",
+        }
+        if temp >= 38:   phrase = f"Extreme heat {temp}°C 🥵"
+        elif temp >= 32: phrase = f"Hot {tod}, stay cool 🌡️"
+        elif temp <= 10: phrase = f"Cold {tod}, dress warm 🧥"
+        else:            phrase = phrases.get(main, "Stay prepared 🌤️")
+        return jsonify({
+            "city":     d.get("name", ""),
+            "temp":     temp,
+            "feels":    feels,
+            "humidity": d["main"]["humidity"],
+            "desc":     d["weather"][0]["description"].title(),
+            "icon":     d["weather"][0]["icon"],
+            "wind":     round(d["wind"]["speed"] * 3.6),
+            "phrase":   phrase,
+            "main":     main,
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

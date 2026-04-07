@@ -581,6 +581,30 @@
       color: var(--facts);
     }
 
+    /* Weather widget */
+    .weather-bar { max-width: var(--card-max); margin: 0 auto; padding: 0 24px; }
+    .weather-widget {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px 16px; margin-bottom: 12px;
+      isolation: isolate; transform: translateZ(0);
+    }
+    .weather-left { display: flex; align-items: center; gap: 10px; }
+    .weather-icon { width: 36px; height: 36px; object-fit: contain; }
+    .weather-temp { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+    .weather-temp span { font-size: 13px; font-weight: 400; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+    .weather-desc { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); }
+    .weather-city { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-dim); opacity: 0.7; }
+    .weather-phrase { font-size: 12px; color: var(--text-mid); text-align: right; max-width: 200px; font-style: italic; }
+    .weather-meta { display: flex; gap: 12px; }
+    .weather-stat { display: flex; flex-direction: column; align-items: center; }
+    .weather-stat-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); font-weight: 500; }
+    .weather-stat-lbl { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-dim); text-transform: uppercase; }
+    @media(max-width:768px) {
+      .weather-bar { padding: 0 12px; }
+      .weather-phrase { display: none; }
+    }
+
     .articles-feed {
       max-width: var(--card-max);
       margin: 0 auto;
@@ -1275,10 +1299,33 @@
     }
     @keyframes skel-pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
 
-    /* Hide sidebars on smaller screens */
+    /* Mobile sidebar wrapper */
+    .feed-sidebars-mobile { display: contents; }
+
     @media(max-width:1100px) {
-      .feed-layout { grid-template-columns: 1fr; padding: 0; }
-      .feed-sidebar { display: none; }
+      .feed-layout { display: flex; flex-direction: column; padding: 0; }
+      .feed-sidebars-mobile {
+        display: flex; gap: 8px; padding: 8px 12px 0; order: -1; overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .feed-sidebars-mobile::-webkit-scrollbar { display: none; }
+      .feed-sidebars-mobile .feed-sidebar { flex: 1; min-width: 0; position: static; }
+      #feedContainer, .feed-controls { order: 0; }
+      #cricketFeed {
+        display: flex !important; flex-direction: row !important;
+        overflow-x: auto !important; overflow-y: hidden !important;
+        max-height: none !important; gap: 8px; padding: 0 4px 8px !important;
+        scrollbar-width: none;
+      }
+      #footballFeed {
+        display: flex !important; flex-direction: row !important;
+        overflow-x: auto !important; overflow-y: hidden !important;
+        max-height: none !important; gap: 8px; padding: 0 4px 8px !important;
+        scrollbar-width: none;
+      }
+      #cricketFeed::-webkit-scrollbar, #footballFeed::-webkit-scrollbar { display: none; }
+      #cricketFeed > div { min-width: 160px !important; flex-shrink: 0; margin: 0 !important; }
+      #footballFeed > div { min-width: 150px !important; flex-shrink: 0; margin: 0 !important; }
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
@@ -1347,6 +1394,13 @@
     </div>
   </div>
 
+  <!-- WEATHER WIDGET -->
+  <div class="weather-bar">
+    <div class="weather-widget" id="weatherWidget">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);">Loading weather...</span>
+    </div>
+  </div>
+
   <!-- GOOGLE TRENDS TICKER -->
   <div class="trends-bar">
     <span class="trends-label">🔥 Trending India</span>
@@ -1360,22 +1414,45 @@
   <!-- 3-COLUMN LAYOUT: IPL Left | Feed | IPL Right -->
   <div class="feed-layout">
 
-    <!-- LEFT SIDEBAR: Recent Matches -->
-    <aside class="feed-sidebar">
-      <div class="sidebar-widget" id="cricketWidget">
-        <div class="sidebar-header">
-          <span class="sidebar-title">🏏 Upcoming Matches</span>
+    <div class="feed-sidebars-mobile">
+
+      <!-- LEFT SIDEBAR: Recent Matches -->
+      <aside class="feed-sidebar">
+        <div class="sidebar-widget" id="cricketWidget">
+          <div class="sidebar-header">
+            <span class="sidebar-title">🏏 Upcoming Matches</span>
+          </div>
+          <div class="ipl-skeleton" id="cricketSkeleton">
+            <div class="skel-line" style="width:100%"></div>
+            <div class="skel-line" style="width:90%"></div>
+            <div class="skel-line" style="width:95%"></div>
+            <div class="skel-line" style="width:85%"></div>
+            <div class="skel-line" style="width:88%"></div>
+          </div>
+          <div id="cricketFeed" style="display:none;"></div>
         </div>
-        <div class="ipl-skeleton" id="cricketSkeleton">
-          <div class="skel-line" style="width:100%"></div>
-          <div class="skel-line" style="width:90%"></div>
-          <div class="skel-line" style="width:95%"></div>
-          <div class="skel-line" style="width:85%"></div>
-          <div class="skel-line" style="width:88%"></div>
+      </aside>
+
+      <!-- RIGHT SIDEBAR: Football -->
+      <aside class="feed-sidebar" id="footballSidebar">
+        <div class="sidebar-widget">
+          <div class="sidebar-header">
+            <span class="sidebar-title">⚽ Football</span>
+            <span class="sidebar-subtitle" id="footballSubtitle">Loading...</span>
+          </div>
+          <div class="ipl-skeleton" id="footballSkeleton">
+            <div class="skel-line" style="width:100%"></div>
+            <div class="skel-line" style="width:90%"></div>
+            <div class="skel-line" style="width:95%"></div>
+            <div class="skel-line" style="width:85%"></div>
+            <div class="skel-line" style="width:92%"></div>
+          </div>
+          <div id="footballFeed" style="display:none; overflow-y:auto; max-height:calc(100vh - 200px);
+            scrollbar-width:thin; scrollbar-color:var(--border) transparent;"></div>
         </div>
-        <div id="cricketFeed" style="display:none;"></div>
-      </div>
-    </aside>
+      </aside>
+
+    </div>
 
     <!-- CENTER: Feed -->
     <div>
@@ -1390,25 +1467,6 @@
         </div>
       </div>
     </div>
-
-    <!-- RIGHT SIDEBAR: Football -->
-    <aside class="feed-sidebar" id="footballSidebar">
-      <div class="sidebar-widget">
-        <div class="sidebar-header">
-          <span class="sidebar-title">⚽ Football</span>
-          <span class="sidebar-subtitle" id="footballSubtitle">Loading...</span>
-        </div>
-        <div class="ipl-skeleton" id="footballSkeleton">
-          <div class="skel-line" style="width:100%"></div>
-          <div class="skel-line" style="width:90%"></div>
-          <div class="skel-line" style="width:95%"></div>
-          <div class="skel-line" style="width:85%"></div>
-          <div class="skel-line" style="width:92%"></div>
-        </div>
-        <div id="footballFeed" style="display:none; overflow-y:auto; max-height:calc(100vh - 200px);
-          scrollbar-width:thin; scrollbar-color:var(--border) transparent;"></div>
-      </div>
-    </aside>
 
   </div>
 
@@ -1763,6 +1821,7 @@
           ${tickerItem(m.nifty, 'Nifty 50')}
           <div class="market-div"></div>
           ${tickerItem(m.bank_nifty, 'Bank Nifty')}
+          ${m.gold_24k ? `<div class="market-div"></div><div class="market-item"><span class="market-name">GOLD 24K</span><span class="market-val">₹${m.gold_24k?.toLocaleString('en-IN')}</span><span class="market-name" style="font-size:8px;opacity:0.6;">/10g</span></div><div class="market-div"></div><div class="market-item"><span class="market-name">GOLD 22K</span><span class="market-val">₹${m.gold_22k?.toLocaleString('en-IN')}</span><span class="market-name" style="font-size:8px;opacity:0.6;">/10g</span></div><div class="market-div"></div><div class="market-item"><span class="market-name">SILVER</span><span class="market-val">₹${m.silver_kg?.toLocaleString('en-IN')}</span><span class="market-name" style="font-size:8px;opacity:0.6;">/kg</span></div>` : ''}
           <span class="market-mood">As of ${asOf}</span>
         </div>`;
     }
@@ -1920,6 +1979,39 @@
     }
 
     loadFeed();
+
+    // ── WEATHER WIDGET ────────────────────────────────────────────
+    (function() {
+      const CK = 'teesra_wx_' + new Date().toISOString().slice(0, 13);
+      function render(w) {
+        const el = document.getElementById('weatherWidget');
+        if (!el) return;
+        if (w.error) { el.style.display = 'none'; return; }
+        el.innerHTML = `<div class="weather-left"><img class="weather-icon" src="https://openweathermap.org/img/wn/${w.icon}@2x.png" onerror="this.style.display='none'"><div><div class="weather-temp">${w.temp}°<span>C</span></div><div class="weather-desc">${w.desc}</div><div class="weather-city">📍 ${w.city}</div></div></div><div class="weather-meta"><div class="weather-stat"><div class="weather-stat-val">${w.feels}°</div><div class="weather-stat-lbl">Feels</div></div><div class="weather-stat"><div class="weather-stat-val">${w.humidity}%</div><div class="weather-stat-lbl">Humid</div></div><div class="weather-stat"><div class="weather-stat-val">${w.wind}</div><div class="weather-stat-lbl">km/h</div></div></div><div class="weather-phrase">${w.phrase}</div>`;
+      }
+      async function load(lat, lon) {
+        try {
+          const url = lat ? `/api/weather?lat=${lat}&lon=${lon}` : '/api/weather';
+          const d = await (await fetch(url)).json();
+          sessionStorage.setItem(CK, JSON.stringify(d));
+          render(d);
+        } catch(e) {
+          const el = document.getElementById('weatherWidget');
+          if (el) el.style.display = 'none';
+        }
+      }
+      try {
+        const c = sessionStorage.getItem(CK);
+        if (c) { const d = JSON.parse(c); if (d?.temp) { render(d); return; } }
+      } catch(e) {}
+      navigator.geolocation
+        ? navigator.geolocation.getCurrentPosition(
+            p => load(p.coords.latitude, p.coords.longitude),
+            () => load(null, null),
+            { timeout: 5000, maximumAge: 3600000 }
+          )
+        : load(null, null);
+    })();
 
     // ── CRICKET WIDGET ────────────────────────────────────────────
     (function() {

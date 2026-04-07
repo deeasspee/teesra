@@ -94,6 +94,25 @@ def fetch_market_data() -> dict:
     return indices
 
 
+def fetch_commodity_data() -> dict:
+    """Fetch gold/silver/USD-INR from Yahoo Finance via yfinance"""
+    try:
+        import yfinance as yf
+        gold_usd   = yf.Ticker("GC=F").fast_info.last_price
+        silver_usd = yf.Ticker("SI=F").fast_info.last_price
+        usd_inr    = yf.Ticker("INR=X").fast_info.last_price
+        gpg = (gold_usd / 31.1035) * usd_inr
+        return {
+            "gold_24k":  round(gpg * 10),
+            "gold_22k":  round(gpg * 10 * 22 / 24),
+            "silver_kg": round((silver_usd / 31.1035) * usd_inr * 1000),
+            "usd_inr":   round(usd_inr, 2),
+        }
+    except Exception as e:
+        print(f"  ⚠️ Commodity data failed: {e}")
+        return None
+
+
 def format_market_for_email(market: dict) -> str:
     """Returns HTML snippet for newsletter"""
     if not market:
@@ -137,13 +156,14 @@ def format_market_for_email(market: dict) -> str:
                   {arrow(nifty.get('direction','flat'))} {abs(nifty.get('change_pct', 0)):.2f}%
                 </p>
               </td>
-              <td style="padding:4px 0 4px 12px; width:33%; border-left:1px solid #2a2a1f;">
+              <td style="padding:4px 12px; width:25%; border-left:1px solid #2a2a1f;">
                 <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">BANK NIFTY</p>
                 <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(bank_nifty.get('current', 0))}</p>
                 <p style="margin:0; font-size:11px; color:{color(bank_nifty.get('direction','flat'))};">
                   {arrow(bank_nifty.get('direction','flat'))} {abs(bank_nifty.get('change_pct', 0)):.2f}%
                 </p>
               </td>
+              {"" if not market.get('gold_24k') else f"""<td style="padding:4px 12px; border-left:1px solid #2a2a1f;"><p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 24K</p><p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">₹{market.get('gold_24k','—')}</p><p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p></td><td style="padding:4px 0 4px 12px; border-left:1px solid #2a2a1f;"><p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Silver</p><p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">₹{market.get('silver_kg','—')}</p><p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per kg</p></td>"""}
             </tr>
           </table>
         </td>

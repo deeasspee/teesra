@@ -105,8 +105,10 @@ ACCURACY RULES:
 - Facts section must read like a wire report — dry, sourced, no color
 
 WRITING STYLE RULES:
-- Write facts in direct journalistic style. Never say "The article states", "The article examines", "According to the article", or any meta-reference to the source material. State facts directly as if you are reporting them.
-- Write all sections in first-person active voice: not "The article says X happened" but "X happened."
+- Write facts in direct journalistic voice. Never say "The article states", "The article mentions", "The article examines", "According to the article", or any meta-reference to the source material. State facts directly: "X happened" not "The article says X happened".
+- Write all sections in direct active voice: not "The article says X happened" but "X happened."
+- Never reference "the article", "the piece", or "the source" in any section.
+- If the article does not contain enough information for 3 or more factual sentences, return exactly: INSUFFICIENT_CONTENT
 
 STREET PULSE RULES:
 - NEVER use the words "mixed", "divided", "varied", "split" or "reactions"
@@ -270,6 +272,8 @@ def analyze_article(article):
 
         # Reject weak Claude outputs
         weak_phrases = [
+            "the article mentions", "the article states", "the article examines",
+            "according to the article", "insufficient_content",
             "cannot process", "unable to", "does not provide",
             "no substantive content", "social media prompt"
         ]
@@ -355,7 +359,7 @@ if __name__ == "__main__":
     clear_todays_articles()
 
     # Step 2 — Smart selection
-    top_articles = select_top_stories(all_articles, n=15)
+    top_articles = select_top_stories(all_articles, n=20)
 
     print(f"\n🧠 Analyzing {len(top_articles)} articles with Claude...\n")
 
