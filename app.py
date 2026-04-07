@@ -54,6 +54,35 @@ def about():
 def upi_qr():
     return send_from_directory(".", "upi-qr.png")
 
+@app.route("/icon.svg")
+def serve_icon():
+    svg = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <rect width="512" height="512" rx="80" fill="#0a120e"/>
+      <text x="256" y="380" text-anchor="middle"
+        font-size="360" font-family="Georgia,serif"
+        font-weight="900" fill="#d4a820">T</text>
+    </svg>'''
+    from flask import Response
+    return Response(svg, mimetype='image/svg+xml')
+
+@app.route("/manifest.json")
+def manifest():
+    import json as _json
+    data = {
+        "name": "Teesra",
+        "short_name": "Teesra",
+        "description": "India's news from three perspectives",
+        "start_url": "/feed",
+        "display": "standalone",
+        "background_color": "#0a120e",
+        "theme_color": "#0a120e",
+        "icons": [
+            {"src": "/icon.svg", "sizes": "any", "type": "image/svg+xml"}
+        ]
+    }
+    from flask import Response
+    return Response(_json.dumps(data), mimetype='application/manifest+json')
+
 # ── MARKET DATA ───────────────────────────────────────────────────
 @app.route("/api/market")
 def get_market():

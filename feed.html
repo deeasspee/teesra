@@ -4,6 +4,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Teesra — Today's Brief</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="shortcut icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a120e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Teesra">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -1163,17 +1171,25 @@
     .feed-layout {
       display: grid;
       grid-template-columns: 260px 1fr 260px;
-      gap: 0;
+      grid-template-areas: "left center right";
       max-width: 1280px;
       margin: 0 auto;
       align-items: start;
       padding: 0 16px;
     }
-    .feed-sidebar {
+    .feed-sidebar-left {
+      grid-area: left;
       padding: 24px 16px;
       position: sticky;
       top: 56px;
     }
+    .feed-sidebar-right {
+      grid-area: right;
+      padding: 24px 16px;
+      position: sticky;
+      top: 56px;
+    }
+    .feed-center { grid-area: center; min-width: 0; }
     .sidebar-widget {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1299,28 +1315,32 @@
     }
     @keyframes skel-pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
 
-    /* Mobile sidebar wrapper */
-    .feed-sidebars-mobile { display: contents; }
+    /* Tablet — 2 columns, hide right sidebar */
+    @media(max-width:1100px) and (min-width:769px) {
+      .feed-layout { grid-template-columns: 220px 1fr; grid-template-areas: "left center"; padding: 0 8px; }
+      .feed-sidebar-right { display: none; }
+      .feed-sidebar-left { padding: 16px 8px; }
+    }
 
-    @media(max-width:1100px) {
+    /* Mobile — single column, sidebars become strips above feed */
+    @media(max-width:768px) {
       .feed-layout { display: flex; flex-direction: column; padding: 0; }
-      .feed-sidebars-mobile {
-        display: flex !important; flex-direction: column !important;
-        width: 100%; box-sizing: border-box; overflow: hidden;
-        padding: 8px 12px 0; order: -1; gap: 8px;
-      }
-      .feed-sidebars-mobile .feed-sidebar { width: 100%; min-width: 0; position: static; padding: 8px 0 !important; }
-      #feedContainer, .feed-controls { order: 0; }
+      .feed-sidebar-left, .feed-sidebar-right { position: static; padding: 0; width: 100%; }
+      .feed-sidebar-left .sidebar-widget, .feed-sidebar-right .sidebar-widget { margin: 8px 12px; border-radius: 10px; overflow: hidden; }
+      .feed-center { width: 100%; }
       #cricketFeed, #footballFeed {
         display: flex !important; flex-direction: row !important;
         overflow-x: auto !important; overflow-y: hidden !important;
-        max-height: none !important; max-width: 100% !important;
-        gap: 6px; padding: 0 8px 8px !important;
-        scrollbar-width: none;
+        max-height: none !important; gap: 8px; padding: 8px !important;
+        scrollbar-width: none; scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
       }
       #cricketFeed::-webkit-scrollbar, #footballFeed::-webkit-scrollbar { display: none; }
-      #cricketFeed > div { min-width: 140px !important; max-width: 140px !important; flex-shrink: 0; margin: 0 !important; border-radius: 8px; }
-      #footballFeed > div { min-width: 140px !important; max-width: 140px !important; flex-shrink: 0; margin: 0 !important; border-radius: 8px; }
+      #cricketFeed > div, #footballFeed > div {
+        min-width: 150px !important; max-width: 150px !important;
+        flex-shrink: 0 !important; margin: 0 !important;
+        scroll-snap-align: start; border-radius: 8px; box-sizing: border-box;
+      }
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
@@ -1406,51 +1426,28 @@
     </div>
   </div>
 
-  <!-- 3-COLUMN LAYOUT: IPL Left | Feed | IPL Right -->
+  <!-- 3-COLUMN LAYOUT: Cricket Left | Feed Center | Football Right -->
   <div class="feed-layout">
 
-    <div class="feed-sidebars-mobile">
-
-      <!-- LEFT SIDEBAR: Recent Matches -->
-      <aside class="feed-sidebar">
-        <div class="sidebar-widget" id="cricketWidget">
-          <div class="sidebar-header">
-            <span class="sidebar-title">🏏 Upcoming Matches</span>
-          </div>
-          <div class="ipl-skeleton" id="cricketSkeleton">
-            <div class="skel-line" style="width:100%"></div>
-            <div class="skel-line" style="width:90%"></div>
-            <div class="skel-line" style="width:95%"></div>
-            <div class="skel-line" style="width:85%"></div>
-            <div class="skel-line" style="width:88%"></div>
-          </div>
-          <div id="cricketFeed" style="display:none;"></div>
+    <!-- LEFT SIDEBAR: Cricket -->
+    <aside class="feed-sidebar-left" id="cricketSidebarEl">
+      <div class="sidebar-widget" id="cricketWidget">
+        <div class="sidebar-header">
+          <span class="sidebar-title">🏏 Upcoming Matches</span>
         </div>
-      </aside>
-
-      <!-- RIGHT SIDEBAR: Football -->
-      <aside class="feed-sidebar" id="footballSidebar">
-        <div class="sidebar-widget">
-          <div class="sidebar-header">
-            <span class="sidebar-title">⚽ Football</span>
-            <span class="sidebar-subtitle" id="footballSubtitle">Loading...</span>
-          </div>
-          <div class="ipl-skeleton" id="footballSkeleton">
-            <div class="skel-line" style="width:100%"></div>
-            <div class="skel-line" style="width:90%"></div>
-            <div class="skel-line" style="width:95%"></div>
-            <div class="skel-line" style="width:85%"></div>
-            <div class="skel-line" style="width:92%"></div>
-          </div>
-          <div id="footballFeed" style="display:none; overflow-y:auto; max-height:calc(100vh - 200px);
-            scrollbar-width:thin; scrollbar-color:var(--border) transparent;"></div>
+        <div class="ipl-skeleton" id="cricketSkeleton">
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:95%"></div>
+          <div class="skel-line" style="width:85%"></div>
+          <div class="skel-line" style="width:88%"></div>
         </div>
-      </aside>
-
-    </div>
+        <div id="cricketFeed" style="display:none;"></div>
+      </div>
+    </aside>
 
     <!-- CENTER: Feed -->
-    <div>
+    <div class="feed-center">
       <div class="feed-controls" id="feedControls" style="display:none;">
         <div class="date-tabs" id="dateTabs"></div>
         <div class="topic-filters" id="topicFilters"></div>
@@ -1462,6 +1459,25 @@
         </div>
       </div>
     </div>
+
+    <!-- RIGHT SIDEBAR: Football -->
+    <aside class="feed-sidebar-right" id="footballSidebar">
+      <div class="sidebar-widget">
+        <div class="sidebar-header">
+          <span class="sidebar-title">⚽ Football</span>
+          <span class="sidebar-subtitle" id="footballSubtitle">Loading...</span>
+        </div>
+        <div class="ipl-skeleton" id="footballSkeleton">
+          <div class="skel-line" style="width:100%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:95%"></div>
+          <div class="skel-line" style="width:85%"></div>
+          <div class="skel-line" style="width:92%"></div>
+        </div>
+        <div id="footballFeed" style="display:none; overflow-y:auto; max-height:calc(100vh - 200px);
+          scrollbar-width:thin; scrollbar-color:var(--border) transparent;"></div>
+      </div>
+    </aside>
 
   </div>
 
@@ -2064,9 +2080,7 @@
           return `<div style="width:16px;height:16px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:7px;color:var(--text-mid);font-weight:700;flex-shrink:0;">${(abbr||'?').slice(0,2)}</div>`;
         }
 
-        const isMobile = window.innerWidth <= 1100;
-        const displayMatches = isMobile ? matches.slice(0, 3) : matches;
-        el.innerHTML = displayMatches.map(m => {
+        el.innerHTML = matches.map(m => {
           const name        = m.name || '';
           const seriesParts = name.split(',');
           const seriesShort = (seriesParts[seriesParts.length - 1] || '').trim().replace(/\d{4}/g, '').trim();
@@ -2213,11 +2227,9 @@
           return;
         }
 
-        const isMobile = window.innerWidth <= 1100;
-        const displayMatches = isMobile ? matches.slice(0, 3) : matches;
-        if (sub) sub.textContent = `${displayMatches.length} matches`;
+        if (sub) sub.textContent = `${matches.length} matches`;
 
-        el.innerHTML = displayMatches.map(m => {
+        el.innerHTML = matches.map(m => {
           const isLive     = ['IN_PLAY','LIVE','PAUSED'].includes(m.status);
           const isFinished = m.status === 'FINISHED';
           const score      = (m.score_home !== null && m.score_away !== null)
