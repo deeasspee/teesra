@@ -115,7 +115,7 @@ def build_story_html(article, index):
 
 
 # ── BUILD FULL EMAIL ──────────────────────────────────────────────
-def build_email_html(articles, market_data=None):
+def build_email_html(articles, market_data=None, recipient_email=""):
     today = date.today().strftime("%A, %d %B %Y")
     article_count = len(articles)
     # Market section — safe even if None
@@ -204,7 +204,7 @@ def build_email_html(articles, market_data=None):
       </p>
       <p style="margin:0; font-size:11px; color:#4a5568; font-family:monospace; letter-spacing:0.5px;">
         Don't want these emails?
-        <a href="https://teesra.in/unsubscribe?email={to_email}"
+        <a href="https://teesra.in/unsubscribe?email={recipient_email}"
            style="color:#718096; text-decoration:underline;">Unsubscribe</a>
       </p>
     </td>
@@ -236,7 +236,7 @@ def send_newsletter(to_email: str):
     print(f"   Found {len(articles)} articles")
 
     # Build email once — with market data
-    html = build_email_html(articles, market_data)
+    html = build_email_html(articles, market_data, recipient_email=to_email)
     today = date.today().strftime("%A, %d %B")
 
     # ── FROM ADDRESS ──────────────────────────────────────────────
