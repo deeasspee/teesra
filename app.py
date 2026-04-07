@@ -19,7 +19,6 @@ CORS(app)
 FEED_API_KEY        = os.getenv("FEED_API_KEY")
 CRICAPI_KEY         = os.getenv("CRICAPI_KEY")
 FOOTBALL_API_KEY    = os.getenv("FOOTBALL_API_KEY")
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 anthropic_client = Anthropic()
 
 # Simple in-memory cache for cricket data
@@ -77,45 +76,65 @@ def get_market():
 def get_weather():
     lat = request.args.get("lat", "28.6139")
     lon = request.args.get("lon", "77.2090")
-    if not OPENWEATHER_API_KEY:
-        return jsonify({"error": "no key"}), 200
     try:
-        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+        url = (f"https://api.open-meteo.com/v1/forecast"
+               f"?latitude={lat}&longitude={lon}"
+               f"&current=temperature_2m,relative_humidity_2m,"
+               f"wind_speed_10m,weather_code,apparent_temperature"
+               f"&timezone=Asia%2FKolkata")
         req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
         with urllib.request.urlopen(req, timeout=8) as r:
             d = json.loads(r.read().decode())
-        temp  = round(d["main"]["temp"])
-        feels = round(d["main"]["feels_like"])
-        main  = d["weather"][0]["main"].lower()
+
+        cur   = d["current"]
+        temp  = round(cur["temperature_2m"])
+        feels = round(cur["apparent_temperature"])
+        humid = cur["relative_humidity_2m"]
+        wind  = round(cur["wind_speed_10m"])
+        code  = cur["weather_code"]
+
+        def decode_wmo(c):
+            if c == 0:  return "Clear Sky",     "01d"
+            if c <= 2:  return "Partly Cloudy", "02d"
+            if c == 3:  return "Overcast",      "03d"
+            if c <= 49: return "Foggy",         "50d"
+            if c <= 55: return "Drizzle",       "09d"
+            if c <= 65: return "Rain",          "10d"
+            if c <= 77: return "Snow",          "13d"
+            if c <= 82: return "Rain Showers",  "09d"
+            if c <= 99: return "Thunderstorm",  "11d"
+            return "Cloudy", "03d"
+
+        desc, icon = decode_wmo(code)
         import datetime as _dt
-        hour  = _dt.datetime.now().hour
-        tod   = "morning" if hour < 12 else "afternoon" if hour < 17 else "evening"
-        phrases = {
-            "clear":       f"Clear skies ☀️",
-            "clouds":      f"Cloudy {tod} 🌤️",
-            "rain":        "Carry umbrella 🌧️",
-            "drizzle":     "Light showers 🌦️",
-            "thunderstorm":"Thunderstorms ⛈️",
-            "snow":        "Snow today ❄️",
-            "mist":        "Misty conditions 🌫️",
-            "fog":         "Dense fog 🌫️",
-            "haze":        "Hazy skies 🌫️",
-        }
-        if temp >= 38:   phrase = f"Extreme heat {temp}°C 🥵"
+        hour = _dt.datetime.now().hour
+        tod  = "morning" if hour < 12 else "afternoon" if hour < 17 else "evening"
+
+        if temp >= 38:   phrase = f"Extreme heat — {temp}°C, stay hydrated 🥵"
         elif temp >= 32: phrase = f"Hot {tod}, stay cool 🌡️"
         elif temp <= 10: phrase = f"Cold {tod}, dress warm 🧥"
-        else:            phrase = phrases.get(main, "Stay prepared 🌤️")
-        return jsonify({
-            "city":     d.get("name", ""),
-            "temp":     temp,
-            "feels":    feels,
-            "humidity": d["main"]["humidity"],
-            "desc":     d["weather"][0]["description"].title(),
-            "icon":     d["weather"][0]["icon"],
-            "wind":     round(d["wind"]["speed"] * 3.6),
-            "phrase":   phrase,
-            "main":     main,
-        })
+        elif code == 0:  phrase = f"Clear skies for your {tod} ☀️"
+        elif code <= 2:  phrase = f"Partly cloudy {tod} 🌤️"
+        elif code <= 49: phrase = f"Foggy conditions, drive carefully 🌫️"
+        elif code <= 65: phrase = f"Carry an umbrella today 🌧️"
+        elif code <= 77: phrase = f"Snow today, dress warm ❄️"
+        elif code <= 99: phrase = f"Thunderstorms expected ⛈️"
+        else:            phrase = f"Stay prepared for the {tod}"
+
+        city = "Your Location"
+        try:
+            geo_url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json"
+            geo_req = urllib.request.Request(geo_url, headers={"User-Agent": "Teesra/1.0"})
+            with urllib.request.urlopen(geo_req, timeout=5) as gr:
+                geo  = json.loads(gr.read().decode())
+            addr = geo.get("address", {})
+            city = addr.get("city") or addr.get("town") or addr.get("village") or "Your Location"
+        except Exception:
+            pass
+
+        return jsonify({"city": city, "temp": temp, "feels": feels,
+                        "humidity": humid, "desc": desc, "icon": icon,
+                        "wind": wind, "phrase": phrase})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

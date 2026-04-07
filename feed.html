@@ -1305,27 +1305,22 @@
     @media(max-width:1100px) {
       .feed-layout { display: flex; flex-direction: column; padding: 0; }
       .feed-sidebars-mobile {
-        display: flex; gap: 8px; padding: 8px 12px 0; order: -1; overflow-x: auto;
-        scrollbar-width: none;
+        display: flex !important; flex-direction: column !important;
+        width: 100%; box-sizing: border-box; overflow: hidden;
+        padding: 8px 12px 0; order: -1; gap: 8px;
       }
-      .feed-sidebars-mobile::-webkit-scrollbar { display: none; }
-      .feed-sidebars-mobile .feed-sidebar { flex: 1; min-width: 0; position: static; }
+      .feed-sidebars-mobile .feed-sidebar { width: 100%; min-width: 0; position: static; padding: 8px 0 !important; }
       #feedContainer, .feed-controls { order: 0; }
-      #cricketFeed {
+      #cricketFeed, #footballFeed {
         display: flex !important; flex-direction: row !important;
         overflow-x: auto !important; overflow-y: hidden !important;
-        max-height: none !important; gap: 8px; padding: 0 4px 8px !important;
-        scrollbar-width: none;
-      }
-      #footballFeed {
-        display: flex !important; flex-direction: row !important;
-        overflow-x: auto !important; overflow-y: hidden !important;
-        max-height: none !important; gap: 8px; padding: 0 4px 8px !important;
+        max-height: none !important; max-width: 100% !important;
+        gap: 6px; padding: 0 8px 8px !important;
         scrollbar-width: none;
       }
       #cricketFeed::-webkit-scrollbar, #footballFeed::-webkit-scrollbar { display: none; }
-      #cricketFeed > div { min-width: 160px !important; flex-shrink: 0; margin: 0 !important; }
-      #footballFeed > div { min-width: 150px !important; flex-shrink: 0; margin: 0 !important; }
+      #cricketFeed > div { min-width: 140px !important; max-width: 140px !important; flex-shrink: 0; margin: 0 !important; border-radius: 8px; }
+      #footballFeed > div { min-width: 140px !important; max-width: 140px !important; flex-shrink: 0; margin: 0 !important; border-radius: 8px; }
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
@@ -1986,14 +1981,14 @@
       function render(w) {
         const el = document.getElementById('weatherWidget');
         if (!el) return;
-        if (w.error) { el.style.display = 'none'; return; }
+        if (!w || w.error) { el.style.display = 'none'; return; }
         el.innerHTML = `<div class="weather-left"><img class="weather-icon" src="https://openweathermap.org/img/wn/${w.icon}@2x.png" onerror="this.style.display='none'"><div><div class="weather-temp">${w.temp}°<span>C</span></div><div class="weather-desc">${w.desc}</div><div class="weather-city">📍 ${w.city}</div></div></div><div class="weather-meta"><div class="weather-stat"><div class="weather-stat-val">${w.feels}°</div><div class="weather-stat-lbl">Feels</div></div><div class="weather-stat"><div class="weather-stat-val">${w.humidity}%</div><div class="weather-stat-lbl">Humid</div></div><div class="weather-stat"><div class="weather-stat-val">${w.wind}</div><div class="weather-stat-lbl">km/h</div></div></div><div class="weather-phrase">${w.phrase}</div>`;
       }
       async function load(lat, lon) {
         try {
           const url = lat ? `/api/weather?lat=${lat}&lon=${lon}` : '/api/weather';
           const d = await (await fetch(url)).json();
-          sessionStorage.setItem(CK, JSON.stringify(d));
+          if (d && !d.error) { sessionStorage.setItem(CK, JSON.stringify(d)); }
           render(d);
         } catch(e) {
           const el = document.getElementById('weatherWidget');
@@ -2002,15 +1997,19 @@
       }
       try {
         const c = sessionStorage.getItem(CK);
-        if (c) { const d = JSON.parse(c); if (d?.temp) { render(d); return; } }
+        if (c) { const d = JSON.parse(c); if (d && d.temp) { render(d); return; } }
       } catch(e) {}
-      navigator.geolocation
-        ? navigator.geolocation.getCurrentPosition(
-            p => load(p.coords.latitude, p.coords.longitude),
-            () => load(null, null),
-            { timeout: 5000, maximumAge: 3600000 }
-          )
-        : load(null, null);
+      if (navigator.geolocation) {
+        let done = false;
+        const timer = setTimeout(() => { if (!done) { done = true; load(null, null); } }, 4000);
+        navigator.geolocation.getCurrentPosition(
+          p => { if (!done) { done = true; clearTimeout(timer); load(p.coords.latitude, p.coords.longitude); } },
+          () => { if (!done) { done = true; clearTimeout(timer); load(null, null); } },
+          { timeout: 6000, maximumAge: 3600000 }
+        );
+      } else {
+        load(null, null);
+      }
     })();
 
     // ── CRICKET WIDGET ────────────────────────────────────────────
@@ -2065,7 +2064,9 @@
           return `<div style="width:16px;height:16px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:7px;color:var(--text-mid);font-weight:700;flex-shrink:0;">${(abbr||'?').slice(0,2)}</div>`;
         }
 
-        el.innerHTML = matches.map(m => {
+        const isMobile = window.innerWidth <= 1100;
+        const displayMatches = isMobile ? matches.slice(0, 3) : matches;
+        el.innerHTML = displayMatches.map(m => {
           const name        = m.name || '';
           const seriesParts = name.split(',');
           const seriesShort = (seriesParts[seriesParts.length - 1] || '').trim().replace(/\d{4}/g, '').trim();
@@ -2212,9 +2213,11 @@
           return;
         }
 
-        if (sub) sub.textContent = `${matches.length} matches`;
+        const isMobile = window.innerWidth <= 1100;
+        const displayMatches = isMobile ? matches.slice(0, 3) : matches;
+        if (sub) sub.textContent = `${displayMatches.length} matches`;
 
-        el.innerHTML = matches.map(m => {
+        el.innerHTML = displayMatches.map(m => {
           const isLive     = ['IN_PLAY','LIVE','PAUSED'].includes(m.status);
           const isFinished = m.status === 'FINISHED';
           const score      = (m.score_home !== null && m.score_away !== null)
