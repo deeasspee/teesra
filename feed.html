@@ -1177,19 +1177,10 @@
       align-items: start;
       padding: 0 16px;
     }
-    .feed-sidebar-left {
-      grid-area: left;
-      padding: 24px 16px;
-      position: sticky;
-      top: 56px;
-    }
-    .feed-sidebar-right {
-      grid-area: right;
-      padding: 24px 16px;
-      position: sticky;
-      top: 56px;
-    }
     .feed-center { grid-area: center; min-width: 0; }
+    .feed-sidebars-mobile { display: contents; }
+    #cricketSidebarEl { grid-area: left; padding: 24px 16px; position: sticky; top: 56px; }
+    #footballSidebar  { grid-area: right; padding: 24px 16px; position: sticky; top: 56px; }
     .sidebar-widget {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1315,32 +1306,32 @@
     }
     @keyframes skel-pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
 
-    /* Tablet — 2 columns, hide right sidebar */
+    /* Tablet — 2 columns, hide football sidebar */
     @media(max-width:1100px) and (min-width:769px) {
       .feed-layout { grid-template-columns: 220px 1fr; grid-template-areas: "left center"; padding: 0 8px; }
-      .feed-sidebar-right { display: none; }
-      .feed-sidebar-left { padding: 16px 8px; }
+      #footballSidebar { display: none; }
+      #cricketSidebarEl { padding: 16px 8px; }
     }
 
-    /* Mobile — single column, sidebars become strips above feed */
+    /* Mobile — flex column, sidebars side by side above feed */
     @media(max-width:768px) {
       .feed-layout { display: flex; flex-direction: column; padding: 0; }
-      .feed-sidebar-left, .feed-sidebar-right { position: static; padding: 0; width: 100%; }
-      .feed-sidebar-left .sidebar-widget, .feed-sidebar-right .sidebar-widget { margin: 8px 12px; border-radius: 10px; overflow: hidden; }
-      .feed-center { width: 100%; }
+      .feed-sidebars-mobile {
+        display: flex !important; gap: 8px; padding: 8px 12px 0; order: -1;
+      }
+      .feed-sidebars-mobile > aside {
+        flex: 1; min-width: 0; position: static; padding: 0 !important;
+      }
+      .feed-center { width: 100%; order: 0; }
       #cricketFeed, #footballFeed {
         display: flex !important; flex-direction: row !important;
         overflow-x: auto !important; overflow-y: hidden !important;
-        max-height: none !important; gap: 8px; padding: 8px !important;
-        scrollbar-width: none; scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
+        max-height: none !important; gap: 8px; padding: 0 4px 8px !important;
+        scrollbar-width: none;
       }
       #cricketFeed::-webkit-scrollbar, #footballFeed::-webkit-scrollbar { display: none; }
-      #cricketFeed > div, #footballFeed > div {
-        min-width: 150px !important; max-width: 150px !important;
-        flex-shrink: 0 !important; margin: 0 !important;
-        scroll-snap-align: start; border-radius: 8px; box-sizing: border-box;
-      }
+      #cricketFeed > div { min-width: 160px !important; flex-shrink: 0; margin: 0 !important; }
+      #footballFeed > div { min-width: 150px !important; flex-shrink: 0; margin: 0 !important; }
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
@@ -1429,22 +1420,46 @@
   <!-- 3-COLUMN LAYOUT: Cricket Left | Feed Center | Football Right -->
   <div class="feed-layout">
 
-    <!-- LEFT SIDEBAR: Cricket -->
-    <aside class="feed-sidebar-left" id="cricketSidebarEl">
-      <div class="sidebar-widget" id="cricketWidget">
-        <div class="sidebar-header">
-          <span class="sidebar-title">🏏 Upcoming Matches</span>
+    <!-- SIDEBARS WRAPPER: display:contents on desktop → both asides slot into named grid areas -->
+    <div class="feed-sidebars-mobile">
+
+      <!-- LEFT SIDEBAR: Cricket -->
+      <aside id="cricketSidebarEl">
+        <div class="sidebar-widget" id="cricketWidget">
+          <div class="sidebar-header">
+            <span class="sidebar-title">🏏 Upcoming Matches</span>
+          </div>
+          <div class="ipl-skeleton" id="cricketSkeleton">
+            <div class="skel-line" style="width:100%"></div>
+            <div class="skel-line" style="width:90%"></div>
+            <div class="skel-line" style="width:95%"></div>
+            <div class="skel-line" style="width:85%"></div>
+            <div class="skel-line" style="width:88%"></div>
+          </div>
+          <div id="cricketFeed" style="display:none;"></div>
         </div>
-        <div class="ipl-skeleton" id="cricketSkeleton">
-          <div class="skel-line" style="width:100%"></div>
-          <div class="skel-line" style="width:90%"></div>
-          <div class="skel-line" style="width:95%"></div>
-          <div class="skel-line" style="width:85%"></div>
-          <div class="skel-line" style="width:88%"></div>
+      </aside>
+
+      <!-- RIGHT SIDEBAR: Football -->
+      <aside id="footballSidebar">
+        <div class="sidebar-widget">
+          <div class="sidebar-header">
+            <span class="sidebar-title">⚽ Football</span>
+            <span class="sidebar-subtitle" id="footballSubtitle">Loading...</span>
+          </div>
+          <div class="ipl-skeleton" id="footballSkeleton">
+            <div class="skel-line" style="width:100%"></div>
+            <div class="skel-line" style="width:90%"></div>
+            <div class="skel-line" style="width:95%"></div>
+            <div class="skel-line" style="width:85%"></div>
+            <div class="skel-line" style="width:92%"></div>
+          </div>
+          <div id="footballFeed" style="display:none; overflow-y:auto; max-height:calc(100vh - 200px);
+            scrollbar-width:thin; scrollbar-color:var(--border) transparent;"></div>
         </div>
-        <div id="cricketFeed" style="display:none;"></div>
-      </div>
-    </aside>
+      </aside>
+
+    </div>
 
     <!-- CENTER: Feed -->
     <div class="feed-center">
@@ -1459,25 +1474,6 @@
         </div>
       </div>
     </div>
-
-    <!-- RIGHT SIDEBAR: Football -->
-    <aside class="feed-sidebar-right" id="footballSidebar">
-      <div class="sidebar-widget">
-        <div class="sidebar-header">
-          <span class="sidebar-title">⚽ Football</span>
-          <span class="sidebar-subtitle" id="footballSubtitle">Loading...</span>
-        </div>
-        <div class="ipl-skeleton" id="footballSkeleton">
-          <div class="skel-line" style="width:100%"></div>
-          <div class="skel-line" style="width:90%"></div>
-          <div class="skel-line" style="width:95%"></div>
-          <div class="skel-line" style="width:85%"></div>
-          <div class="skel-line" style="width:92%"></div>
-        </div>
-        <div id="footballFeed" style="display:none; overflow-y:auto; max-height:calc(100vh - 200px);
-          scrollbar-width:thin; scrollbar-color:var(--border) transparent;"></div>
-      </div>
-    </aside>
 
   </div>
 

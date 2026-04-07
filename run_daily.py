@@ -25,7 +25,7 @@ def run():
         all_articles = fetch_all_news()
 
         clear_todays_articles()
-        top_articles = select_top_stories(all_articles, n=15)
+        top_articles = select_top_stories(all_articles, n=20)
 
         print(f"\n🧠 Analyzing {len(top_articles)} articles...\n")
         results = []
