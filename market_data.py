@@ -113,85 +113,56 @@ def fetch_commodity_data() -> dict:
         return None
 
 
-def format_market_for_email(market: dict) -> str:
-    """Returns HTML snippet for newsletter"""
+def format_market_for_email(market):
+    """Returns HTML snippet for newsletter (Sensex, Nifty, Bank Nifty)."""
     if not market:
         return ""
-    sensex    = market.get("sensex", {})
-    nifty     = market.get("nifty", {})
+
+    sensex     = market.get("sensex", {})
+    nifty      = market.get("nifty", {})
     bank_nifty = market.get("bank_nifty", {})
 
-    def arrow(direction):
-        return "▲" if direction == "up" else "▼"
+    def arrow(d):
+        return "&#9650;" if d == "up" else "&#9660;"
 
-    def color(direction):
-        return "#7bc67e" if direction == "up" else "#d45b5b"
+    def clr(d):
+        return "#7bc67e" if d == "up" else "#d45b5b"
 
-    def fmt(val):
-        return f"{val:,.2f}" if val else "—"
+    def fmt(v):
+        try:
+            return "{:,.2f}".format(v) if v else "-"
+        except Exception:
+            return "-"
 
-    # Pre-build commodity cells to avoid nested f-string parsing errors in Python < 3.12
-    commodity_html = ""
-    if market.get("gold_24k"):
-        gold_val   = market.get("gold_24k", "—")
-        gold22_val = market.get("gold_22k", "—")
-        silver_val = market.get("silver_kg", "—")
-        commodity_html = (
-            '<td style="padding:4px 12px; border-left:1px solid #2a2a1f;">'
-            '<p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 24K</p>'
-            f'<p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">&#8377;{gold_val}</p>'
-            '<p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p>'
-            '</td>'
-            '<td style="padding:4px 12px; border-left:1px solid #2a2a1f;">'
-            '<p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 22K</p>'
-            f'<p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">&#8377;{gold22_val}</p>'
-            '<p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p>'
-            '</td>'
-            '<td style="padding:4px 0 4px 12px; border-left:1px solid #2a2a1f;">'
-            '<p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Silver</p>'
-            f'<p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">&#8377;{silver_val}</p>'
-            '<p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per kg</p>'
+    def cell(label, idx_dict):
+        d   = idx_dict.get("direction", "flat")
+        pct = abs(idx_dict.get("change_pct", 0))
+        return (
+            '<td style="padding:4px 16px;border-left:1px solid #2a2a1f;white-space:nowrap;">'
+            '<p style="margin:0 0 2px 0;font-family:monospace;font-size:9px;color:#7a7660;">' + label + '</p>'
+            '<p style="margin:0;font-size:15px;font-weight:700;color:#e8e4d4;font-family:Georgia,serif;">' + fmt(idx_dict.get("current", 0)) + '</p>'
+            '<p style="margin:0;font-size:11px;color:' + clr(d) + ';">' + arrow(d) + ' ' + "{:.2f}".format(pct) + '%</p>'
             '</td>'
         )
 
-    return f"""
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f0f0a; border:1px solid #2a2a1f; margin-bottom:20px;">
-      <tr>
-        <td style="padding:12px 20px; border-bottom:1px solid #2a2a1f;">
-          <p style="margin:0; font-family:monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">&#128202; Markets · Last Close</p>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:12px 20px; overflow-x:auto;">
-          <table cellpadding="0" cellspacing="0">
-            <tr>
-              <td style="padding:4px 12px 4px 0; white-space:nowrap;">
-                <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">SENSEX</p>
-                <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(sensex.get('current', 0))}</p>
-                <p style="margin:0; font-size:11px; color:{color(sensex.get('direction','flat'))};">
-                  {arrow(sensex.get('direction','flat'))} {abs(sensex.get('change_pct', 0)):.2f}%
-                </p>
-              </td>
-              <td style="padding:4px 12px; border-left:1px solid #2a2a1f; white-space:nowrap;">
-                <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">NIFTY 50</p>
-                <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(nifty.get('current', 0))}</p>
-                <p style="margin:0; font-size:11px; color:{color(nifty.get('direction','flat'))};">
-                  {arrow(nifty.get('direction','flat'))} {abs(nifty.get('change_pct', 0)):.2f}%
-                </p>
-              </td>
-              <td style="padding:4px 12px; border-left:1px solid #2a2a1f; white-space:nowrap;">
-                <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">BANK NIFTY</p>
-                <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(bank_nifty.get('current', 0))}</p>
-                <p style="margin:0; font-size:11px; color:{color(bank_nifty.get('direction','flat'))};">
-                  {arrow(bank_nifty.get('direction','flat'))} {abs(bank_nifty.get('change_pct', 0)):.2f}%
-                </p>
-              </td>
-              {commodity_html}
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>"""
+    sensex_cell     = cell("SENSEX",     sensex)
+    nifty_cell      = cell("NIFTY 50",   nifty)
+    bank_nifty_cell = cell("BANK NIFTY", bank_nifty)
+
+    return (
+        '<table width="100%" cellpadding="0" cellspacing="0"'
+        ' style="background:#0f0f0a;border:1px solid #2a2a1f;margin-bottom:20px;">'
+        '<tr><td style="padding:10px 20px;border-bottom:1px solid #2a2a1f;">'
+        '<p style="margin:0;font-family:monospace;font-size:9px;color:#e8c84a;'
+        'letter-spacing:2px;text-transform:uppercase;">Markets - Last Close</p>'
+        '</td></tr>'
+        '<tr><td style="padding:10px 20px;">'
+        '<table cellpadding="0" cellspacing="0"><tr>'
+        + sensex_cell + nifty_cell + bank_nifty_cell +
+        '</tr></table>'
+        '</td></tr>'
+        '</table>'
+    )
 
 
 def format_market_for_feed(market: dict) -> dict:
