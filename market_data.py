@@ -120,7 +120,23 @@ def format_market_for_email(market: dict) -> str:
     sensex = market.get("sensex", {})
     nifty = market.get("nifty", {})
     bank_nifty = market.get("bank_nifty", {})
-    mood = market.get("mood", "")
+    
+    # Pre-calculate commodity cells to avoid nested f-string parsing errors
+    commodity_html = ""
+    if market.get('gold_24k'):
+        gold_val = market.get('gold_24k', '—')
+        silver_val = market.get('silver_kg', '—')
+        commodity_html = f"""
+              <td style="padding:4px 12px; border-left:1px solid #2a2a1f;">
+                <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 24K</p>
+                <p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">₹{gold_val}</p>
+                <p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p>
+              </td>
+              <td style="padding:4px 0 4px 12px; border-left:1px solid #2a2a1f;">
+                <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Silver</p>
+                <p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">₹{silver_val}</p>
+                <p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per kg</p>
+              </td>"""
 
     def arrow(direction):
         return "▲" if direction == "up" else "▼"
@@ -163,7 +179,7 @@ def format_market_for_email(market: dict) -> str:
                   {arrow(bank_nifty.get('direction','flat'))} {abs(bank_nifty.get('change_pct', 0)):.2f}%
                 </p>
               </td>
-              {"" if not market.get('gold_24k') else f"""<td style="padding:4px 12px; border-left:1px solid #2a2a1f;"><p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 24K</p><p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">₹{market.get('gold_24k','—')}</p><p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p></td><td style="padding:4px 0 4px 12px; border-left:1px solid #2a2a1f;"><p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Silver</p><p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">₹{market.get('silver_kg','—')}</p><p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per kg</p></td>"""}
+              {commodity_html}
             </tr>
           </table>
         </td>
