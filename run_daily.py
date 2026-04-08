@@ -24,13 +24,18 @@ def run():
         print("📡 Fetching live articles...")
         all_articles = fetch_all_news()
 
+        TARGET = 20
         clear_todays_articles()
-        top_articles = select_top_stories(all_articles, n=20)
+        # Select 30 candidates so ~20 survive Claude's quality filters
+        top_articles = select_top_stories(all_articles, n=30)
 
-        print(f"\n🧠 Analyzing {len(top_articles)} articles...\n")
+        print(f"\n🧠 Analyzing up to {len(top_articles)} articles (target: {TARGET})...\n")
         results = []
 
         for i, article in enumerate(top_articles):
+            if len(results) >= TARGET:
+                print(f"  ✅ Target of {TARGET} reached — stopping early")
+                break
             print(f"  [{i+1}/{len(top_articles)}] {article['title'][:60]}...")
             analysis = analyze_article(article)
             if analysis:

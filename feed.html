@@ -1313,25 +1313,32 @@
       #cricketSidebarEl { padding: 16px 8px; }
     }
 
-    /* Mobile — flex column, sidebars side by side above feed */
+    /* Mobile — cricket strip above football strip, both above feed */
     @media(max-width:768px) {
       .feed-layout { display: flex; flex-direction: column; padding: 0; }
       .feed-sidebars-mobile {
-        display: flex !important; gap: 8px; padding: 8px 12px 0; order: -1;
+        display: flex !important; flex-direction: column !important;
+        width: 100%; order: -1; gap: 0;
       }
       .feed-sidebars-mobile > aside {
-        flex: 1; min-width: 0; position: static; padding: 0 !important;
+        width: 100%; position: static; padding: 0 !important;
       }
       .feed-center { width: 100%; order: 0; }
       #cricketFeed, #footballFeed {
         display: flex !important; flex-direction: row !important;
         overflow-x: auto !important; overflow-y: hidden !important;
-        max-height: none !important; gap: 8px; padding: 0 4px 8px !important;
+        max-height: none !important; gap: 8px;
+        padding: 0 12px 8px !important;
         scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
       }
       #cricketFeed::-webkit-scrollbar, #footballFeed::-webkit-scrollbar { display: none; }
-      #cricketFeed > div { min-width: 160px !important; flex-shrink: 0; margin: 0 !important; }
-      #footballFeed > div { min-width: 150px !important; flex-shrink: 0; margin: 0 !important; }
+      #cricketFeed > div, #footballFeed > div {
+        min-width: 155px !important; max-width: 155px !important;
+        flex-shrink: 0 !important; margin: 0 !important;
+        scroll-snap-align: start;
+      }
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"

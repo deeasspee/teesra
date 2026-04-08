@@ -117,10 +117,9 @@ def format_market_for_email(market: dict) -> str:
     """Returns HTML snippet for newsletter"""
     if not market:
         return ""
-    sensex = market.get("sensex", {})
-    nifty = market.get("nifty", {})
+    sensex    = market.get("sensex", {})
+    nifty     = market.get("nifty", {})
     bank_nifty = market.get("bank_nifty", {})
-    mood = market.get("mood", "")
 
     def arrow(direction):
         return "▲" if direction == "up" else "▼"
@@ -131,39 +130,63 @@ def format_market_for_email(market: dict) -> str:
     def fmt(val):
         return f"{val:,.2f}" if val else "—"
 
+    # Pre-build commodity cells to avoid nested f-string parsing errors in Python < 3.12
+    commodity_html = ""
+    if market.get("gold_24k"):
+        gold_val   = market.get("gold_24k", "—")
+        gold22_val = market.get("gold_22k", "—")
+        silver_val = market.get("silver_kg", "—")
+        commodity_html = (
+            '<td style="padding:4px 12px; border-left:1px solid #2a2a1f;">'
+            '<p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 24K</p>'
+            f'<p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">&#8377;{gold_val}</p>'
+            '<p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p>'
+            '</td>'
+            '<td style="padding:4px 12px; border-left:1px solid #2a2a1f;">'
+            '<p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Gold 22K</p>'
+            f'<p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">&#8377;{gold22_val}</p>'
+            '<p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per 10g</p>'
+            '</td>'
+            '<td style="padding:4px 0 4px 12px; border-left:1px solid #2a2a1f;">'
+            '<p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; text-transform:uppercase;">Silver</p>'
+            f'<p style="margin:4px 0 0; font-size:15px; font-weight:700; color:#e8e4d4;">&#8377;{silver_val}</p>'
+            '<p style="margin:2px 0 0; font-family:monospace; font-size:9px; color:#7a7660;">per kg</p>'
+            '</td>'
+        )
+
     return f"""
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f0f0a; border:1px solid #2a2a1f; margin-bottom:20px;">
       <tr>
         <td style="padding:12px 20px; border-bottom:1px solid #2a2a1f;">
-          <p style="margin:0; font-family:monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">📊 Markets · Last Close</p>
+          <p style="margin:0; font-family:monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">&#128202; Markets · Last Close</p>
         </td>
       </tr>
       <tr>
-        <td style="padding:12px 20px;">
-          <table width="100%" cellpadding="0" cellspacing="0">
+        <td style="padding:12px 20px; overflow-x:auto;">
+          <table cellpadding="0" cellspacing="0">
             <tr>
-              <td style="padding:4px 12px 4px 0; width:33%;">
+              <td style="padding:4px 12px 4px 0; white-space:nowrap;">
                 <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">SENSEX</p>
                 <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(sensex.get('current', 0))}</p>
                 <p style="margin:0; font-size:11px; color:{color(sensex.get('direction','flat'))};">
                   {arrow(sensex.get('direction','flat'))} {abs(sensex.get('change_pct', 0)):.2f}%
                 </p>
               </td>
-              <td style="padding:4px 12px; width:33%; border-left:1px solid #2a2a1f;">
+              <td style="padding:4px 12px; border-left:1px solid #2a2a1f; white-space:nowrap;">
                 <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">NIFTY 50</p>
                 <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(nifty.get('current', 0))}</p>
                 <p style="margin:0; font-size:11px; color:{color(nifty.get('direction','flat'))};">
                   {arrow(nifty.get('direction','flat'))} {abs(nifty.get('change_pct', 0)):.2f}%
                 </p>
               </td>
-              <td style="padding:4px 12px; width:25%; border-left:1px solid #2a2a1f;">
+              <td style="padding:4px 12px; border-left:1px solid #2a2a1f; white-space:nowrap;">
                 <p style="margin:0 0 2px 0; font-family:monospace; font-size:9px; color:#7a7660; letter-spacing:1px;">BANK NIFTY</p>
                 <p style="margin:0; font-size:15px; font-weight:700; color:#e8e4d4; font-family:Georgia,serif;">{fmt(bank_nifty.get('current', 0))}</p>
                 <p style="margin:0; font-size:11px; color:{color(bank_nifty.get('direction','flat'))};">
                   {arrow(bank_nifty.get('direction','flat'))} {abs(bank_nifty.get('change_pct', 0)):.2f}%
                 </p>
               </td>
-              
+              {commodity_html}
             </tr>
           </table>
         </td>
