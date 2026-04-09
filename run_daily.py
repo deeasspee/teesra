@@ -26,8 +26,8 @@ def run():
 
         TARGET = 20
         clear_todays_articles()
-        # Select 30 candidates so ~20 survive Claude's quality filters
-        top_articles = select_top_stories(all_articles, n=30)
+        # Select 35 candidates so 15-20 survive Claude's quality filters
+        top_articles = select_top_stories(all_articles, n=35)
 
         print(f"\n🧠 Analyzing up to {len(top_articles)} articles (target: {TARGET})...\n")
         results = []

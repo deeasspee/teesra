@@ -69,8 +69,8 @@ def get_yesterday_headlines() -> list:
 
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
 def clear_todays_articles():
-    """Delete articles older than 2 days to keep DB clean"""
-    cutoff = str(date.today() - timedelta(days=7))
+    """Delete articles older than 5 days to keep DB clean"""
+    cutoff = str(date.today() - timedelta(days=5))
     try:
         client = get_client()
         client.table("article").delete().lt("fetched_date", cutoff).execute()
@@ -98,7 +98,7 @@ def get_todays_articles() -> list:
 
 
 # ── GET RECENT ARTICLES ───────────────────────────────────────────
-def get_recent_articles(days=7) -> list:
+def get_recent_articles(days=5) -> list:
     """Fetch articles from last N days, ordered by date descending"""
     try:
         client = get_client()

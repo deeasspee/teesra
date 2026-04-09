@@ -204,7 +204,7 @@ def get_articles():
         return jsonify({"error": "Unauthorized"}), 401
     try:
         days = int(request.args.get('days', 1))
-        days = min(days, 7)
+        days = min(days, 5)
         if days == 1:
             articles = get_todays_articles()
             if not articles:

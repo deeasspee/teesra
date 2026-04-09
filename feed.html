@@ -1860,7 +1860,7 @@
       const container = document.getElementById('feedContainer');
 
       const [articlesRes, marketRes] = await Promise.allSettled([
-        fetch('/api/articles?days=7'),
+        fetch('/api/articles?days=5'),
         fetch('/api/market')
       ]);
 

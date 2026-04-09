@@ -287,9 +287,9 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
 
     # Step 2: Topic slot limits — flexible, prevents domination
     topic_max = {
-        'politics':      5,
-        'general':       5,
-        'economy':       4,
+        'politics':      6,
+        'general':       6,
+        'economy':       5,
         'international': 3,
         'tech':          3,
         'sports':        3,
