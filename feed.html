@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="jungle">
 <head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MG22YJD5S2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MG22YJD5S2');
+</script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Teesra — Today's Brief</title>
@@ -545,12 +554,12 @@
     .date-tabs::-webkit-scrollbar { display: none; }
     .date-tab {
       font-family: 'DM Mono', monospace;
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: 1px;
       padding: 6px 14px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--text-dim);
       background: none;
-      color: var(--text-dim);
+      color: var(--text-mid);
       cursor: pointer;
       white-space: nowrap;
       border-radius: 20px;
@@ -571,13 +580,13 @@
     }
     .topic-filter {
       font-family: 'DM Mono', monospace;
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: 1px;
       text-transform: uppercase;
-      padding: 4px 12px;
-      border: 1px solid var(--border);
+      padding: 5px 13px;
+      border: 1px solid var(--text-dim);
       background: none;
-      color: var(--text-dim);
+      color: var(--text-mid);
       cursor: pointer;
       border-radius: 20px;
       transition: all 0.15s;
