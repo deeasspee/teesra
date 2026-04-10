@@ -632,14 +632,14 @@
     .weather-left { display: flex; align-items: center; gap: 10px; }
     .weather-icon { width: 36px; height: 36px; object-fit: contain; }
     .weather-temp { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
-    .weather-temp span { font-size: 13px; font-weight: 400; color: var(--text-dim); font-family: 'DM Mono', monospace; }
-    .weather-desc { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); }
-    .weather-city { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-dim); opacity: 0.7; }
+    .weather-temp span { font-size: 13px; font-weight: 400; color: var(--text-mid); font-family: 'DM Mono', monospace; }
+    .weather-desc { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--facts); }
+    .weather-city { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text); opacity: 0.85; }
     .weather-phrase { font-size: 12px; color: var(--text-mid); text-align: right; max-width: 200px; font-style: italic; }
     .weather-meta { display: flex; gap: 12px; }
     .weather-stat { display: flex; flex-direction: column; align-items: center; }
-    .weather-stat-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); font-weight: 500; }
-    .weather-stat-lbl { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-dim); text-transform: uppercase; }
+    .weather-stat-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); font-weight: 600; }
+    .weather-stat-lbl { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-dim); text-transform: uppercase; opacity: 0.8; }
     @media(max-width:768px) {
       .weather-bar { padding: 0 12px; }
       .weather-phrase { display: none; }
@@ -724,11 +724,11 @@
     .card-source {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      color: var(--text-dim);
+      color: var(--text-mid);
     }
 
-    .card-source a { color: var(--text-dim); text-decoration: none; }
-    .card-source a:hover { color: var(--facts); }
+    .card-source a { color: var(--facts); font-weight: 600; text-decoration: none; font-size: 12px; }
+    .card-source a:hover { opacity: 0.8; }
 
     .source-count-wrap { position: relative; flex-shrink: 0; }
 
@@ -1872,7 +1872,7 @@
           ${tickerItem(m.nifty, 'Nifty 50')}
           <div class="market-div"></div>
           ${tickerItem(m.bank_nifty, 'Bank Nifty')}
-          ${m.gold_24k ? `<div class="market-div"></div><div class="market-item"><span class="market-name">GOLD 24K</span><span class="market-val">₹${m.gold_24k?.toLocaleString('en-IN')}</span><span class="market-name" style="font-size:8px;opacity:0.6;">/10g</span></div><div class="market-div"></div><div class="market-item"><span class="market-name">GOLD 22K</span><span class="market-val">₹${m.gold_22k?.toLocaleString('en-IN')}</span><span class="market-name" style="font-size:8px;opacity:0.6;">/10g</span></div><div class="market-div"></div><div class="market-item"><span class="market-name">SILVER</span><span class="market-val">₹${m.silver_kg?.toLocaleString('en-IN')}</span><span class="market-name" style="font-size:8px;opacity:0.6;">/kg</span></div>` : ''}
+          ${m.gold_24k ? `<div class="market-div"></div><div class="market-item"><span class="market-name">GOLD 24K</span><span class="market-val">₹${m.gold_24k?.toLocaleString('en-IN')}</span><span id="gold-24k-dir" style="font-size:11px;margin-left:2px;"></span><span class="market-name" style="font-size:8px;opacity:0.6;">/10g</span></div><div class="market-div"></div><div class="market-item"><span class="market-name">GOLD 22K</span><span class="market-val">₹${m.gold_22k?.toLocaleString('en-IN')}</span><span id="gold-22k-dir" style="font-size:11px;margin-left:2px;"></span><span class="market-name" style="font-size:8px;opacity:0.6;">/10g</span></div><div class="market-div"></div><div class="market-item"><span class="market-name">SILVER</span><span class="market-val">₹${m.silver_kg?.toLocaleString('en-IN')}</span><span id="silver-kg-dir" style="font-size:11px;margin-left:2px;"></span><span class="market-name" style="font-size:8px;opacity:0.6;">/kg</span></div>` : ''}
           <span class="market-mood">As of ${asOf}</span>
         </div>`;
     }
@@ -1919,6 +1919,24 @@
         if (marketRes.status === 'fulfilled') {
           const m = await marketRes.value.json();
           _marketHtml = buildMarketTicker(m);
+          // Gold/silver direction tracking via sessionStorage
+          setTimeout(() => {
+            function applyDir(id, key, curr) {
+              if (!curr) return;
+              const el = document.getElementById(id);
+              if (!el) return;
+              const prev = sessionStorage.getItem(key);
+              if (prev !== null) {
+                const diff = curr - parseFloat(prev);
+                if (diff > 0) { el.textContent = '▲'; el.style.color = '#22c55e'; }
+                else if (diff < 0) { el.textContent = '▼'; el.style.color = '#f87171'; }
+              }
+              sessionStorage.setItem(key, curr);
+            }
+            applyDir('gold-24k-dir', 'prev_gold_24k', m.gold_24k);
+            applyDir('gold-22k-dir', 'prev_gold_22k', m.gold_22k);
+            applyDir('silver-kg-dir', 'prev_silver_kg', m.silver_kg);
+          }, 100);
         }
       } catch(e) { console.log('Market data unavailable'); }
 
@@ -2127,31 +2145,31 @@
           const statusText  = (m.status || '').slice(0, 45);
 
           const indicator = m.live
-            ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--pulse);margin-right:4px;vertical-align:middle;"></span>LIVE`
-            : m.upcoming ? '📅 upcoming' : '✅ result';
+            ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#ff4444;margin-right:4px;vertical-align:middle;animation:mkt-pulse 1.5s ease-in-out infinite;"></span><span style="color:#ff4444;font-weight:700;">LIVE</span>`
+            : m.upcoming ? `<span style="color:var(--facts);">📅 UPCOMING</span>` : '✅ RESULT';
 
-          const t1Row = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
-            <div style="display:flex;align-items:center;gap:5px;">
+          const t1Row = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+            <div style="display:flex;align-items:center;gap:6px;">
               ${teamLogo(m.t1img, m.t1abbr)}
-              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);font-weight:500;">${m.t1abbr}</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:700;">${m.t1abbr}</span>
             </div>
-            ${m.t1s ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);">${m.t1s}</span>` : ''}
+            ${m.t1s ? `<span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--facts);font-weight:700;">${m.t1s}</span>` : ''}
           </div>`;
 
           const t2Row = `<div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:5px;">
+            <div style="display:flex;align-items:center;gap:6px;">
               ${teamLogo(m.t2img, m.t2abbr)}
-              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);font-weight:500;">${m.t2abbr}</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:700;">${m.t2abbr}</span>
             </div>
-            ${m.t2s ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);">${m.t2s}</span>` : (m.upcoming ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);">vs</span>` : '')}
+            ${m.t2s ? `<span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--facts);font-weight:700;">${m.t2s}</span>` : (m.upcoming ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);">vs</span>` : '')}
           </div>`;
 
           const statusRow = statusText
             ? m.live
-              ? `<div style="font-size:9px;color:var(--pulse);margin-top:4px;">● LIVE · ${statusText}</div>`
+              ? `<div style="font-size:10px;color:#ff4444;font-weight:700;margin-top:6px;">● LIVE · ${statusText}</div>`
               : m.completed
-              ? `<div style="font-size:9px;color:var(--text-mid);margin-top:4px;">${statusText}</div>`
-              : `<div style="font-size:9px;color:var(--text-dim);margin-top:4px;">${statusText}</div>`
+              ? `<div style="font-size:10px;color:var(--text);opacity:0.85;margin-top:6px;">${statusText}</div>`
+              : `<div style="font-size:10px;color:var(--facts);margin-top:6px;">${statusText}</div>`
             : '';
 
           return `<div style="padding:9px 14px;border-bottom:1px solid var(--border);border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;">

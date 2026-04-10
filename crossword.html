@@ -123,51 +123,79 @@
     .nav-drawer a:hover { color:var(--facts); }
 
     /* ── PAGE LAYOUT ─────────────────────────────────────────────── */
-    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 0; }
 
-    .page-header { margin-bottom: 28px; }
+    .page-header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-header-left {}
     .page-eyebrow {
       font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px;
       color: var(--facts); text-transform: uppercase; margin-bottom: 8px;
     }
     .page-title {
-      font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 900;
-      letter-spacing: -1px; line-height: 1; margin-bottom: 8px; color: var(--text);
+      font-family: Georgia, 'Playfair Display', serif;
+      font-size: clamp(24px, 4vw, 36px); font-weight: 700;
+      line-height: 1.1; margin-bottom: 8px; color: var(--facts);
     }
-    .page-subtitle { font-size: 14px; color: var(--text-mid); }
+    .page-subtitle { font-size: 14px; color: var(--text); opacity: 0.75; }
+    .page-back {
+      font-family: 'DM Mono', monospace; font-size: 13px;
+      color: var(--facts); text-decoration: none;
+      white-space: nowrap; padding-top: 4px;
+      transition: opacity 0.2s;
+    }
+    .page-back:hover { opacity: 0.75; }
 
     /* Timer + controls bar */
     .puzzle-meta-bar {
       display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
-      padding: 10px 16px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 24px;
+      padding: 12px 18px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
     }
     .timer-display {
-      font-family: 'Space Mono', 'DM Mono', monospace; font-size: 22px;
-      font-weight: 700; color: var(--facts); letter-spacing: 2px; min-width: 80px;
+      font-family: 'Space Mono', 'DM Mono', monospace; font-size: 26px;
+      font-weight: 700; color: var(--facts); letter-spacing: 3px; min-width: 90px;
     }
     .timer-label {
       font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px;
       text-transform: uppercase; color: var(--text-dim); margin-top: 2px;
     }
-    .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .ctrl-btn {
-      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px;
-      text-transform: uppercase; padding: 7px 14px; cursor: pointer;
-      border: 1px solid var(--border); background: none; color: var(--text-mid);
+      font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 8px 16px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--text);
       border-radius: 6px; transition: all 0.15s;
     }
     .ctrl-btn:hover { border-color: var(--facts); color: var(--facts); }
+    .ctrl-btn.primary {
+      background: var(--facts); border-color: var(--facts);
+      color: #0a0a08; font-weight: 700;
+    }
+    .ctrl-btn.primary:hover { opacity: 0.85; color: #0a0a08; }
     .ctrl-btn.danger { border-color: var(--right); color: var(--right); }
-    .ctrl-btn.danger:hover { background: var(--right); color: var(--bg); }
+    .ctrl-btn.danger:hover { background: var(--right); color: var(--bg); border-color: var(--right); }
 
     /* ── TWO-COLUMN LAYOUT ───────────────────────────────────────── */
     .puzzle-layout {
       display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 32px;
+      grid-template-columns: 55% 1fr;
+      gap: 28px;
       align-items: start;
+    }
+    .grid-scroll-wrap {
+      overflow-x: auto;
+      /* Allow grid to scroll horizontally on small screens without cutting off */
     }
 
     /* ── GRID ────────────────────────────────────────────────────── */
@@ -266,7 +294,7 @@
     /* ── CLUES PANEL ─────────────────────────────────────────────── */
     .clues-panel {
       display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-      max-height: calc(43px * 15 + 28px);
+      max-height: 70vh;
       overflow-y: auto;
       scrollbar-width: thin; scrollbar-color: var(--border) transparent;
     }
@@ -274,27 +302,38 @@
     .clues-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     .clue-section-title {
-      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px;
-      text-transform: uppercase; color: var(--facts); margin-bottom: 10px;
-      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--facts); margin-bottom: 12px;
+      padding-bottom: 7px; border-bottom: 1px solid var(--border);
+      font-weight: 700;
     }
     .clue-item {
-      display: flex; gap: 8px; padding: 6px 10px; border-radius: 6px;
-      cursor: pointer; transition: background 0.12s; margin-bottom: 3px;
+      display: flex; gap: 8px; padding: 6px 10px; border-radius: 4px;
+      cursor: pointer; transition: background 0.12s; margin-bottom: 2px;
+      border-left: 3px solid transparent;
     }
     .clue-item:hover { background: var(--glow); }
-    .clue-item.active { background: rgba(212,168,32,0.14); border-left: 2px solid var(--facts); }
-    [data-theme="dawn"] .clue-item.active { background: rgba(184,116,0,0.10); }
-    [data-theme="cloud"] .clue-item.active { background: rgba(26,79,200,0.08); }
-    [data-theme="parchment"] .clue-item.active { background: rgba(138,26,42,0.08); }
-    .clue-item.solved .clue-text { text-decoration: line-through; opacity: 0.5; }
-    .clue-item.solved::after { content: ' ✓'; color: var(--pulse); font-size: 11px; }
-    .clue-num {
-      font-family: 'DM Mono', monospace; font-size: 10px; color: var(--facts);
-      flex-shrink: 0; min-width: 22px; margin-top: 2px;
+    .clue-item.active {
+      background: rgba(212,168,32,0.15);
+      border-left-color: var(--facts);
     }
-    .clue-text { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
-    .clue-len { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); flex-shrink:0; margin-top:2px; }
+    [data-theme="dawn"]      .clue-item.active { background: rgba(184,116,0,0.12); border-left-color: var(--facts); }
+    [data-theme="cloud"]     .clue-item.active { background: rgba(26,79,200,0.10); border-left-color: var(--facts); }
+    [data-theme="parchment"] .clue-item.active { background: rgba(138,26,42,0.10); border-left-color: var(--facts); }
+    .clue-item.solved .clue-text { text-decoration: line-through; color: var(--text-dim); opacity: 0.6; }
+    .clue-item.solved .clue-num  { opacity: 0.5; }
+    .clue-num {
+      font-family: 'DM Mono', monospace; font-size: 13px; color: var(--facts);
+      flex-shrink: 0; min-width: 24px; margin-top: 1px; font-weight: 700;
+    }
+    .clue-text {
+      font-family: Georgia, serif; font-size: 14px; color: var(--text);
+      line-height: 1.5; font-weight: 400;
+    }
+    .clue-len {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      color: var(--text-dim); flex-shrink: 0; margin-top: 2px;
+    }
 
     /* ── SKELETON LOADING ────────────────────────────────────────── */
     .skeleton-grid { display: inline-grid; gap: 2px; grid-template-columns: repeat(13, 36px); }
@@ -375,22 +414,51 @@
       font-size: 16px; border: none; background: transparent;
     }
 
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    .cw-footer {
+      margin-top: 48px;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .cw-footer-brand {
+      font-family: 'Playfair Display', serif; font-size: 16px;
+      font-weight: 900; color: var(--facts); margin-bottom: 6px;
+    }
+    .cw-footer-tagline {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 14px;
+    }
+    .cw-footer-links {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    }
+    .cw-footer-links a {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--text-dim); text-decoration: none; letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .cw-footer-links a:hover { color: var(--facts); }
+
     @media (max-width: 900px) {
       .puzzle-layout { grid-template-columns: 1fr; }
       .clues-panel { max-height: none; overflow-y: visible; }
+      .puzzle-meta-bar { flex-direction: column; align-items: flex-start; }
     }
     @media (max-width: 700px) {
       nav { padding: 12px 16px; }
       .nav-right .nav-back { display: none; }
       .nav-hamburger { display: flex; }
-      .page-wrap { padding: 20px 12px 60px; }
-      .page-title { font-size: 26px; }
+      .page-wrap { padding: 20px 12px 0; }
+      .page-header { flex-direction: column; }
+      .page-back { align-self: flex-start; }
       .grid-wrap { padding: 8px; border-radius: 12px; }
       .cw-cell { width: 30px; height: 30px; border-radius: 3px; }
       .cell-letter { font-size: 13px; }
       .cell-num { font-size: 8px; }
-      .timer-display { font-size: 18px; }
+      .timer-display { font-size: 20px; }
       .clues-panel { grid-template-columns: 1fr; }
+      .clue-text { font-size: 13px; }
     }
   </style>
 </head>
@@ -429,9 +497,12 @@
 <!-- MAIN -->
 <div class="page-wrap">
   <div class="page-header">
-    <p class="page-eyebrow">Daily Puzzle</p>
-    <h1 class="page-title">☀ Today's Crossword</h1>
-    <p class="page-subtitle" id="pageSubtitle">Clues drawn from today's Teesra brief · loading...</p>
+    <div class="page-header-left">
+      <p class="page-eyebrow">Daily Puzzle</p>
+      <h1 class="page-title">✏ Today's Crossword</h1>
+      <p class="page-subtitle" id="pageSubtitle">Clues drawn from today's Teesra brief · loading...</p>
+    </div>
+    <a href="/feed" class="page-back">← Today's Brief</a>
   </div>
 
   <!-- Loading -->
@@ -456,7 +527,7 @@
         <div class="timer-label">Time elapsed</div>
       </div>
       <div class="controls-row">
-        <button class="ctrl-btn" onclick="checkPuzzle()">Check</button>
+        <button class="ctrl-btn primary" onclick="checkPuzzle()">Check</button>
         <button class="ctrl-btn" onclick="revealWord()">Reveal Word</button>
         <button class="ctrl-btn danger" onclick="revealAll()">Reveal All</button>
         <button class="ctrl-btn" onclick="location.reload()">New Puzzle</button>
@@ -465,8 +536,10 @@
 
     <!-- Grid + Clues -->
     <div class="puzzle-layout">
-      <div class="grid-wrap">
-        <table id="cwGrid" cellspacing="0" cellpadding="0"></table>
+      <div class="grid-scroll-wrap">
+        <div class="grid-wrap">
+          <table id="cwGrid" cellspacing="0" cellpadding="0"></table>
+        </div>
       </div>
       <div class="clues-panel" id="cluesPanel">
         <div>
@@ -480,6 +553,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Footer -->
+  <footer class="cw-footer">
+    <div class="cw-footer-brand">Teesra</div>
+    <div class="cw-footer-tagline">A thinking tool for young Indians</div>
+    <div class="cw-footer-links">
+      <a href="/">Home</a>
+      <a href="/feed">Today's Brief</a>
+      <a href="/about">About</a>
+      <a href="/crossword">Crossword</a>
+    </div>
+  </footer>
 </div>
 
 <!-- Mobile hidden input -->
