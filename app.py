@@ -361,9 +361,43 @@ def get_cricscore():
                     return True
             return False
 
+        MAJOR_NATIONS = {"australia", "england", "india", "south africa", "new zealand",
+                         "west indies", "pakistan", "bangladesh", "sri lanka", "afghanistan"}
+        PSL_KEYWORDS  = ["pakistan super league", "psl 2", "psl-", "psl,"]
+        PSL_TEAMS     = {"karachi kings", "lahore qalandars", "peshawar zalmi",
+                         "islamabad united", "quetta gladiators", "multan sultans"}
+        IPL_TEAMS = {"mumbai indians", "chennai super kings", "royal challengers",
+                     "kolkata knight riders", "delhi capitals", "punjab kings",
+                     "rajasthan royals", "sunrisers hyderabad", "gujarat titans",
+                     "lucknow super giants"}
+
+        def is_wanted(m):
+            name = (m.get("name", "") or "").lower()
+            t1   = (m.get("t1",   "") or "").lower()
+            t2   = (m.get("t2",   "") or "").lower()
+            # Exclude women's cricket
+            if "women" in name or "women" in t1 or "women" in t2:
+                return False
+            # IPL — check name OR team names
+            if "ipl" in name or "indian premier league" in name:
+                return True
+            if any(t in t1 for t in IPL_TEAMS) or any(t in t2 for t in IPL_TEAMS):
+                return True
+            # PSL
+            if any(k in name for k in PSL_KEYWORDS):
+                return True
+            if any(t in t1 for t in PSL_TEAMS) or any(t in t2 for t in PSL_TEAMS):
+                return True
+            # International men's: both teams are major nations
+            t1_major = any(n in t1 for n in MAJOR_NATIONS)
+            t2_major = any(n in t2 for n in MAJOR_NATIONS)
+            return t1_major and t2_major
+
         results = []
         for m in all_matches:
             if not is_relevant(m):
+                continue
+            if not is_wanted(m):
                 continue
             status_str = convert_gmt_to_ist(m.get("status", "") or "")
             t_status   = classify(m)
@@ -387,11 +421,11 @@ def get_cricscore():
                 "upcoming":  t_status == "upcoming",
             })
 
-        # Sort: live first, completed newest→oldest, upcoming soonest→farthest
+        # Sort: live → completed (newest first) → upcoming (soonest first)
         live_r      = [m for m in results if m["live"]]
         completed_r = list(reversed([m for m in results if m["completed"]]))
         upcoming_r  = [m for m in results if m["upcoming"]]
-        results     = (upcoming_r + completed_r + live_r)[:20]
+        results     = (live_r + completed_r + upcoming_r)[:20]
         print(f"Cricket API returned {len(all_matches)} matches, filtered to {len(results)}")
         for m in results[:3]:
             print(f"  - {m.get('t1','')} vs {m.get('t2','')} | status: {m.get('status','')[:50]}")

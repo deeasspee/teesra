@@ -198,6 +198,35 @@
       /* Allow grid to scroll horizontally on small screens without cutting off */
     }
 
+    /* ── MOBILE CLUE BANNER ──────────────────────────────────────── */
+    #mobileClueBanner {
+      display: none;
+    }
+    @media(max-width: 900px) {
+      #mobileClueBanner {
+        display: block;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        min-height: 44px;
+      }
+      #mobileBannerNum {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--facts);
+        margin-right: 6px;
+      }
+      #mobileBannerText {
+        font-family: 'Georgia', serif;
+        font-size: 13px;
+        color: var(--text);
+        line-height: 1.5;
+      }
+    }
+
     /* ── GRID ────────────────────────────────────────────────────── */
     .grid-wrap {
       position: relative;
@@ -407,11 +436,12 @@
     .error-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--text-mid); margin-bottom:10px; }
     .error-sub { font-size:13px; color:var(--text-dim); }
 
-    /* ── MOBILE INPUT (off-screen) ───────────────────────────────── */
+    /* ── MOBILE INPUT (invisible, anchored to top so focus() never scrolls) ── */
     #mobileInput {
-      position: fixed; top: -100px; left: -100px;
-      opacity: 0; width: 1px; height: 1px;
+      position: fixed; top: 0; left: 0;
+      opacity: 0; width: 0; height: 0;
       font-size: 16px; border: none; background: transparent;
+      pointer-events: none;
     }
 
     /* ── FOOTER ──────────────────────────────────────────────────── */
@@ -537,6 +567,11 @@
     <!-- Grid + Clues -->
     <div class="puzzle-layout">
       <div class="grid-scroll-wrap">
+        <!-- Mobile: shows active clue above the grid -->
+        <div id="mobileClueBanner">
+          <span id="mobileBannerNum"></span>
+          <span id="mobileBannerText"></span>
+        </div>
         <div class="grid-wrap">
           <table id="cwGrid" cellspacing="0" cellpadding="0"></table>
         </div>
@@ -979,15 +1014,27 @@ function updateHighlight() {
   const clueEl = document.getElementById(`clue-${w.id}`);
   if (clueEl) {
     clueEl.classList.add('active');
-    clueEl.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    if (!isMobile()) clueEl.scrollIntoView({block: 'nearest', behavior: 'smooth'});
   }
+
+  // Update mobile clue banner
+  const bannerNum = document.getElementById('mobileBannerNum');
+  const bannerTxt = document.getElementById('mobileBannerText');
+  if (bannerNum && bannerTxt) {
+    bannerNum.textContent = w.number + ' ' + (w.direction === 'across' ? 'Across' : 'Down') + ':';
+    bannerTxt.textContent = ' ' + w.clue;
+  }
+}
+
+function isMobile() {
+  return window.innerWidth <= 900 || ('ontouchstart' in window);
 }
 
 // ── INPUT HANDLING ────────────────────────────────────────────────
 function focusMobileInput() {
   const inp = document.getElementById('mobileInput');
   inp.value = '';
-  inp.focus();
+  inp.focus({ preventScroll: true });
 }
 
 document.getElementById('mobileInput').addEventListener('input', function(e) {
