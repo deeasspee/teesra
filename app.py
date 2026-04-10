@@ -665,7 +665,7 @@ Return this exact JSON structure with no markdown, no explanation:
 
     try:
         response = anthropic_client.messages.create(
-            model="claude-haiku-20240307",
+            model="claude-haiku-4-5-20251001",
             max_tokens=1200,
             system="You are a crossword puzzle generator. Return ONLY valid JSON, no markdown, no explanation.",
             messages=[{"role": "user", "content": prompt}]
