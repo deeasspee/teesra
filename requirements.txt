@@ -5,3 +5,4 @@ feedparser
 flask
 flask-cors
 python-dotenv
+yfinance>=0.2.0

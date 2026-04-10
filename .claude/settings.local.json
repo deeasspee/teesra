@@ -5,7 +5,8 @@
       "Bash(grep -n \"days\\\\|limit\\\\|TARGET\\\\|n=\" /c/Users/dvynd/Documents/teesra/*.py)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(python:*)"
     ]
   }
 }

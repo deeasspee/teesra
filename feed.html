@@ -573,6 +573,24 @@
       border-color: var(--facts);
       font-weight: 500;
     }
+    .crossword-btn {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 7px 18px;
+      border: 2px solid var(--facts);
+      color: var(--facts);
+      background: transparent;
+      text-decoration: none;
+      border-radius: 20px;
+      transition: background 0.18s, color 0.18s;
+      align-self: flex-start;
+    }
+    .crossword-btn:hover { background: var(--facts); color: var(--bg); }
+    @media (max-width: 700px) { .crossword-btn { width: 100%; text-align: center; } }
+
     .topic-filters {
       display: flex;
       gap: 6px;
@@ -1481,6 +1499,7 @@
     <div class="feed-center">
       <div class="feed-controls" id="feedControls" style="display:none;">
         <div class="date-tabs" id="dateTabs"></div>
+        <a href="/crossword" class="crossword-btn">✏ Play Today's Crossword →</a>
         <div class="topic-filters" id="topicFilters"></div>
       </div>
       <div id="feedContainer">

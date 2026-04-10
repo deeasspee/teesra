@@ -23,6 +23,9 @@ anthropic_client = Anthropic()
 
 # Simple in-memory cache for cricket data
 _cricket_cache = {"data": None, "ts": 0}
+
+# Crossword cache keyed by date string
+_crossword_cache = {}
 IPL_CACHE_SECS = 1800  # 30 minutes
 
 # ── API KEY CHECK ─────────────────────────────────────────────────
@@ -611,6 +614,76 @@ def unsubscribe():
           </div>
         </body></html>
         """, 500
+
+
+# ── CROSSWORD ─────────────────────────────────────────────────────
+@app.route("/crossword")
+def crossword():
+    return send_from_directory(".", "crossword.html")
+
+@app.route("/api/crossword")
+def get_crossword():
+    from datetime import date as _date
+    today_str = str(_date.today())
+
+    if today_str in _crossword_cache:
+        return jsonify(_crossword_cache[today_str])
+
+    articles = get_todays_articles()
+    if len(articles) < 5:
+        return jsonify({"error": "not_enough_articles"})
+
+    facts_text = "\n".join(
+        f"- {a.get('facts', '')} (Source: {a.get('source', '')}, Headline: {a.get('headline', '')})"
+        for a in articles if a.get("facts")
+    )
+
+    prompt = f"""Based on these news facts from today's Indian news brief, generate exactly 12 crossword clue-answer pairs.
+
+Rules for answers:
+- Must be a SINGLE word, ALL CAPS, 4-10 letters
+- Must be a proper noun or key term directly from the facts (person name, city, organisation, country, number spelled out like FIFTEEN)
+- No common words like SAID, ALSO, THAT
+- Answers must be specific enough that reading the brief helps
+
+Rules for clues:
+- Clue should be solvable if you read today's Teesra brief
+- Write in classic crossword style — terse, no "The article says"
+- Example good clue: "PM who chaired today's cabinet meet"
+- Example bad clue: "According to the article, this person..."
+
+Today's facts:
+{facts_text}
+
+Return this exact JSON structure with no markdown, no explanation:
+{{
+  "pairs": [
+    {{"answer": "MODI", "clue": "PM who chaired today's cabinet meet", "length": 4}},
+    ... 12 total
+  ]
+}}"""
+
+    try:
+        response = anthropic_client.messages.create(
+            model="claude-haiku-20240307",
+            max_tokens=1200,
+            system="You are a crossword puzzle generator. Return ONLY valid JSON, no markdown, no explanation.",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = response.content[0].text.strip()
+        # Strip any accidental markdown fences
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        data = json.loads(raw)
+        # Ensure length field is correct
+        for p in data.get("pairs", []):
+            p["length"] = len(p["answer"])
+        _crossword_cache[today_str] = data
+        return jsonify(data)
+    except Exception as e:
+        print(f"❌ Crossword generation failed: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

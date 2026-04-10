@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="jungle">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MG22YJD5S2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MG22YJD5S2');
+  </script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teesra Crossword — Today's Puzzle</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="shortcut icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a120e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── 6 THEMES ──────────────────────────────────────────────── */
+    [data-theme="jungle"]   {--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.92);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--glow:rgba(212,168,32,0.06);}
+    [data-theme="cosmos"]   {--bg:#0d1117;--bg2:#131a24;--surface:rgba(26,35,50,0.92);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--glow:rgba(240,165,0,0.06);}
+    [data-theme="ember"]    {--bg:#141410;--bg2:#1c1c18;--surface:rgba(36,36,32,0.92);--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--glow:rgba(232,68,10,0.06);}
+    [data-theme="dawn"]     {--bg:#faf7f0;--bg2:#f2ede4;--surface:rgba(255,255,255,0.98);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--glow:rgba(184,116,0,0.06);}
+    [data-theme="cloud"]    {--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--glow:rgba(26,79,200,0.06);}
+    [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--glow:rgba(138,26,42,0.06);}
+
+    /* ── THEME SWATCH ───────────────────────────────────────────── */
+    .theme-wrap{position:relative;}
+    .theme-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
+    .theme-swatch-btn:hover{border-color:var(--facts);transform:scale(1.1);}
+    .swatch-inner{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .s1{grid-column:1/-1;}
+    .theme-picker{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg);border:1px solid var(--border);padding:12px;z-index:500;width:220px;box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+    .theme-picker.open{display:block;}
+    .theme-picker-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+    .theme-grid-picker{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .theme-opt{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:7px;border:1px solid var(--border);transition:border-color 0.2s;}
+    .theme-opt:hover{border-color:var(--facts);}
+    .theme-opt.active{border-color:var(--facts);background:rgba(255,255,255,0.04);}
+    .tsp{height:26px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .ts1{grid-column:1/-1;}
+    .tnl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: #0a0e14;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(88,28,135,0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(15,118,110,0.30) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(30,27,75,0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(127,29,29,0.20) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(12,74,110,0.30) 0%, transparent 40%);
+      animation: blobshift 20s ease-in-out infinite alternate;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: color 0.3s;
+    }
+    @keyframes blobshift {
+      0%   { background-image: radial-gradient(ellipse at 20% 20%, rgba(88,28,135,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 10%, rgba(15,118,110,0.30) 0%, transparent 45%), radial-gradient(ellipse at 60% 80%, rgba(30,27,75,0.40) 0%, transparent 50%), radial-gradient(ellipse at 10% 70%, rgba(127,29,29,0.20) 0%, transparent 45%), radial-gradient(ellipse at 90% 60%, rgba(12,74,110,0.30) 0%, transparent 40%); }
+      50%  { background-image: radial-gradient(ellipse at 70% 30%, rgba(88,28,135,0.30) 0%, transparent 50%), radial-gradient(ellipse at 20% 60%, rgba(15,118,110,0.35) 0%, transparent 45%), radial-gradient(ellipse at 80% 70%, rgba(30,27,75,0.35) 0%, transparent 50%), radial-gradient(ellipse at 50% 10%, rgba(127,29,29,0.25) 0%, transparent 45%), radial-gradient(ellipse at 30% 80%, rgba(12,74,110,0.30) 0%, transparent 40%); }
+      100% { background-image: radial-gradient(ellipse at 30% 50%, rgba(88,28,135,0.30) 0%, transparent 50%), radial-gradient(ellipse at 60% 20%, rgba(15,118,110,0.25) 0%, transparent 45%), radial-gradient(ellipse at 40% 90%, rgba(30,27,75,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 30%, rgba(127,29,29,0.30) 0%, transparent 45%), radial-gradient(ellipse at 10% 40%, rgba(12,74,110,0.25) 0%, transparent 40%); }
+    }
+    [data-theme="jungle"] body { background-color: #080f0a; }
+    [data-theme="cosmos"] body { background-color: #08090f; }
+    [data-theme="ember"]  body { background-color: #0f0a08; }
+    @keyframes blobshift-light { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    [data-theme="dawn"] body {
+      background-color:#faf7f0;
+      background-image: radial-gradient(ellipse at 20% 20%,rgba(184,116,0,0.14) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(180,100,20,0.10) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(200,140,40,0.12) 0%,transparent 50%),radial-gradient(ellipse at 10% 70%,rgba(160,80,0,0.08) 0%,transparent 45%),radial-gradient(ellipse at 90% 60%,rgba(140,60,0,0.10) 0%,transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="cloud"] body {
+      background-color:#f4f6fa;
+      background-image: radial-gradient(ellipse at 20% 20%,rgba(26,79,200,0.10) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(10,138,122,0.08) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(40,80,200,0.10) 0%,transparent 50%),radial-gradient(ellipse at 10% 70%,rgba(60,100,220,0.07) 0%,transparent 45%),radial-gradient(ellipse at 90% 60%,rgba(20,60,180,0.08) 0%,transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="parchment"] body {
+      background-color:#f5f0e4;
+      background-image: radial-gradient(ellipse at 20% 20%,rgba(138,26,42,0.10) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(106,42,10,0.08) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(120,40,30,0.10) 0%,transparent 50%),radial-gradient(ellipse at 10% 70%,rgba(100,30,20,0.07) 0%,transparent 45%),radial-gradient(ellipse at 90% 60%,rgba(90,20,10,0.08) 0%,transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+
+    /* ── NAV ──────────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,8,0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: background 0.3s;
+    }
+    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] nav { background: rgba(245,243,238,0.96); }
+    .nav-logo { font-family:'Playfair Display',serif; font-size:20px; font-weight:900; color:var(--facts); text-decoration:none; flex-shrink:0; }
+    .nav-logo span { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:2px; display:block; margin-top:-3px; }
+    .nav-right { display:flex; align-items:center; gap:16px; }
+    .nav-back { font-size:12px; color:var(--text-dim); text-decoration:none; transition:color 0.2s; white-space:nowrap; }
+    .nav-back:hover { color:var(--text); }
+    .nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; flex-shrink:0; }
+    .nav-hamburger span { display:block; width:22px; height:1.5px; background:var(--text-dim); transition:all 0.25s; }
+    .nav-hamburger.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+    .nav-drawer {
+      display:none; position:fixed; inset:0; top:0; z-index:190;
+      background:rgba(10,10,8,0.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      flex-direction:column; align-items:center; justify-content:center; gap:32px; padding:80px 32px 48px;
+    }
+    [data-theme="dawn"] .nav-drawer    { background:rgba(250,247,240,0.97); }
+    [data-theme="cloud"] .nav-drawer   { background:rgba(244,246,250,0.97); }
+    [data-theme="parchment"] .nav-drawer { background:rgba(245,240,228,0.97); }
+    .nav-drawer.open { display:flex; }
+    .nav-drawer a { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--text-mid); text-decoration:none; transition:color 0.2s; }
+    .nav-drawer a:hover { color:var(--facts); }
+
+    /* ── PAGE LAYOUT ─────────────────────────────────────────────── */
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    .page-header { margin-bottom: 28px; }
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px;
+      color: var(--facts); text-transform: uppercase; margin-bottom: 8px;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 900;
+      letter-spacing: -1px; line-height: 1; margin-bottom: 8px; color: var(--text);
+    }
+    .page-subtitle { font-size: 14px; color: var(--text-mid); }
+
+    /* Timer + controls bar */
+    .puzzle-meta-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+      padding: 10px 16px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .timer-display {
+      font-family: 'Space Mono', 'DM Mono', monospace; font-size: 22px;
+      font-weight: 700; color: var(--facts); letter-spacing: 2px; min-width: 80px;
+    }
+    .timer-label {
+      font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-dim); margin-top: 2px;
+    }
+    .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ctrl-btn {
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 7px 14px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--text-mid);
+      border-radius: 6px; transition: all 0.15s;
+    }
+    .ctrl-btn:hover { border-color: var(--facts); color: var(--facts); }
+    .ctrl-btn.danger { border-color: var(--right); color: var(--right); }
+    .ctrl-btn.danger:hover { background: var(--right); color: var(--bg); }
+
+    /* ── TWO-COLUMN LAYOUT ───────────────────────────────────────── */
+    .puzzle-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* ── GRID ────────────────────────────────────────────────────── */
+    .grid-wrap { position: relative; }
+    #cwGrid {
+      border-collapse: collapse;
+      border: 2px solid var(--border);
+      background: var(--bg2);
+      user-select: none;
+    }
+    .cw-cell {
+      width: 38px; height: 38px;
+      border: 1px solid var(--border);
+      position: relative; cursor: pointer;
+      transition: background 0.1s;
+    }
+    .cw-cell.black {
+      background: var(--text);
+      cursor: default;
+      border-color: var(--text);
+    }
+    [data-theme="dawn"] .cw-cell.black,
+    [data-theme="cloud"] .cw-cell.black,
+    [data-theme="parchment"] .cw-cell.black { background: #222; border-color: #222; }
+
+    .cw-cell.active   { background: rgba(212,168,32,0.35); }
+    .cw-cell.in-word  { background: rgba(212,168,32,0.12); }
+    [data-theme="dawn"] .cw-cell.active  { background: rgba(184,116,0,0.22); }
+    [data-theme="dawn"] .cw-cell.in-word { background: rgba(184,116,0,0.09); }
+    [data-theme="cloud"] .cw-cell.active  { background: rgba(26,79,200,0.18); }
+    [data-theme="cloud"] .cw-cell.in-word { background: rgba(26,79,200,0.07); }
+    [data-theme="parchment"] .cw-cell.active  { background: rgba(138,26,42,0.16); }
+    [data-theme="parchment"] .cw-cell.in-word { background: rgba(138,26,42,0.07); }
+
+    .cw-cell.correct  { background: rgba(109,232,106,0.22) !important; }
+    .cw-cell.wrong    { background: rgba(232,112,74,0.30) !important; }
+    .cw-cell.revealed { background: rgba(91,168,232,0.18) !important; }
+
+    .cell-num {
+      position: absolute; top: 2px; left: 3px;
+      font-family: 'DM Mono', monospace; font-size: 8.5px;
+      color: var(--text-dim); line-height: 1; pointer-events: none;
+    }
+    .cell-letter {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', 'DM Mono', monospace;
+      font-size: 17px; font-weight: 700; color: var(--text);
+      pointer-events: none; text-transform: uppercase;
+    }
+
+    /* ── CLUES PANEL ─────────────────────────────────────────────── */
+    .clues-panel {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      max-height: calc(38px * 15 + 32px);
+      overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .clues-panel::-webkit-scrollbar { width: 4px; }
+    .clues-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .clue-section-title {
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--facts); margin-bottom: 10px;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    }
+    .clue-item {
+      display: flex; gap: 8px; padding: 5px 8px; border-radius: 4px;
+      cursor: pointer; transition: background 0.12s; margin-bottom: 2px;
+    }
+    .clue-item:hover { background: var(--glow); }
+    .clue-item.active { background: rgba(212,168,32,0.14); border-left: 2px solid var(--facts); }
+    [data-theme="dawn"] .clue-item.active { background: rgba(184,116,0,0.10); }
+    [data-theme="cloud"] .clue-item.active { background: rgba(26,79,200,0.08); }
+    [data-theme="parchment"] .clue-item.active { background: rgba(138,26,42,0.08); }
+    .clue-item.solved .clue-text { text-decoration: line-through; opacity: 0.5; }
+    .clue-item.solved::after { content: ' ✓'; color: var(--pulse); font-size: 11px; }
+    .clue-num {
+      font-family: 'DM Mono', monospace; font-size: 10px; color: var(--facts);
+      flex-shrink: 0; min-width: 22px; margin-top: 2px;
+    }
+    .clue-text { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+    .clue-len { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); flex-shrink:0; margin-top:2px; }
+
+    /* ── SKELETON LOADING ────────────────────────────────────────── */
+    .skeleton-grid { display: inline-grid; gap: 2px; grid-template-columns: repeat(13, 36px); }
+    .skel-cell {
+      width: 36px; height: 36px;
+      background: var(--surface);
+      border-radius: 2px;
+      animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+    .skel-cell:nth-child(odd) { animation-delay: 0.2s; }
+    @keyframes skel-pulse { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 80px 40px; gap: 20px;
+    }
+    .loading-spinner {
+      width: 28px; height: 28px; border: 2px solid var(--border);
+      border-top-color: var(--facts); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase;
+    }
+
+    /* ── COMPLETION MODAL ────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 800;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 40px 36px; max-width: 480px; width: 100%;
+      border-top: 3px solid var(--facts); border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .modal-emoji { font-size: 48px; margin-bottom: 16px; display: block; }
+    .modal-title {
+      font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900;
+      color: var(--text); margin-bottom: 8px;
+    }
+    .modal-sub { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; line-height: 1.6; }
+    .modal-time {
+      font-family: 'Space Mono', 'DM Mono', monospace; font-size: 32px;
+      font-weight: 700; color: var(--facts); margin-bottom: 6px;
+    }
+    .modal-time-label {
+      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 28px;
+    }
+    .modal-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .modal-btn {
+      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 10px 22px; cursor: pointer;
+      border-radius: 6px; text-decoration: none; transition: all 0.15s;
+      display: inline-block;
+    }
+    .modal-btn-primary { background: var(--facts); color: var(--bg); border: none; font-weight: 700; }
+    .modal-btn-primary:hover { opacity: 0.85; }
+    .modal-btn-outline { border: 1px solid var(--border); background: none; color: var(--text-mid); }
+    .modal-btn-outline:hover { border-color: var(--facts); color: var(--facts); }
+
+    /* ── ERROR STATE ─────────────────────────────────────────────── */
+    .error-state { text-align: center; padding: 80px 40px; }
+    .error-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--text-mid); margin-bottom:10px; }
+    .error-sub { font-size:13px; color:var(--text-dim); }
+
+    /* ── MOBILE INPUT (off-screen) ───────────────────────────────── */
+    #mobileInput {
+      position: fixed; top: -100px; left: -100px;
+      opacity: 0; width: 1px; height: 1px;
+      font-size: 16px; border: none; background: transparent;
+    }
+
+    @media (max-width: 900px) {
+      .puzzle-layout { grid-template-columns: 1fr; }
+      .clues-panel { max-height: none; overflow-y: visible; }
+    }
+    @media (max-width: 700px) {
+      nav { padding: 12px 16px; }
+      .nav-right .nav-back { display: none; }
+      .nav-hamburger { display: flex; }
+      .page-wrap { padding: 20px 12px 60px; }
+      .page-title { font-size: 26px; }
+      .cw-cell { width: 30px; height: 30px; }
+      .cell-letter { font-size: 13px; }
+      .cell-num { font-size: 7px; }
+      .timer-display { font-size: 18px; }
+      .clues-panel { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="/" onclick="closeDrawer()">← Home</a>
+  <a href="/feed" onclick="closeDrawer()">Today's Brief</a>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;">
+    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
+    <div style="display:grid;grid-template-columns:repeat(3,40px);gap:8px;" id="drawerThemeSwatches"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">Teesra<span></span></a>
+  <div class="nav-right">
+    <a href="/feed" class="nav-back">← Today's Brief</a>
+    <div class="theme-wrap">
+      <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleThemePicker(event)" title="Change theme" aria-label="Change theme">
+        <div class="swatch-inner"><div class="s1" id="fsw1"></div><div id="fsw2"></div><div id="fsw3"></div></div>
+      </button>
+      <div class="theme-picker" id="cwThemePicker">
+        <div class="theme-picker-title">Choose theme</div>
+        <div class="theme-grid-picker" id="cwThemeGrid"></div>
+      </div>
+    </div>
+    <button class="nav-hamburger" id="hamburgerBtn" onclick="toggleDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="page-wrap">
+  <div class="page-header">
+    <p class="page-eyebrow">Daily Puzzle</p>
+    <h1 class="page-title">☀ Today's Crossword</h1>
+    <p class="page-subtitle" id="pageSubtitle">Clues drawn from today's Teesra brief · loading...</p>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingState" class="loading-wrap">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Generating today's puzzle...</p>
+    <div class="skeleton-grid" id="skelGrid"></div>
+  </div>
+
+  <!-- Error -->
+  <div id="errorState" style="display:none;" class="error-state">
+    <div class="error-title">Today's crossword isn't ready yet.</div>
+    <p class="error-sub">Check back after 7 AM once the daily brief is published.</p>
+  </div>
+
+  <!-- Puzzle -->
+  <div id="puzzleState" style="display:none;">
+    <!-- Timer + controls -->
+    <div class="puzzle-meta-bar">
+      <div>
+        <div class="timer-display" id="timerDisplay">0:00</div>
+        <div class="timer-label">Time elapsed</div>
+      </div>
+      <div class="controls-row">
+        <button class="ctrl-btn" onclick="checkPuzzle()">Check</button>
+        <button class="ctrl-btn" onclick="revealWord()">Reveal Word</button>
+        <button class="ctrl-btn danger" onclick="revealAll()">Reveal All</button>
+        <button class="ctrl-btn" onclick="location.reload()">New Puzzle</button>
+      </div>
+    </div>
+
+    <!-- Grid + Clues -->
+    <div class="puzzle-layout">
+      <div class="grid-wrap">
+        <table id="cwGrid" cellspacing="0" cellpadding="0"></table>
+      </div>
+      <div class="clues-panel" id="cluesPanel">
+        <div>
+          <div class="clue-section-title">Across</div>
+          <div id="acrossClues"></div>
+        </div>
+        <div>
+          <div class="clue-section-title">Down</div>
+          <div id="downClues"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile hidden input -->
+<input id="mobileInput" type="text" maxlength="2" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+
+<!-- Completion Modal -->
+<div class="modal-overlay" id="completionModal">
+  <div class="modal-card">
+    <span class="modal-emoji">🎉</span>
+    <div class="modal-title">You solved Today's Teesra Crossword!</div>
+    <p class="modal-sub">You clearly read the brief. Come back tomorrow.</p>
+    <div class="modal-time" id="modalTime">0:00</div>
+    <div class="modal-time-label">Time to solve</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-primary" onclick="shareResult()">Share</button>
+      <a href="/feed" class="modal-btn modal-btn-outline">Read the Brief</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── THEME SYSTEM ─────────────────────────────────────────────────
+const THEMES = [
+  {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+  {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+  {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+  {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+  {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+  {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+];
+
+function applyTheme(id) {
+  document.documentElement.setAttribute('data-theme', id);
+  localStorage.setItem('teesra-theme', id);
+  const t = THEMES.find(t => t.id === id);
+  if (t) {
+    const s1 = document.getElementById('fsw1');
+    const s2 = document.getElementById('fsw2');
+    const s3 = document.getElementById('fsw3');
+    if (s1) s1.style.background = t.bg;
+    if (s2) s2.style.background = t.a;
+    if (s3) s3.style.background = t.b;
+  }
+  buildThemeGrid(id);
+  buildDrawerSwatches(id);
+}
+
+function buildThemeGrid(current) {
+  const grid = document.getElementById('cwThemeGrid');
+  if (!grid) return;
+  grid.innerHTML = THEMES.map(t => `
+    <div class="theme-opt ${t.id===current?'active':''}" onclick="applyTheme('${t.id}');closeThemePicker();">
+      <div class="tsp"><div class="ts1" style="background:${t.bg}"></div><div style="background:${t.a}"></div><div style="background:${t.b}"></div></div>
+      <span class="tnl">${t.name}</span>
+    </div>`).join('');
+}
+
+function buildDrawerSwatches(current) {
+  const wrap = document.getElementById('drawerThemeSwatches');
+  if (!wrap) return;
+  wrap.innerHTML = THEMES.map(t => `
+    <div onclick="applyTheme('${t.id}');closeDrawer();" title="${t.name}"
+         style="width:40px;height:40px;border-radius:6px;overflow:hidden;cursor:pointer;
+                display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+                border:2px solid ${t.id===current?'var(--facts)':'rgba(255,255,255,0.1)'};">
+      <div style="background:${t.bg};grid-column:1/-1;"></div>
+      <div style="background:${t.a};"></div>
+      <div style="background:${t.b};"></div>
+    </div>`).join('');
+}
+
+function toggleThemePicker(e) {
+  e.stopPropagation();
+  document.getElementById('cwThemePicker').classList.toggle('open');
+}
+function closeThemePicker() {
+  document.getElementById('cwThemePicker').classList.remove('open');
+}
+document.addEventListener('click', e => { if (!e.target.closest('.theme-wrap')) closeThemePicker(); });
+
+function toggleDrawer() {
+  const d = document.getElementById('navDrawer');
+  const b = document.getElementById('hamburgerBtn');
+  if (d.classList.contains('open')) { d.classList.remove('open'); b.classList.remove('open'); document.body.style.overflow=''; }
+  else { d.classList.add('open'); b.classList.add('open'); document.body.style.overflow='hidden'; }
+}
+function closeDrawer() {
+  document.getElementById('navDrawer').classList.remove('open');
+  document.getElementById('hamburgerBtn').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Init theme
+(function() {
+  const VALID = ['jungle','cosmos','ember','dawn','cloud','parchment'];
+  let saved = localStorage.getItem('teesra-theme');
+  if (saved === 'light') saved = 'dawn';
+  if (!saved || !VALID.includes(saved)) saved = 'jungle';
+  applyTheme(saved);
+})();
+
+// ── TIMER ────────────────────────────────────────────────────────
+let timerInterval = null;
+let timerStarted = false;
+let timerSeconds = 0;
+
+function startTimer() {
+  if (timerStarted) return;
+  timerStarted = true;
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+// ── CROSSWORD STATE ───────────────────────────────────────────────
+const GRID_SIZE = 15;
+let grid = [];        // GRID_SIZE x GRID_SIZE array of cell objects or null
+let placedWords = []; // [{id, number, answer, clue, direction, startRow, startCol, length}]
+let userGrid = [];    // GRID_SIZE x GRID_SIZE of typed letters
+let activeCell = {row: -1, col: -1};
+let activeDir = 'across';
+let activeWordId = null;
+
+// ── LAYOUT ALGORITHM ─────────────────────────────────────────────
+function buildLayout(pairs) {
+  // Sort by length descending
+  const words = pairs.map((p, i) => ({...p, id: i}))
+                      .sort((a, b) => b.answer.length - a.answer.length);
+
+  // Initialize grids
+  grid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(null));
+  userGrid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(''));
+  placedWords = [];
+
+  // Place first word horizontally in center
+  const first = words[0];
+  const startCol = Math.floor((GRID_SIZE - first.answer.length) / 2);
+  const startRow = Math.floor(GRID_SIZE / 2);
+  placeWord(first, startRow, startCol, 'across');
+
+  // Try to place remaining words by intersection
+  const remaining = words.slice(1);
+  let passes = 0;
+  const maxPasses = 3;
+
+  while (remaining.length > 0 && passes < maxPasses) {
+    passes++;
+    const notPlaced = [];
+    for (const word of remaining) {
+      if (!tryPlaceByIntersection(word)) {
+        notPlaced.push(word);
+      }
+    }
+    remaining.length = 0;
+    remaining.push(...notPlaced);
+  }
+
+  // Number the cells
+  numberCells();
+  return placedWords;
+}
+
+function placeWord(word, row, col, direction) {
+  for (let i = 0; i < word.answer.length; i++) {
+    const r = direction === 'across' ? row : row + i;
+    const c = direction === 'across' ? col + i : col;
+    if (grid[r][c] === null) {
+      grid[r][c] = {letter: word.answer[i], across: false, down: false, wordIds: []};
+    }
+    grid[r][c][direction === 'across' ? 'across' : 'down'] = true;
+    grid[r][c].wordIds.push(word.id);
+  }
+  placedWords.push({
+    id: word.id, number: 0, answer: word.answer, clue: word.clue,
+    direction, startRow: row, startCol: col, length: word.answer.length
+  });
+}
+
+function canPlace(word, row, col, direction) {
+  if (direction === 'across') {
+    if (col < 0 || col + word.answer.length > GRID_SIZE) return false;
+    // Check cell before start
+    if (col > 0 && grid[row][col - 1] !== null) return false;
+    // Check cell after end
+    if (col + word.answer.length < GRID_SIZE && grid[row][col + word.answer.length] !== null) return false;
+    for (let i = 0; i < word.answer.length; i++) {
+      const c = col + i;
+      if (c < 0 || c >= GRID_SIZE) return false;
+      const cell = grid[row][c];
+      if (cell === null) {
+        // Check cell above and below (avoid parallel words)
+        if (row > 0 && grid[row-1][c] !== null && !grid[row-1][c].down) return false;
+        if (row < GRID_SIZE-1 && grid[row+1][c] !== null && !grid[row+1][c].down) return false;
+      } else {
+        // Must match letter at intersection
+        if (cell.letter !== word.answer[i]) return false;
+        // Must be an intersection (existing cell must be down, new is across)
+        if (!cell.down) return false;
+      }
+    }
+  } else {
+    if (row < 0 || row + word.answer.length > GRID_SIZE) return false;
+    if (row > 0 && grid[row - 1][col] !== null) return false;
+    if (row + word.answer.length < GRID_SIZE && grid[row + word.answer.length][col] !== null) return false;
+    for (let i = 0; i < word.answer.length; i++) {
+      const r = row + i;
+      if (r < 0 || r >= GRID_SIZE) return false;
+      const cell = grid[r][col];
+      if (cell === null) {
+        if (col > 0 && grid[r][col-1] !== null && !grid[r][col-1].across) return false;
+        if (col < GRID_SIZE-1 && grid[r][col+1] !== null && !grid[r][col+1].across) return false;
+      } else {
+        if (cell.letter !== word.answer[i]) return false;
+        if (!cell.across) return false;
+      }
+    }
+  }
+  return true;
+}
+
+function tryPlaceByIntersection(word) {
+  // Try to intersect with already-placed words
+  for (const placed of [...placedWords].reverse()) {
+    const oppDir = placed.direction === 'across' ? 'down' : 'across';
+    for (let pi = 0; pi < placed.answer.length; pi++) {
+      const sharedLetter = placed.answer[pi];
+      for (let wi = 0; wi < word.answer.length; wi++) {
+        if (word.answer[wi] !== sharedLetter) continue;
+        let row, col;
+        if (oppDir === 'down') {
+          col = placed.startCol + pi;
+          row = placed.startRow - wi;
+        } else {
+          row = placed.startRow + pi;
+          col = placed.startCol - wi;
+        }
+        if (canPlace(word, row, col, oppDir)) {
+          placeWord(word, row, col, oppDir);
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function numberCells() {
+  let num = 1;
+  // Collect all word starts sorted by row then col
+  const starts = placedWords.map(w => ({w, r: w.startRow, c: w.startCol}));
+  starts.sort((a, b) => a.r - b.r || a.c - b.c);
+  const seen = new Map();
+  for (const {w, r, c} of starts) {
+    const key = `${r},${c}`;
+    if (!seen.has(key)) {
+      seen.set(key, num++);
+    }
+    w.number = seen.get(key);
+  }
+}
+
+// ── RENDER GRID ───────────────────────────────────────────────────
+function renderGrid() {
+  const table = document.getElementById('cwGrid');
+  table.innerHTML = '';
+
+  // Determine bounding box of placed content
+  let minR=GRID_SIZE, maxR=0, minC=GRID_SIZE, maxC=0;
+  for (let r=0; r<GRID_SIZE; r++)
+    for (let c=0; c<GRID_SIZE; c++)
+      if (grid[r][c]) { minR=Math.min(minR,r); maxR=Math.max(maxR,r); minC=Math.min(minC,c); maxC=Math.max(maxC,c); }
+
+  // Add 1-cell padding border of black cells
+  minR = Math.max(0, minR - 1);
+  maxR = Math.min(GRID_SIZE-1, maxR + 1);
+  minC = Math.max(0, minC - 1);
+  maxC = Math.min(GRID_SIZE-1, maxC + 1);
+
+  // Build number map
+  const numMap = {};
+  for (const w of placedWords) {
+    numMap[`${w.startRow},${w.startCol}`] = w.number;
+  }
+
+  for (let r = minR; r <= maxR; r++) {
+    const tr = document.createElement('tr');
+    for (let c = minC; c <= maxC; c++) {
+      const td = document.createElement('td');
+      td.className = 'cw-cell';
+      td.dataset.row = r;
+      td.dataset.col = c;
+      if (grid[r][c] === null) {
+        td.classList.add('black');
+      } else {
+        const numKey = `${r},${c}`;
+        if (numMap[numKey]) {
+          const numEl = document.createElement('div');
+          numEl.className = 'cell-num';
+          numEl.textContent = numMap[numKey];
+          td.appendChild(numEl);
+        }
+        const letterEl = document.createElement('div');
+        letterEl.className = 'cell-letter';
+        letterEl.id = `cell-${r}-${c}`;
+        td.appendChild(letterEl);
+        td.addEventListener('click', () => onCellClick(r, c));
+      }
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+}
+
+// ── CLUE RENDERING ────────────────────────────────────────────────
+function renderClues() {
+  const across = placedWords.filter(w => w.direction === 'across').sort((a,b) => a.number - b.number);
+  const down   = placedWords.filter(w => w.direction === 'down').sort((a,b) => a.number - b.number);
+
+  document.getElementById('acrossClues').innerHTML = across.map(w => `
+    <div class="clue-item" id="clue-${w.id}" onclick="selectWord(${w.id})">
+      <span class="clue-num">${w.number}</span>
+      <span class="clue-text">${w.clue}</span>
+      <span class="clue-len">(${w.length})</span>
+    </div>`).join('');
+
+  document.getElementById('downClues').innerHTML = down.map(w => `
+    <div class="clue-item" id="clue-${w.id}" onclick="selectWord(${w.id})">
+      <span class="clue-num">${w.number}</span>
+      <span class="clue-text">${w.clue}</span>
+      <span class="clue-len">(${w.length})</span>
+    </div>`).join('');
+}
+
+// ── SELECTION ─────────────────────────────────────────────────────
+function selectWord(wordId) {
+  const w = placedWords.find(p => p.id === wordId);
+  if (!w) return;
+  activeWordId = wordId;
+  activeDir = w.direction;
+  activeCell = {row: w.startRow, col: w.startCol};
+  // Find first empty cell in word
+  for (let i = 0; i < w.length; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    if (!userGrid[r][c]) {
+      activeCell = {row: r, col: c};
+      break;
+    }
+  }
+  updateHighlight();
+  focusMobileInput();
+}
+
+function onCellClick(r, c) {
+  if (!grid[r][c]) return;
+  // Find words through this cell
+  const wordsHere = placedWords.filter(w => {
+    if (w.direction === 'across') return w.startRow === r && c >= w.startCol && c < w.startCol + w.length;
+    return w.startCol === c && r >= w.startRow && r < w.startRow + w.length;
+  });
+  if (!wordsHere.length) return;
+
+  // If clicking same cell, toggle direction if both directions available
+  if (activeCell.row === r && activeCell.col === c) {
+    const other = wordsHere.find(w => w.id !== activeWordId);
+    if (other) { selectWord(other.id); return; }
+  }
+
+  // Prefer current direction if available, else switch
+  let preferred = wordsHere.find(w => w.direction === activeDir);
+  if (!preferred) preferred = wordsHere[0];
+  activeCell = {row: r, col: c};
+  activeWordId = preferred.id;
+  activeDir = preferred.direction;
+  updateHighlight();
+  focusMobileInput();
+}
+
+function updateHighlight() {
+  // Clear all
+  document.querySelectorAll('.cw-cell').forEach(td => td.classList.remove('active','in-word'));
+  document.querySelectorAll('.clue-item').forEach(el => el.classList.remove('active'));
+
+  if (activeWordId === null) return;
+  const w = placedWords.find(p => p.id === activeWordId);
+  if (!w) return;
+
+  // Highlight word cells
+  for (let i = 0; i < w.length; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    const td = document.querySelector(`.cw-cell[data-row="${r}"][data-col="${c}"]`);
+    if (td) td.classList.add('in-word');
+  }
+  // Active cell
+  const activeTd = document.querySelector(`.cw-cell[data-row="${activeCell.row}"][data-col="${activeCell.col}"]`);
+  if (activeTd) { activeTd.classList.remove('in-word'); activeTd.classList.add('active'); }
+
+  // Highlight clue
+  const clueEl = document.getElementById(`clue-${w.id}`);
+  if (clueEl) {
+    clueEl.classList.add('active');
+    clueEl.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+  }
+}
+
+// ── INPUT HANDLING ────────────────────────────────────────────────
+function focusMobileInput() {
+  const inp = document.getElementById('mobileInput');
+  inp.value = '';
+  inp.focus();
+}
+
+document.getElementById('mobileInput').addEventListener('input', function(e) {
+  const val = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+  this.value = '';
+  if (val) typeLetter(val[val.length - 1]);
+});
+
+document.addEventListener('keydown', function(e) {
+  if (activeCell.row < 0) return;
+  if (e.key === 'Tab') { e.preventDefault(); moveToNextWord(); return; }
+  if (e.key === 'Backspace') { e.preventDefault(); eraseLetter(); return; }
+  if (e.key === 'ArrowRight') { e.preventDefault(); moveActive(0, 1); return; }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); moveActive(0, -1); return; }
+  if (e.key === 'ArrowDown')  { e.preventDefault(); moveActive(1, 0); return; }
+  if (e.key === 'ArrowUp')    { e.preventDefault(); moveActive(-1, 0); return; }
+  if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+    e.preventDefault();
+    typeLetter(e.key.toUpperCase());
+  }
+});
+
+function typeLetter(letter) {
+  if (activeCell.row < 0) return;
+  startTimer();
+  const {row, col} = activeCell;
+  userGrid[row][col] = letter;
+  const el = document.getElementById(`cell-${row}-${col}`);
+  if (el) el.textContent = letter;
+  advanceCell();
+  checkCompletion();
+}
+
+function eraseLetter() {
+  const {row, col} = activeCell;
+  if (userGrid[row][col]) {
+    userGrid[row][col] = '';
+    const el = document.getElementById(`cell-${row}-${col}`);
+    if (el) el.textContent = '';
+  } else {
+    retreatCell();
+    const {row: r2, col: c2} = activeCell;
+    userGrid[r2][c2] = '';
+    const el = document.getElementById(`cell-${r2}-${c2}`);
+    if (el) el.textContent = '';
+  }
+}
+
+function advanceCell() {
+  const w = placedWords.find(p => p.id === activeWordId);
+  if (!w) return;
+  // Find current position in word
+  for (let i = 0; i < w.length - 1; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    if (r === activeCell.row && c === activeCell.col) {
+      const nr = w.direction === 'across' ? w.startRow : w.startRow + i + 1;
+      const nc = w.direction === 'across' ? w.startCol + i + 1 : w.startCol;
+      activeCell = {row: nr, col: nc};
+      updateHighlight();
+      return;
+    }
+  }
+  // At end of word — move to next word
+  moveToNextWord();
+}
+
+function retreatCell() {
+  const w = placedWords.find(p => p.id === activeWordId);
+  if (!w) return;
+  for (let i = 1; i < w.length; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    if (r === activeCell.row && c === activeCell.col) {
+      const pr = w.direction === 'across' ? w.startRow : w.startRow + i - 1;
+      const pc = w.direction === 'across' ? w.startCol + i - 1 : w.startCol;
+      activeCell = {row: pr, col: pc};
+      updateHighlight();
+      return;
+    }
+  }
+}
+
+function moveActive(dr, dc) {
+  const nr = activeCell.row + dr;
+  const nc = activeCell.col + dc;
+  if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE && grid[nr][nc]) {
+    activeCell = {row: nr, col: nc};
+    // Update active word to match direction
+    const wordsHere = placedWords.filter(w => {
+      if (w.direction === 'across') return w.startRow === nr && nc >= w.startCol && nc < w.startCol + w.length;
+      return w.startCol === nc && nr >= w.startRow && nr < w.startRow + w.length;
+    });
+    const preferred = wordsHere.find(w => w.direction === activeDir) || wordsHere[0];
+    if (preferred) { activeWordId = preferred.id; activeDir = preferred.direction; }
+    updateHighlight();
+  }
+}
+
+function moveToNextWord() {
+  const sorted = [...placedWords].sort((a, b) => {
+    if (a.direction !== b.direction) return a.direction === 'across' ? -1 : 1;
+    return a.number - b.number;
+  });
+  const idx = sorted.findIndex(w => w.id === activeWordId);
+  const next = sorted[(idx + 1) % sorted.length];
+  selectWord(next.id);
+}
+
+// ── CHECK / REVEAL ────────────────────────────────────────────────
+function checkPuzzle() {
+  // Flash correct/wrong for 1.5s
+  for (const w of placedWords) {
+    for (let i = 0; i < w.length; i++) {
+      const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+      const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+      const td = document.querySelector(`.cw-cell[data-row="${r}"][data-col="${c}"]`);
+      if (!td || td.classList.contains('black')) continue;
+      const typed = userGrid[r][c];
+      if (!typed) continue;
+      td.classList.remove('correct','wrong');
+      if (typed === w.answer[i]) td.classList.add('correct');
+      else td.classList.add('wrong');
+    }
+  }
+  setTimeout(() => {
+    document.querySelectorAll('.cw-cell.correct,.cw-cell.wrong').forEach(td => {
+      td.classList.remove('correct','wrong');
+    });
+    updateHighlight();
+  }, 1500);
+}
+
+function revealWord() {
+  const w = placedWords.find(p => p.id === activeWordId);
+  if (!w) return;
+  for (let i = 0; i < w.length; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    userGrid[r][c] = w.answer[i];
+    const el = document.getElementById(`cell-${r}-${c}`);
+    if (el) el.textContent = w.answer[i];
+    const td = document.querySelector(`.cw-cell[data-row="${r}"][data-col="${c}"]`);
+    if (td) td.classList.add('revealed');
+  }
+  markSolvedClues();
+  checkCompletion();
+}
+
+function revealAll() {
+  if (!confirm('Reveal all answers? This will end the puzzle.')) return;
+  for (const w of placedWords) {
+    for (let i = 0; i < w.length; i++) {
+      const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+      const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+      userGrid[r][c] = w.answer[i];
+      const el = document.getElementById(`cell-${r}-${c}`);
+      if (el) el.textContent = w.answer[i];
+      const td = document.querySelector(`.cw-cell[data-row="${r}"][data-col="${c}"]`);
+      if (td) td.classList.add('revealed');
+    }
+  }
+  markSolvedClues();
+  checkCompletion();
+}
+
+// ── SOLVED STATE ──────────────────────────────────────────────────
+function markSolvedClues() {
+  for (const w of placedWords) {
+    let solved = true;
+    for (let i = 0; i < w.length; i++) {
+      const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+      const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+      if (userGrid[r][c] !== w.answer[i]) { solved = false; break; }
+    }
+    const el = document.getElementById(`clue-${w.id}`);
+    if (el) el.classList.toggle('solved', solved);
+  }
+}
+
+function checkCompletion() {
+  markSolvedClues();
+  // Check all non-black cells are correctly filled
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      if (grid[r][c] === null) continue;
+      if (userGrid[r][c] !== grid[r][c].letter) return;
+    }
+  }
+  // All correct — show completion modal
+  stopTimer();
+  const timeStr = formatTime(timerSeconds);
+  document.getElementById('modalTime').textContent = timeStr;
+  document.getElementById('completionModal').classList.add('open');
+}
+
+function shareResult() {
+  const timeStr = formatTime(timerSeconds);
+  const text = `I solved the Teesra Crossword in ${timeStr}! teesra.in/crossword`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
+  } else {
+    prompt('Copy this:', text);
+  }
+}
+
+// ── SKELETON ─────────────────────────────────────────────────────
+function buildSkeleton() {
+  const g = document.getElementById('skelGrid');
+  if (!g) return;
+  g.innerHTML = Array.from({length: 13 * 9}, (_, i) =>
+    `<div class="skel-cell" style="opacity:${Math.random() > 0.3 ? '1' : '0.1'}"></div>`
+  ).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+async function init() {
+  buildSkeleton();
+
+  // Date subtitle
+  const today = new Date();
+  const label = today.toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('pageSubtitle').textContent = `Clues drawn from today's Teesra brief · ${label}`;
+
+  try {
+    const res = await fetch('/api/crossword');
+    const data = await res.json();
+
+    document.getElementById('loadingState').style.display = 'none';
+
+    if (data.error === 'not_enough_articles') {
+      document.getElementById('errorState').style.display = 'block';
+      return;
+    }
+    if (data.error) {
+      document.getElementById('errorState').style.display = 'block';
+      document.querySelector('.error-sub').textContent = 'Something went wrong. Please try again later.';
+      return;
+    }
+
+    const pairs = data.pairs || [];
+    if (pairs.length < 4) {
+      document.getElementById('errorState').style.display = 'block';
+      return;
+    }
+
+    buildLayout(pairs);
+    renderGrid();
+    renderClues();
+
+    document.getElementById('puzzleState').style.display = 'block';
+
+    // Select first across word
+    const firstAcross = [...placedWords].filter(w => w.direction === 'across').sort((a,b) => a.number - b.number)[0];
+    if (firstAcross) selectWord(firstAcross.id);
+
+  } catch (err) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+    console.error('Crossword load error:', err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
