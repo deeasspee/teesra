@@ -689,5 +689,5 @@ Return this exact JSON structure with no markdown, no explanation:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("FLASK_ENV") != "production"
-    print(f"🚀 Teesra backend starting on port {port}")
+    print(f"Teesra backend starting on port {port}")
     app.run(debug=debug, port=port, host="0.0.0.0")
