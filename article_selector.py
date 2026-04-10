@@ -280,20 +280,22 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
         print(f"   ⚠️  Could not load yesterday's headlines: {e}")
 
     # Step 1: Group + score
+    print(f"   📥 Raw articles entering selector: {len(all_articles)}")
     groups = group_articles(all_articles)
     scored = [score_group(g) for g in groups]
     scored.sort(key=lambda x: x['score'], reverse=True)
-    print(f"   Grouped into {len(scored)} unique stories")
+    above_threshold = sum(1 for s in scored if s['score'] >= -25)
+    print(f"   Grouped into {len(scored)} unique stories ({above_threshold} above score threshold)")
 
     # Step 2: Topic slot limits — flexible, prevents domination
     topic_max = {
-        'politics':      6,
+        'politics':      7,
         'general':       6,
         'economy':       5,
-        'international': 3,
-        'tech':          3,
-        'sports':        3,
-        'ipl':           2,
+        'international': 4,
+        'tech':          4,
+        'sports':        4,
+        'ipl':           3,
         'sensitive':     2,
     }
     # Minimum guaranteed slots
@@ -319,7 +321,7 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
         title_lower = story['title'].lower()
 
         # Block very negative scores
-        if story['score'] < -10:
+        if story['score'] < -25:
             print(f"   ⛔ Blocked (score {story['score']:+d}): {story['title'][:60]}")
             continue
 

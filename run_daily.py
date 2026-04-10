@@ -23,14 +23,18 @@ def run():
 
         print("📡 Fetching live articles...")
         all_articles = fetch_all_news()
+        print(f"\n📊 PIPELINE DIAGNOSTIC:")
+        print(f"   Stage 1 — RSS fetch:       {len(all_articles)} articles")
 
         TARGET = 20
         clear_todays_articles()
-        # Select 35 candidates so 15-20 survive Claude's quality filters
-        top_articles = select_top_stories(all_articles, n=35)
+        # Select 40 candidates so 15-20 survive Claude's quality filters
+        top_articles = select_top_stories(all_articles, n=40)
+        print(f"   Stage 2 — After scoring:   {len(top_articles)} candidates selected")
 
         print(f"\n🧠 Analyzing up to {len(top_articles)} articles (target: {TARGET})...\n")
         results = []
+        failed_analysis = 0
 
         for i, article in enumerate(top_articles):
             if len(results) >= TARGET:
@@ -41,7 +45,15 @@ def run():
             if analysis:
                 save_article(analysis)
                 results.append(analysis)
+            else:
+                failed_analysis += 1
+                print(f"  ⚠️  Claude rejected or failed — running total: {failed_analysis} rejected")
 
+        print(f"\n📊 PIPELINE SUMMARY:")
+        print(f"   Stage 1 — RSS fetch:       {len(all_articles)} articles")
+        print(f"   Stage 2 — After scoring:   {len(top_articles)} candidates")
+        print(f"   Stage 3 — Claude analysis: {len(results)} passed, {failed_analysis} rejected")
+        print(f"   Stage 4 — Saved to DB:     {len(results)} articles")
         print(f"\n✅ Step 1 done — {len(results)} articles saved\n")
 
     except Exception as e:

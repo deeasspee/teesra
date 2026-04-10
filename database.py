@@ -69,7 +69,7 @@ def get_yesterday_headlines() -> list:
 
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
 def clear_todays_articles():
-    """Delete articles older than 5 days to keep DB clean"""
+    """Delete articles older than 5 days; keeps a rolling 5-day window"""
     cutoff = str(date.today() - timedelta(days=5))
     try:
         client = get_client()

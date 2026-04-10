@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(python -c ':*)",
-      "Bash(grep -n \"days\\\\|limit\\\\|TARGET\\\\|n=\" /c/Users/dvynd/Documents/teesra/*.py)"
+      "Bash(grep -n \"days\\\\|limit\\\\|TARGET\\\\|n=\" /c/Users/dvynd/Documents/teesra/*.py)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)"
     ]
   }
 }

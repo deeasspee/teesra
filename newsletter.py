@@ -4,6 +4,7 @@
 
 import os
 import resend
+from collections import defaultdict
 from dotenv import load_dotenv
 from database import get_todays_articles, get_all_subscribers
 from datetime import date
@@ -217,23 +218,64 @@ def build_email_html(articles, market_data=None, recipient_email=""):
 </html>"""
 
 
+# ── SELECT NEWSLETTER ARTICLES ────────────────────────────────────
+def select_newsletter_articles(articles: list, target: int = 15) -> list:
+    """
+    Pick 12-15 articles with topic diversity for the newsletter.
+    Score is not stored in Supabase, so use type-based caps.
+    Max: political=3, general=3, sports=2, tech=2, international=2, sensitive=1.
+    """
+    type_caps = {
+        "political":     3,
+        "general":       3,
+        "sports":        2,
+        "tech":          2,
+        "international": 2,
+        "sensitive":     1,
+    }
+    type_counts = defaultdict(int)
+    selected = []
+
+    for article in articles:
+        if len(selected) >= target:
+            break
+        t = article.get("story_type", "general")
+        cap = type_caps.get(t, 2)
+        if type_counts[t] < cap:
+            selected.append(article)
+            type_counts[t] += 1
+
+    # If still under 12, top up without caps
+    if len(selected) < 12:
+        used_ids = {id(a) for a in selected}
+        for article in articles:
+            if len(selected) >= target:
+                break
+            if id(article) not in used_ids:
+                selected.append(article)
+
+    return selected
+
+
 # ── SEND NEWSLETTER ───────────────────────────────────────────────
 def send_newsletter(to_email: str):
     print(f"\n📧 Building today's Teesra newsletter...")
 
-    articles = get_todays_articles()
+    all_articles = get_todays_articles()
 
-    if not articles:
+    if not all_articles:
         print("❌ No articles found for today. Run analyze_article.py first.")
         return False
+
+    # Select top 12-15 with topic diversity for email
+    articles = select_newsletter_articles(all_articles, target=15)
+    print(f"   Found {len(all_articles)} articles total — sending top {len(articles)} in newsletter")
 
     try:
         market_data = fetch_market_data()
     except Exception as e:
         print(f"  ⚠️ Market data failed: {e}")
         market_data = None
-
-    print(f"   Found {len(articles)} articles")
 
     # Build email once — with market data
     html = build_email_html(articles, market_data, recipient_email=to_email)
