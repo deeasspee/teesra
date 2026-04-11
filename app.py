@@ -21,6 +21,37 @@ CRICAPI_KEY         = os.getenv("CRICAPI_KEY")
 FOOTBALL_API_KEY    = os.getenv("FOOTBALL_API_KEY")
 anthropic_client = Anthropic()
 
+# ── BIAS SCORE ────────────────────────────────────────────────────
+def compute_bias_score(article):
+    """Returns float -1.0 (hard left) to +1.0 (hard right). 0.0 = center."""
+    base_scores = {
+        'left':         -0.6,
+        'center-left':  -0.3,
+        'center':        0.0,
+        'center-right':  0.3,
+        'right':         0.6,
+        'unknown':       0.0,
+    }
+    score = base_scores.get(article.get('source_bias', 'center'), 0.0)
+    if article.get('story_type') == 'political':
+        score = score * 1.2
+    return max(-1.0, min(1.0, round(score, 2)))
+
+def get_bias_label(score):
+    if score <= -0.5: return "Left-leaning coverage"
+    if score <= -0.2: return "Center-left coverage"
+    if score <  0.2:  return "Balanced coverage"
+    if score <  0.5:  return "Center-right coverage"
+    return "Right-leaning coverage"
+
+def enrich_article(article):
+    """Add bias_score and bias_label to an article dict."""
+    a = dict(article)
+    score = compute_bias_score(a)
+    a['bias_score'] = score
+    a['bias_label'] = get_bias_label(score)
+    return a
+
 # Simple in-memory cache for cricket data
 _cricket_cache = {"data": None, "ts": 0}
 
@@ -218,9 +249,27 @@ def get_articles():
                     articles = []
         else:
             articles = get_recent_articles(days)
-        return jsonify({"articles": articles, "count": len(articles)})
+        enriched = [enrich_article(a) for a in articles]
+        return jsonify({"articles": enriched, "count": len(enriched)})
     except Exception as e:
         return jsonify({"articles": [], "count": 0, "error": str(e)})
+
+# ── SINGLE STORY PERMALINK ────────────────────────────────────────
+@app.route("/story/<int:story_id>")
+def story_page(story_id):
+    return send_from_directory(".", "story.html")
+
+@app.route("/api/story/<int:story_id>")
+def get_story(story_id):
+    try:
+        from database import get_client
+        client = get_client()
+        resp = client.table("article").select("*").eq("id", story_id).limit(1).execute()
+        if not resp.data:
+            return jsonify({"error": "not_found"}), 404
+        return jsonify({"article": enrich_article(resp.data[0])})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ── CRICKET DATA ──────────────────────────────────────────────────
 @app.route("/api/cricket")

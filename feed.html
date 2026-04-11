@@ -885,13 +885,59 @@
 
     .card-caution {
       border-top: 1px solid rgba(212,91,91,0.2);
-      border-radius: 0 0 12px 12px;
       padding: 10px 20px;
       background: rgba(212,91,91,0.04);
       font-size: 11px;
       color: var(--right);
       display: flex;
       gap: 8px;
+    }
+
+    /* ── BIAS METER ───────────────────────────────────────────────── */
+    .bias-meter-wrap {
+      padding: 10px 20px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .bias-meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+    .bias-meter-label-center {
+      font-size: 10px;
+      color: var(--text-mid);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.5px;
+    }
+    .bias-meter-track {
+      position: relative;
+      height: 6px;
+      background: linear-gradient(to right, rgba(91,160,232,0.5) 0%, rgba(123,198,126,0.4) 40%, rgba(123,198,126,0.4) 60%, rgba(232,112,74,0.5) 100%);
+      border-radius: 3px;
+    }
+    .bias-meter-dot {
+      position: absolute;
+      top: -4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.35);
+      transition: left 0.3s ease;
+      transform: translateX(-50%);
+    }
+    .bias-polarising {
+      margin-top: 7px;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
     }
 
     .story-card[data-sports="true"] {
@@ -1713,6 +1759,32 @@
       international: { label: '🌍 International',  cls: 'type-international' }
     };
 
+    // ── BIAS METER ────────────────────────────────────────────────
+    function buildBiasMeter(score, label) {
+      const pct = ((score + 1) / 2) * 100;
+      let dotColor;
+      if      (score <= -0.3) dotColor = '#5ba8e8';   // blue for left
+      else if (score >=  0.3) dotColor = '#e8704a';   // orange for right
+      else                    dotColor = '#7bc67e';    // green for center
+
+      const polarising = Math.abs(score) >= 0.5
+        ? `<div class="bias-polarising">⚡ Polarising story — check both lenses</div>`
+        : '';
+
+      return `
+        <div class="bias-meter-wrap">
+          <div class="bias-meter-labels">
+            <span>◀ Left</span>
+            <span class="bias-meter-label-center">${label}</span>
+            <span>Right ▶</span>
+          </div>
+          <div class="bias-meter-track">
+            <div class="bias-meter-dot" style="left:${pct}%;background:${dotColor};"></div>
+          </div>
+          ${polarising}
+        </div>`;
+    }
+
     // ── BUILD CARD ────────────────────────────────────────────────
     function buildCard(article) {
       const type     = typeConfig[article.story_type] || typeConfig.general;
@@ -1805,6 +1877,7 @@
           </div>
 
           ${cautionHtml}
+          ${buildBiasMeter(article.bias_score || 0, article.bias_label || 'Balanced coverage')}
         </div>`;
     }
 
