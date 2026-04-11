@@ -16,6 +16,13 @@ import time
 app = Flask(__name__)
 CORS(app)
 
+# Gzip compression
+try:
+    from flask_compress import Compress
+    Compress(app)
+except ImportError:
+    pass
+
 FEED_API_KEY        = os.getenv("FEED_API_KEY")
 CRICAPI_KEY         = os.getenv("CRICAPI_KEY")
 FOOTBALL_API_KEY    = os.getenv("FOOTBALL_API_KEY")
@@ -130,7 +137,9 @@ def get_market():
                 data.update(c)
         except Exception:
             pass
-        return jsonify(data)
+        resp = jsonify(data)
+        resp.headers['Cache-Control'] = 'public, max-age=300'
+        return resp
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -195,9 +204,11 @@ def get_weather():
         except Exception:
             pass
 
-        return jsonify({"city": city, "temp": temp, "feels": feels,
+        resp = jsonify({"city": city, "temp": temp, "feels": feels,
                         "humidity": humid, "desc": desc, "icon": icon,
                         "wind": wind, "phrase": phrase})
+        resp.headers['Cache-Control'] = 'public, max-age=1800'
+        return resp
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -227,7 +238,9 @@ def get_trends():
             }
             for i, t in enumerate(titles[:15]) if t.strip()
         ]
-        return jsonify({"trends": trends})
+        resp = jsonify({"trends": trends})
+        resp.headers['Cache-Control'] = 'public, max-age=900'
+        return resp
     except Exception as e:
         return jsonify({"trends": [], "error": str(e)})
 
@@ -250,7 +263,9 @@ def get_articles():
         else:
             articles = get_recent_articles(days)
         enriched = [enrich_article(a) for a in articles]
-        return jsonify({"articles": enriched, "count": len(enriched)})
+        resp = jsonify({"articles": enriched, "count": len(enriched)})
+        resp.headers['Cache-Control'] = 'public, max-age=120'
+        return resp
     except Exception as e:
         return jsonify({"articles": [], "count": 0, "error": str(e)})
 

@@ -94,6 +94,7 @@
         radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
         radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
       animation: blobshift 20s ease-in-out infinite alternate;
+      animation-delay: 800ms;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
@@ -893,6 +894,43 @@
       gap: 8px;
     }
 
+    /* ── SKELETON LOADER ─────────────────────────────────────────── */
+    @keyframes skel-pulse {
+      0%, 100% { opacity: 0.3; }
+      50%       { opacity: 0.6; }
+    }
+    .skel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .skel-badge {
+      height: 22px; width: 80px;
+      background: var(--border); border-radius: 20px;
+      margin-bottom: 12px;
+      animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+    .skel-headline {
+      height: 22px; width: 95%;
+      background: var(--border); border-radius: 4px;
+      margin-bottom: 8px;
+      animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+    .skel-meta {
+      height: 12px; width: 50%;
+      background: var(--border); border-radius: 4px;
+      margin: 12px 0; opacity: 0.5;
+      animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+    .skel-body {
+      height: 14px; width: 100%;
+      background: var(--border); border-radius: 4px;
+      margin-bottom: 6px; opacity: 0.4;
+      animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+
     /* ── BIAS METER ───────────────────────────────────────────────── */
     .bias-meter-wrap {
       padding: 10px 20px 14px;
@@ -1055,6 +1093,127 @@
       letter-spacing: 1px;
       text-transform: uppercase;
       margin-top: 5px;
+    }
+
+    /* ── STORY MODAL ─────────────────────────────────────────────── */
+    #storyModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 900;
+      align-items: flex-start;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 24px 16px 40px;
+      overflow-y: auto;
+    }
+    #storyModal.open { display: flex; }
+
+    .smodal-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 720px;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      overflow: hidden;
+      margin: auto;
+    }
+
+    .smodal-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      color: var(--text-dim);
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 10;
+      transition: color 0.2s, border-color 0.2s;
+      font-family: 'DM Mono', monospace;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .smodal-close:hover { color: var(--text); border-color: var(--facts); }
+
+    .smodal-scroll { overflow-y: auto; max-height: 90vh; }
+
+    .smodal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .smodal-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 10px 0 10px;
+    }
+
+    .smodal-share {
+      padding: 14px 20px 18px;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .smodal-permalink {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .smodal-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .smodal-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 7px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .smodal-btn-copy {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .smodal-btn-copy:hover { border-color: var(--facts); color: var(--facts); }
+
+    .smodal-btn-wa {
+      background: none;
+      border: 1px solid rgba(37,211,102,0.3);
+      color: #25D366;
+    }
+    .smodal-btn-wa:hover { background: rgba(37,211,102,0.1); }
+
+    .smodal-btn-open {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .smodal-btn-open:hover { border-color: var(--facts); color: var(--facts); }
+
+    /* Make bias meter work inside modal */
+    .smodal-scroll .bias-meter-wrap {
+      padding: 14px 24px 16px;
     }
 
     #qrModal {
@@ -1416,6 +1575,14 @@
 </head>
 <body>
 
+  <!-- STORY MODAL -->
+  <div id="storyModal" onclick="if(event.target===this)closeStoryModal()">
+    <div class="smodal-box">
+      <button class="smodal-close" onclick="closeStoryModal()">✕</button>
+      <div class="smodal-scroll" id="storyModalBody"></div>
+    </div>
+  </div>
+
   <!-- QR MODAL -->
   <div id="qrModal" onclick="if(event.target===this)closeModal()">
     <div class="qr-modal-box">
@@ -1550,9 +1717,34 @@
         <div class="topic-filters" id="topicFilters"></div>
       </div>
       <div id="feedContainer">
-        <div class="loading">
-          <div class="loading-spinner"></div>
-          <p class="loading-text">Fetching today's brief...</p>
+        <div id="articles-skeleton" style="padding:32px 24px 0;">
+          <div class="skel-card">
+            <div class="skel-badge"></div>
+            <div class="skel-headline"></div>
+            <div class="skel-headline" style="width:70%"></div>
+            <div class="skel-meta"></div>
+            <div class="skel-body"></div>
+            <div class="skel-body" style="width:85%"></div>
+            <div class="skel-body" style="width:90%"></div>
+          </div>
+          <div class="skel-card">
+            <div class="skel-badge"></div>
+            <div class="skel-headline"></div>
+            <div class="skel-headline" style="width:80%"></div>
+            <div class="skel-meta"></div>
+            <div class="skel-body"></div>
+            <div class="skel-body" style="width:75%"></div>
+            <div class="skel-body" style="width:88%"></div>
+          </div>
+          <div class="skel-card">
+            <div class="skel-badge"></div>
+            <div class="skel-headline"></div>
+            <div class="skel-headline" style="width:65%"></div>
+            <div class="skel-meta"></div>
+            <div class="skel-body"></div>
+            <div class="skel-body" style="width:92%"></div>
+            <div class="skel-body" style="width:78%"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1563,7 +1755,7 @@
     // ── MODAL ─────────────────────────────────────────────────────
     function openModal()  { document.getElementById('qrModal').classList.add('active'); }
     function closeModal() { document.getElementById('qrModal').classList.remove('active'); }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDrawer(); } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeStoryModal(); closeDrawer(); } });
 
     // ── MOBILE DRAWER ─────────────────────────────────────────────
     function toggleDrawer() {
@@ -1725,7 +1917,13 @@
         }).join('');
       }
 
-      loadTrends();
+      // Trends already cached per hour; delay fresh fetch to after articles render
+      var cachedTrend = sessionStorage.getItem(CACHE_KEY);
+      if (cachedTrend) {
+        try { renderTrends(JSON.parse(cachedTrend), document.getElementById('trendsScroll')); } catch(e) {}
+      } else {
+        setTimeout(loadTrends, 1000);
+      }
     })();
 
     // ── DATE ──────────────────────────────────────────────────────
@@ -1785,30 +1983,68 @@
         </div>`;
     }
 
-    // ── SHARE ─────────────────────────────────────────────────────
-    function shareStory(id, headline, btn) {
-      const url  = id ? 'https://teesra.in/story/' + id : 'https://teesra.in/feed';
-      const text = headline + '\n\nFacts, Left lens, Right lens — all perspectives on one story.';
+    // ── STORY MODAL ───────────────────────────────────────────────
+    function openStoryModal(id) {
+      const article = allArticles.find(a => a.id === id);
+      if (!article) return;
+      const modal = document.getElementById('storyModal');
+      const body  = document.getElementById('storyModalBody');
+      const url   = 'https://teesra.in/story/' + id;
 
-      // Always copy link to clipboard
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).catch(function(){});
-      }
+      const type     = typeConfig[article.story_type] || typeConfig.general;
+      const isSports = article.story_type === 'sports';
+      const hasLeft  = !isSports && article.left_lens  && article.left_lens.trim().length  > 10;
+      const hasRight = !isSports && article.right_lens && article.right_lens.trim().length > 10;
+      const showLens = hasLeft || hasRight;
+      const gridClass  = (isSports || !showLens) ? 'grid-1' : (hasLeft && hasRight) ? 'grid-3' : 'grid-2';
+      const factsClass = (!showLens || isSports)  ? 'panel-text-full' : 'panel-text';
+      const leftHtml   = hasLeft  ? `<div class="panel panel-left"><p class="panel-label">Left Lens</p><p class="panel-text">${article.left_lens}</p></div>` : '';
+      const rightHtml  = hasRight ? `<div class="panel panel-right"><p class="panel-label">Right Lens</p><p class="panel-text">${article.right_lens}</p></div>` : '';
+      const cautionHtml = article.caution_note ? `<div class="card-caution"><span>⚠️</span><span>${article.caution_note}</span></div>` : '';
 
-      // Try native share sheet (works on mobile + modern desktop)
-      if (navigator.share) {
-        navigator.share({ title: headline, text: text, url: url }).catch(function(){});
-      } else {
-        // Desktop fallback: open WhatsApp web share
-        window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n\n' + url), '_blank');
-      }
+      body.innerHTML = `
+        <div class="smodal-header">
+          <span class="card-type ${type.cls}">${type.label}</span>
+          <h2 class="smodal-headline">${article.headline}</h2>
+          <p class="card-source">
+            ${article.source} · ${article.source_bias}
+            · ${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
+            ${article.url ? `· <a href="${article.url}" target="_blank" rel="noopener">Read original →</a>` : ''}
+          </p>
+        </div>
+        ${buildBiasMeter(article.bias_score || 0, article.bias_label || 'Balanced coverage')}
+        <div class="card-panels ${gridClass}">
+          <div class="panel panel-facts"><p class="panel-label">Facts</p><p class="${factsClass}">${article.facts}</p></div>
+          ${leftHtml}${rightHtml}
+        </div>
+        <div class="card-impact"><span class="impact-label">Impact</span><span class="impact-text">${article.impact}</span></div>
+        <div class="card-bottom"><span class="pulse-label">Street Pulse</span><span class="pulse-text">${article.public_pulse}</span></div>
+        ${cautionHtml}
+        <div class="smodal-share">
+          <span class="smodal-permalink">${url}</span>
+          <div class="smodal-btns">
+            <button class="smodal-btn smodal-btn-copy" onclick="modalCopyLink('${url}', this)">Copy link</button>
+            <a class="smodal-btn smodal-btn-wa"
+               href="https://wa.me/?text=${encodeURIComponent('📰 ' + article.headline + '\n\nFacts, Left lens, Right lens — all perspectives on one story.\n\n' + url)}"
+               target="_blank" rel="noopener">WhatsApp</a>
+            <a class="smodal-btn smodal-btn-open" href="/story/${id}" target="_blank">Open page →</a>
+          </div>
+        </div>`;
 
-      // Brief "Copied!" feedback on the button
-      if (btn) {
-        const orig = btn.innerHTML;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeStoryModal() {
+      document.getElementById('storyModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function modalCopyLink(url, btn) {
+      navigator.clipboard.writeText(url).then(function() {
         btn.textContent = 'Copied!';
-        setTimeout(function(){ btn.innerHTML = orig; }, 1800);
-      }
+        setTimeout(function(){ btn.textContent = 'Copy link'; }, 2000);
+      });
     }
 
     // ── BUILD CARD ────────────────────────────────────────────────
@@ -1859,27 +2095,16 @@
           <span>⚠️</span><span>${article.caution_note}</span>
         </div>` : '';
 
-      const storyUrl = article.id ? `https://teesra.in/story/${article.id}` : 'https://teesra.in/feed';
-      const shareText = encodeURIComponent('📰 ' + article.headline + '\n\nFacts, Left lens, Right lens — all perspectives on one story.\n\nRead on Teesra: ' + storyUrl);
-
       return `
         <div class="story-card" id="story-${article.id || ''}" ${sportsAttr} ${iplAttr} ${techAttr} ${intlAttr}>
           <div class="card-header">
             <div class="card-header-left">
               <span class="card-type ${type.cls}">${type.label}</span>
-              <h2 class="card-headline">${article.headline}</h2>
+              <h2 class="card-headline" ${article.id ? `onclick="openStoryModal(${article.id})" style="cursor:pointer;"` : ''}>${article.headline}</h2>
               <p class="card-source">
                 ${article.source} · ${article.source_bias}
                 · ${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
                 ${article.url ? `· <a href="${article.url}" target="_blank">Read original →</a>` : ''}
-                &nbsp;
-                <button onclick="shareStory('${article.id || ''}', ${JSON.stringify(article.headline)}, this)"
-                   style="display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:#25D366;background:none;border:1px solid rgba(37,211,102,0.3);border-radius:20px;padding:3px 8px;cursor:pointer;transition:background 0.15s;vertical-align:middle;"
-                   onmouseover="this.style.background='rgba(37,211,102,0.1)'"
-                   onmouseout="this.style.background='none'">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  Share
-                </button>
               </p>
             </div>
             ${sourceHtml}
@@ -1973,13 +2198,13 @@
     // ── LOAD FEED ─────────────────────────────────────────────────
     async function loadFeed() {
       const container = document.getElementById('feedContainer');
+      const skeleton  = document.getElementById('articles-skeleton');
 
-      const [articlesRes, marketRes] = await Promise.allSettled([
-        fetch('/api/articles?days=5'),
-        fetch('/api/market')
-      ]);
-
-      if (articlesRes.status === 'rejected') {
+      // ── Priority 1: Articles (blocks page content) ────────────
+      let articlesRes;
+      try {
+        articlesRes = await fetch('/api/articles?days=5');
+      } catch(e) {
         container.innerHTML = `
           <div class="empty-state">
             <p class="empty-title">Backend not running</p>
@@ -1989,10 +2214,11 @@
         return;
       }
 
-      const data = await articlesRes.value.json();
+      const data = await articlesRes.json();
       allArticles = data.articles || [];
 
       if (!allArticles.length) {
+        if (skeleton) skeleton.style.display = 'none';
         container.innerHTML = `
           <div class="empty-state">
             <p class="empty-title">No articles yet</p>
@@ -2002,17 +2228,28 @@
         return;
       }
 
-      try {
-        if (marketRes.status === 'fulfilled') {
-          const m = await marketRes.value.json();
-          _marketHtml = buildMarketTicker(m);
-        }
-      } catch(e) { console.log('Market data unavailable'); }
-
+      // Hide skeleton, show real content
+      if (skeleton) skeleton.style.display = 'none';
       buildDateTabs();
       buildTopicFilters();
       document.getElementById('feedControls').style.display = 'block';
       renderFeed();
+
+      // ── Priority 2: Market + Trends (non-blocking, after render) ─
+      const mktCacheKey = 'teesra_market_' + new Date().toISOString().slice(0, 10);
+      const cachedMkt = sessionStorage.getItem(mktCacheKey);
+      if (cachedMkt) {
+        try { _marketHtml = buildMarketTicker(JSON.parse(cachedMkt)); renderFeed(); } catch(e) {}
+      } else {
+        fetch('/api/market').then(async r => {
+          try {
+            const m = await r.json();
+            sessionStorage.setItem(mktCacheKey, JSON.stringify(m));
+            _marketHtml = buildMarketTicker(m);
+            renderFeed();
+          } catch(e) {}
+        }).catch(() => {});
+      }
     }
 
     function buildDateTabs() {
@@ -2142,17 +2379,20 @@
         const c = sessionStorage.getItem(CK);
         if (c) { const d = JSON.parse(c); if (d && d.temp) { render(d); return; } }
       } catch(e) {}
-      if (navigator.geolocation) {
-        let done = false;
-        const timer = setTimeout(() => { if (!done) { done = true; load(null, null); } }, 4000);
-        navigator.geolocation.getCurrentPosition(
-          p => { if (!done) { done = true; clearTimeout(timer); load(p.coords.latitude, p.coords.longitude); } },
-          () => { if (!done) { done = true; clearTimeout(timer); load(null, null); } },
-          { timeout: 6000, maximumAge: 3600000 }
-        );
-      } else {
-        load(null, null);
-      }
+      // Delay weather fetch — lowest priority, fires after articles render
+      setTimeout(function() {
+        if (navigator.geolocation) {
+          let done = false;
+          const timer = setTimeout(() => { if (!done) { done = true; load(null, null); } }, 4000);
+          navigator.geolocation.getCurrentPosition(
+            p => { if (!done) { done = true; clearTimeout(timer); load(p.coords.latitude, p.coords.longitude); } },
+            () => { if (!done) { done = true; clearTimeout(timer); load(null, null); } },
+            { timeout: 6000, maximumAge: 3600000 }
+          );
+        } else {
+          load(null, null);
+        }
+      }, 2500);
     })();
 
     // ── CRICKET WIDGET ────────────────────────────────────────────
@@ -2318,7 +2558,8 @@
         renderCricketFeed(matches);
       }
 
-      loadCricket();
+      // Delay cricket fetch — below fold on mobile, fires after articles
+      setTimeout(loadCricket, 1500);
     })();
 
     // ── FOOTBALL WIDGET ───────────────────────────────────────────
@@ -2422,7 +2663,8 @@
         }
       }
 
-      loadFootball();
+      // Delay football fetch — fires after articles and cricket
+      setTimeout(loadFootball, 2000);
     })();
   </script>
 

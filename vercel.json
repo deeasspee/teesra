@@ -1,15 +1,41 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "app.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "app.py"
-      }
-    ]
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/icon.svg",
+      "headers": [
+        {"key": "Cache-Control", "value": "public, max-age=86400, immutable"}
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {"key": "Cache-Control", "value": "public, max-age=86400"}
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        {"key": "Cache-Control", "value": "public, max-age=300, stale-while-revalidate=600"}
+      ]
+    },
+    {
+      "source": "/upi-qr.png",
+      "headers": [
+        {"key": "Cache-Control", "value": "public, max-age=86400, immutable"}
+      ]
+    }
+  ]
+}

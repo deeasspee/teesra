@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="jungle">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-MG22YJD5S2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-MG22YJD5S2');
-</script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://teesra.in">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MG22YJD5S2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MG22YJD5S2');
+  </script>
   <title>Teesra — India's news from three perspectives</title>
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="shortcut icon" href="/icon.svg">
@@ -22,7 +23,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Teesra">
   <meta name="description" content="Every morning, Teesra delivers India's top stories with verified facts, left lens, right lens and street pulse. AI-powered. Bias-aware. Free."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -44,6 +44,7 @@
         radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
         radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
       animation: blobshift 20s ease-in-out infinite alternate;
+      animation-delay: 800ms;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
@@ -350,6 +351,27 @@
       .ticker-wrap{margin:0 -20px;}
       .theme-picker{right:-60px;width:210px;}
     }
+
+    /* SKELETON LOADER */
+    .skel-line {
+      height: 16px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-bottom: 14px;
+      animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes skel-pulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.7; }
+    }
+
+    /* HERO MIN-HEIGHTS (prevent CLS) */
+    .hero-main { min-height: 360px; }
+    .hero-stories { min-height: 320px; }
+    @media(max-width:900px) {
+      .hero-main    { min-height: 280px; }
+      .hero-stories { min-height: 220px; }
+    }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
   crossorigin="anonymous"></script>
@@ -427,7 +449,14 @@
           <a href="/feed" class="stories-link">Read all 15 →</a>
         </div>
         <div id="heroStories">
-          <div class="sp-loading">Fetching today's stories...</div>
+          <div id="stories-skeleton">
+            <div class="skel-line" style="width:88%"></div>
+            <div class="skel-line" style="width:72%"></div>
+            <div class="skel-line" style="width:81%"></div>
+            <div class="skel-line" style="width:68%"></div>
+            <div class="skel-line" style="width:79%"></div>
+          </div>
+          <div id="stories-list" style="display:none"></div>
         </div>
       </div>
     </div>
@@ -658,18 +687,27 @@ document.addEventListener('keydown', e => {
 
 // ── LIVE STORIES IN HERO ──────────────────────────────────────────
 async function loadHeroStories() {
-  const container = document.getElementById('heroStories');
-  if (!container) return;
+  const skel = document.getElementById('stories-skeleton');
+  const list = document.getElementById('stories-list');
+  if (!list) return;
   try {
-    const res  = await fetch('/api/articles');
-    const data = await res.json();
-    if (!data.articles || !data.articles.length) {
-      container.innerHTML = '<div class="sp-loading">Stories load at 7:30 AM daily</div>';
+    const cacheKey = 'teesra_hero_' + new Date().toISOString().slice(0, 10);
+    const cached = sessionStorage.getItem(cacheKey);
+    let articles;
+    if (cached) {
+      articles = JSON.parse(cached);
+    } else {
+      const res  = await fetch('/api/articles');
+      const data = await res.json();
+      articles = data.articles || [];
+      if (articles.length) sessionStorage.setItem(cacheKey, JSON.stringify(articles.slice(0, 5)));
+    }
+    if (!articles.length) {
+      if (skel) skel.innerHTML = '<div class="sp-loading">Stories load at 7:30 AM daily</div>';
       return;
     }
-    // Show top 5 stories
-    const stories = data.articles.slice(0, 5);
-    container.innerHTML = stories.map(a => {
+    const stories = articles.slice(0, 5);
+    list.innerHTML = stories.map(a => {
       const typeColor = TYPE_COLORS[a.story_type] || 'var(--text-mid)';
       const typeLabel = (a.story_type || 'general').toUpperCase();
       return `
@@ -681,8 +719,12 @@ async function loadHeroStories() {
           </div>
         </a>`;
     }).join('');
+    if (skel) skel.style.display = 'none';
+    list.style.display = 'block';
   } catch(e) {
-    container.innerHTML = '<div class="sp-loading" style="font-size:9px;">Start Flask server to load stories</div>';
+    if (skel) skel.style.display = 'none';
+    list.innerHTML = '<div class="sp-loading" style="font-size:9px;opacity:0.5;">Unable to load stories</div>';
+    list.style.display = 'block';
   }
 }
 loadHeroStories();
