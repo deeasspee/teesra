@@ -1786,13 +1786,28 @@
     }
 
     // ── SHARE ─────────────────────────────────────────────────────
-    function shareStory(id, headline) {
+    function shareStory(id, headline, btn) {
       const url  = id ? 'https://teesra.in/story/' + id : 'https://teesra.in/feed';
       const text = headline + '\n\nFacts, Left lens, Right lens — all perspectives on one story.';
+
+      // Always copy link to clipboard
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).catch(function(){});
+      }
+
+      // Try native share sheet (works on mobile + modern desktop)
       if (navigator.share) {
         navigator.share({ title: headline, text: text, url: url }).catch(function(){});
       } else {
+        // Desktop fallback: open WhatsApp web share
         window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n\n' + url), '_blank');
+      }
+
+      // Brief "Copied!" feedback on the button
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.textContent = 'Copied!';
+        setTimeout(function(){ btn.innerHTML = orig; }, 1800);
       }
     }
 
@@ -1857,9 +1872,8 @@
                 ${article.source} · ${article.source_bias}
                 · ${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
                 ${article.url ? `· <a href="${article.url}" target="_blank">Read original →</a>` : ''}
-                ${article.id ? `· <a href="/story/${article.id}">Permalink →</a>` : ''}
                 &nbsp;
-                <button onclick="shareStory('${article.id || ''}', ${JSON.stringify(article.headline).replace(/'/g,"\\'")})"
+                <button onclick="shareStory('${article.id || ''}', ${JSON.stringify(article.headline)}, this)"
                    style="display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:#25D366;background:none;border:1px solid rgba(37,211,102,0.3);border-radius:20px;padding:3px 8px;cursor:pointer;transition:background 0.15s;vertical-align:middle;"
                    onmouseover="this.style.background='rgba(37,211,102,0.1)'"
                    onmouseout="this.style.background='none'">
