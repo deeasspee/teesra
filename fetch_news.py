@@ -120,6 +120,16 @@ SOURCES = [
         "name": "Google News Top Stories",
         "url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
         "bias": "center"
+    },
+    {
+        "name": "Google News IPL",
+        "url": "https://news.google.com/rss/search?q=IPL+2026+match+result&hl=en-IN&gl=IN&ceid=IN:en",
+        "bias": "center"
+    },
+    {
+        "name": "Cricbuzz",
+        "url": "https://www.cricbuzz.com/rss-feeds/ipl",
+        "bias": "center"
     }
 
 ]

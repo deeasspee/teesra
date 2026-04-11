@@ -36,6 +36,18 @@ def run():
         results = []
         failed_analysis = 0
 
+        STOPWORDS = {'a','an','the','in','on','at','to','of','for','is','are',
+                     'was','were','has','have','had','and','or','but','with','from','by','after'}
+
+        def headlines_similar(h1, h2):
+            """Return True if two Claude-rewritten headlines cover the same story."""
+            w1 = set(h1.lower().split()) - STOPWORDS
+            w2 = set(h2.lower().split()) - STOPWORDS
+            if not w1 or not w2:
+                return False
+            overlap = len(w1 & w2)
+            return overlap / min(len(w1), len(w2)) >= 0.6
+
         for i, article in enumerate(top_articles):
             if len(results) >= TARGET:
                 print(f"  ✅ Target of {TARGET} reached — stopping early")
@@ -43,6 +55,12 @@ def run():
             print(f"  [{i+1}/{len(top_articles)}] {article['title'][:60]}...")
             analysis = analyze_article(article)
             if analysis:
+                new_headline = analysis.get('headline', '')
+                # Skip if same story already saved in this run
+                existing = [r.get('headline', '') for r in results]
+                if any(headlines_similar(new_headline, h) for h in existing):
+                    print(f"  🔁 Duplicate story — skipping: {new_headline[:55]}...")
+                    continue
                 save_article(analysis)
                 results.append(analysis)
             else:

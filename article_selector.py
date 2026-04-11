@@ -305,6 +305,7 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
         'international': 1,
         'tech':          1,
         'sports':        1,
+        'ipl':           1,
     }
     topic_counts   = defaultdict(int)
     source_counts  = defaultdict(int)  # per-portal cap

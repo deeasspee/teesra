@@ -205,25 +205,53 @@
     @media(max-width: 900px) {
       #mobileClueBanner {
         display: block;
-        padding: 10px 14px;
-        margin-bottom: 10px;
+        position: relative;
+        padding: 12px 16px 16px;
+        margin-bottom: 14px;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 10px;
-        min-height: 44px;
+        border-radius: 14px 14px 14px 4px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      }
+      /* speech bubble tail */
+      #mobileClueBanner::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 18px;
+        width: 0; height: 0;
+        border-left: 10px solid transparent;
+        border-right: 0px solid transparent;
+        border-top: 10px solid var(--border);
+      }
+      #mobileClueBanner::before {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 19px;
+        width: 0; height: 0;
+        border-left: 9px solid transparent;
+        border-right: 0px solid transparent;
+        border-top: 9px solid var(--surface);
+        z-index: 1;
       }
       #mobileBannerNum {
+        display: inline-block;
         font-family: 'DM Mono', monospace;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
-        color: var(--facts);
-        margin-right: 6px;
+        color: var(--bg);
+        background: var(--facts);
+        padding: 2px 7px;
+        border-radius: 20px;
+        margin-right: 8px;
+        letter-spacing: 0.5px;
       }
       #mobileBannerText {
         font-family: 'Georgia', serif;
         font-size: 13px;
         color: var(--text);
-        line-height: 1.5;
+        line-height: 1.55;
       }
     }
 
@@ -508,7 +536,6 @@
 <nav>
   <a href="/" class="nav-logo">Teesra<span></span></a>
   <div class="nav-right">
-    <a href="/feed" class="nav-back">← Today's Brief</a>
     <div class="theme-wrap">
       <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleThemePicker(event)" title="Change theme" aria-label="Change theme">
         <div class="swatch-inner"><div class="s1" id="fsw1"></div><div id="fsw2"></div><div id="fsw3"></div></div>
@@ -974,15 +1001,14 @@ function onCellClick(r, c) {
   });
   if (!wordsHere.length) return;
 
-  // If clicking same cell, toggle direction if both directions available
+  // If clicking the same cell again → toggle direction
   if (activeCell.row === r && activeCell.col === c) {
     const other = wordsHere.find(w => w.id !== activeWordId);
     if (other) { selectWord(other.id); return; }
   }
 
-  // Prefer current direction if available, else switch
-  let preferred = wordsHere.find(w => w.direction === activeDir);
-  if (!preferred) preferred = wordsHere[0];
+  // Fresh tap on a new cell: always prefer across, only fall back to down
+  let preferred = wordsHere.find(w => w.direction === 'across') || wordsHere[0];
   activeCell = {row: r, col: c};
   activeWordId = preferred.id;
   activeDir = preferred.direction;
@@ -1021,8 +1047,9 @@ function updateHighlight() {
   const bannerNum = document.getElementById('mobileBannerNum');
   const bannerTxt = document.getElementById('mobileBannerText');
   if (bannerNum && bannerTxt) {
-    bannerNum.textContent = w.number + ' ' + (w.direction === 'across' ? 'Across' : 'Down') + ':';
-    bannerTxt.textContent = ' ' + w.clue;
+    const arrow = w.direction === 'across' ? '→' : '↓';
+    bannerNum.textContent = w.number + ' ' + arrow;
+    bannerTxt.textContent = w.clue;
   }
 }
 
@@ -1083,6 +1110,29 @@ function eraseLetter() {
   }
 }
 
+function isWordCorrect(w) {
+  for (let i = 0; i < w.length; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    if ((userGrid[r][c] || '') !== w.answer[i]) return false;
+  }
+  return true;
+}
+
+function flashWordCorrect(w, callback) {
+  const cells = [];
+  for (let i = 0; i < w.length; i++) {
+    const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+    const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+    const td = document.querySelector(`.cw-cell[data-row="${r}"][data-col="${c}"]`);
+    if (td) { td.style.background = 'rgba(34,197,94,0.35)'; cells.push(td); }
+  }
+  setTimeout(function() {
+    cells.forEach(td => td.style.background = '');
+    if (callback) callback();
+  }, 500);
+}
+
 function advanceCell() {
   const w = placedWords.find(p => p.id === activeWordId);
   if (!w) return;
@@ -1098,8 +1148,12 @@ function advanceCell() {
       return;
     }
   }
-  // At end of word — move to next word
-  moveToNextWord();
+  // At end of word — check correctness, then move to next
+  if (isWordCorrect(w)) {
+    flashWordCorrect(w, function() { moveToNextWord(); });
+  } else {
+    moveToNextWord();
+  }
 }
 
 function retreatCell() {

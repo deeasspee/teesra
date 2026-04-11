@@ -98,18 +98,46 @@ def fetch_commodity_data() -> dict:
     """Fetch gold/silver/USD-INR from Yahoo Finance via yfinance"""
     try:
         import yfinance as yf
-        gold_usd   = yf.Ticker("GC=F").fast_info.last_price
-        silver_usd = yf.Ticker("SI=F").fast_info.last_price
-        usd_inr    = yf.Ticker("INR=X").fast_info.last_price
-        gpg = (gold_usd / 31.1035) * usd_inr
+
+        gold_info   = yf.Ticker("GC=F").fast_info
+        silver_info = yf.Ticker("SI=F").fast_info
+        fx_info     = yf.Ticker("INR=X").fast_info
+
+        gold_usd        = gold_info.last_price or 0
+        gold_usd_prev   = gold_info.previous_close or gold_usd
+        silver_usd      = silver_info.last_price or 0
+        silver_usd_prev = silver_info.previous_close or silver_usd
+        usd_inr         = fx_info.last_price or 84.0
+
+        gpg      = (gold_usd      / 31.1035) * usd_inr
+        gpg_prev = (gold_usd_prev / 31.1035) * usd_inr
+
+        gold_24k      = round(gpg * 10)
+        gold_24k_prev = round(gpg_prev * 10)
+        gold_22k      = round(gpg * 10 * 22 / 24)
+
+        silver_kg      = round((silver_usd      / 31.1035) * usd_inr * 1000)
+        silver_kg_prev = round((silver_usd_prev / 31.1035) * usd_inr * 1000)
+
+        def pct(curr, prev):
+            if not prev: return 0.0
+            return round((curr - prev) / prev * 100, 2)
+
+        gold_chg_pct   = pct(gold_24k,  gold_24k_prev)
+        silver_chg_pct = pct(silver_kg, silver_kg_prev)
+
         return {
-            "gold_24k":  round(gpg * 10),
-            "gold_22k":  round(gpg * 10 * 22 / 24),
-            "silver_kg": round((silver_usd / 31.1035) * usd_inr * 1000),
-            "usd_inr":   round(usd_inr, 2),
+            "gold_24k":        gold_24k,
+            "gold_24k_pct":    gold_chg_pct,
+            "gold_24k_dir":    "up" if gold_chg_pct >= 0 else "down",
+            "gold_22k":        gold_22k,
+            "silver_kg":       silver_kg,
+            "silver_kg_pct":   silver_chg_pct,
+            "silver_kg_dir":   "up" if silver_chg_pct >= 0 else "down",
+            "usd_inr":         round(usd_inr, 2),
         }
     except Exception as e:
-        print(f"  ⚠️ Commodity data failed: {e}")
+        print(f"  Warning: Commodity data failed: {e}")
         return None
 
 
