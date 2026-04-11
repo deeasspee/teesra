@@ -1034,6 +1034,7 @@
 
     .support-card {
       border: 1px solid var(--border);
+      border-top: 3px solid var(--facts);
       border-radius: 12px;
       overflow: hidden;
       background: var(--surface);
@@ -1046,9 +1047,10 @@
 
     .support-text p:first-child {
       font-family: 'Playfair Display', serif;
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 6px;
+      color: var(--facts);
+      margin-bottom: 8px;
     }
 
     .support-desc {
@@ -1587,8 +1589,8 @@
   <div id="qrModal" onclick="if(event.target===this)closeModal()">
     <div class="qr-modal-box">
       <button class="qr-modal-close" onclick="closeModal()">✕</button>
-      <p class="qr-modal-title">☕ Buy a chai</p>
-      <p class="qr-modal-desc">Scan with GPay, PhonePe or any UPI app</p>
+      <p class="qr-modal-title">Help run Teesra</p>
+      <p class="qr-modal-desc">Teesra is free, ad-free, and costs real money to run. Scan with GPay, PhonePe, or any UPI app.</p>
       <img src="/upi-qr.png" alt="UPI QR Code" onerror="this.style.opacity='0.2'"/>
       <p class="qr-modal-upi">UPI: divyendu.shekhar@ptyes</p>
     </div>
@@ -1597,7 +1599,7 @@
   <!-- MOBILE NAV DRAWER -->
   <div class="nav-drawer" id="navDrawer">
     <a href="/" onclick="closeDrawer()">← Home</a>
-    <a href="#" onclick="event.preventDefault();closeDrawer();openModal()">☕ Support</a>
+    <a href="#" onclick="event.preventDefault();closeDrawer();openModal()">Support Teesra</a>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;">
       <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
       <div style="display:grid;grid-template-columns:repeat(3,40px);gap:8px;" id="drawerThemeSwatches"></div>
@@ -1612,7 +1614,7 @@
     </a>
     <div class="nav-right">
       <span class="nav-date" id="todayDate"></span>
-      <a href="#" onclick="event.preventDefault();openModal()" class="nav-back">☕ Support</a>
+      <a href="#" onclick="event.preventDefault();openModal()" class="nav-back">Support Teesra</a>
       <a href="/" class="nav-back">← Home</a>
       <!-- Theme swatch -->
       <div class="theme-wrap" style="position:relative;">
@@ -2333,15 +2335,15 @@
         ${isToday ? `<div class="support-bar">
           <div class="support-card">
             <div class="support-text">
-              <p>☕ Like Teesra?</p>
-              <p class="support-desc">Built by one person, completely free. If it saves you time every morning, consider buying a chai.</p>
-              <p class="support-upi-id">UPI:divyendu.shekhar@ptyes</p>
+              <p>Keep Teesra running</p>
+              <p class="support-desc">Teesra is independent, ad-free, and built by one person. It costs real money to run every morning. If it's part of your day, consider helping keep it alive.</p>
+              <p class="support-upi-id">UPI: divyendu.shekhar@ptyes</p>
             </div>
-            <div class="qr-wrap" onclick="openModal()" title="Click to enlarge">
+            <div class="qr-wrap" onclick="openModal()" title="Scan to support">
               <img src="/upi-qr.png" alt="UPI QR Code" class="upi-qr"
                 onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
               <p style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);">Add upi-qr.png to folder</p>
-              <p class="qr-label">🔍 Tap to scan</p>
+              <p class="qr-label">Tap to scan</p>
             </div>
           </div>
         </div>` : ''}`;
