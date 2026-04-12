@@ -809,13 +809,33 @@
 <script>
 const sbClient = window.supabase.createClient(
   'https://mcqgigetchudnaumxvsm.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcWdpZ2V0Y2h1ZG5hdW14dnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjAzODgsImV4cCI6MjA4OTQ5NjM4OH0.7KV3jqaMke31DEcazY7PuFxldmkKh1Uxj5YumwrhSTk'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcWdpZ2V0Y2h1ZG5hdW14dnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjAzODgsImV4cCI6MjA4OTQ5NjM4OH0.7KV3jqaMke31DEcazY7PuFxldmkKh1Uxj5YumwrhSTk',
+  {
+    auth: {
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  }
 );
 
 const TeesraAuth = window.TeesraAuth = {
   user: null, role: null, userName: null, avatarUrl: null,
 
   async init() {
+    // Handle OAuth redirect — clean token from URL
+    if (window.location.hash &&
+        window.location.hash.includes('access_token')) {
+      // Supabase client auto-reads the hash and
+      // establishes the session — just clean the URL
+      setTimeout(() => {
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+      }, 1500);
+    }
     try {
       const { data: { session } } = await sbClient.auth.getSession();
       if (session?.user) { this.user = session.user; await this.loadRole(); }
