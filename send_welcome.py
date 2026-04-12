@@ -1,12 +1,13 @@
 # send_welcome.py
 # Teesra — Beautiful welcome email sent immediately on subscription
 
-import resend
+import requests
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-resend.api_key = os.getenv("RESEND_API_KEY")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+BREVO_SMTP_URL = "https://api.brevo.com/v3/smtp/email"
 
 FROM_ADDRESS = "Teesra <brief@teesra.in>"
 
@@ -143,17 +144,31 @@ def send_welcome_email(subscriber_email: str) -> bool:
 </body>
 </html>"""
 
-    params = {
-        "from": FROM_ADDRESS,
-        "to": [subscriber_email],
-        "subject": "Welcome to Teesra — your morning brief starts tomorrow ☀️",
-        "html": html_content
-    }
-
     try:
-        response = resend.Emails.send(params)
-        print(f"✅ Welcome email sent to {subscriber_email} (ID: {response['id']})")
-        return True
+        response = requests.post(
+            BREVO_SMTP_URL,
+            headers={
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json"
+            },
+            json={
+                "sender": {
+                    "name": "Teesra",
+                    "email": "brief@teesra.in"
+                },
+                "to": [{"email": subscriber_email}],
+                "subject": "Welcome to Teesra — your morning brief starts tomorrow ☀️",
+                "htmlContent": html_content
+            },
+            timeout=15
+        )
+        if response.status_code == 201:
+            data = response.json()
+            print(f"✅ Welcome email sent to {subscriber_email} (ID: {data.get('messageId', 'n/a')})")
+            return True
+        else:
+            print(f"⚠️ Welcome email failed: {response.text}")
+            return False
     except Exception as e:
         print(f"❌ Welcome email failed for {subscriber_email}: {e}")
         return False

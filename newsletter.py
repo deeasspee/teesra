@@ -3,7 +3,7 @@
 # Pulls today's articles from Supabase and sends formatted email
 
 import os
-import resend
+import requests
 from collections import defaultdict
 from dotenv import load_dotenv
 from database import get_todays_articles, get_all_subscribers
@@ -11,7 +11,8 @@ from datetime import date
 from market_data import fetch_market_data, format_market_for_email
 
 load_dotenv()
-resend.api_key = os.getenv("RESEND_API_KEY")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+BREVO_SMTP_URL = "https://api.brevo.com/v3/smtp/email"
 
 
 # ── STORY TYPE CONFIG ─────────────────────────────────────────────
@@ -284,18 +285,34 @@ def send_newsletter(to_email: str):
     # ── FROM ADDRESS ──────────────────────────────────────────────
     FROM_ADDRESS = "Teesra <brief@teesra.in>"
 
-    params = {
-        "from": FROM_ADDRESS,
-        "to": [to_email],
-        "subject": f"☀️ Teesra Brief — {today} · {len(articles)} stories ",
-        "html": html
+    payload = {
+        "sender": {
+            "name": "Teesra",
+            "email": "brief@teesra.in"
+        },
+        "to": [{"email": to_email}],
+        "subject": f"☀️ Teesra Brief — {today} · {len(articles)} stories",
+        "htmlContent": html
     }
 
     try:
-        response = resend.Emails.send(params)
-        print(f"✅ Newsletter sent to {to_email}")
-        print(f"   Email ID: {response['id']}")
-        return True
+        response = requests.post(
+            BREVO_SMTP_URL,
+            headers={
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json"
+            },
+            json=payload,
+            timeout=15
+        )
+        if response.status_code == 201:
+            data = response.json()
+            print(f"✅ Newsletter sent to {to_email}")
+            print(f"   Message ID: {data.get('messageId', 'n/a')}")
+            return True
+        else:
+            print(f"❌ Brevo error {response.status_code}: {response.text}")
+            return False
     except Exception as e:
         print(f"❌ Failed to send to {to_email}: {e}")
         return False
