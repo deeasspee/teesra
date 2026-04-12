@@ -467,9 +467,14 @@ function showToast(msg, dur = 2500) {
   setTimeout(() => el.remove(), dur);
 }
 
+// ── SUPABASE CLIENT ───────────────────────────────────────────────
+const sbClient = window.supabase.createClient(
+  'https://mcqgigetchudnaumxvsm.supabase.co',
+  'YOUR_SUPABASE_ANON_KEY'
+);
+
 // ── AUTH + DASHBOARD ──────────────────────────────────────────────
-let _sb     = null;
-let _jwt    = null;
+let _jwt     = null;
 let _allSubs = [];
 let _sortKey = 'created_at';
 let _sortAsc = false;
@@ -479,57 +484,61 @@ const TeesraAuth = window.TeesraAuth = {
 
   async init() {
     try {
-      const cfg = await fetch('/api/config').then(r => r.json());
-      if (cfg.supabase_url && cfg.supabase_anon_key)
-        _sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key);
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session) {
+        this.user = session.user;
+        _jwt = session.access_token;
+        await this.loadRole();
+      }
+      sbClient.auth.onAuthStateChange(async (event, session) => {
+        this.user = session?.user || null;
+        _jwt = session?.access_token || null;
+        if (this.user) await this.loadRole();
+        else { this.role = null; }
+        this.updateUI();
+      });
     } catch(e) {
       showAccessDenied('Cannot connect to auth service.');
       return;
     }
-    if (!_sb) { showAccessDenied('Auth not configured.'); return; }
-
-    const { data: { session } } = await _sb.auth.getSession();
-    if (session) {
-      this.user = session.user;
-      _jwt = session.access_token;
-      await this.loadRole();
-    }
-
-    _sb.auth.onAuthStateChange(async (event, session) => {
-      this.user = session?.user || null;
-      _jwt = session?.access_token || null;
-      if (this.user) await this.loadRole();
-      else { this.role = null; }
-      this.updateUI();
-    });
-
     this.updateUI();
     checkAccess();
   },
 
   async loadRole() {
-    if (!_sb || !this.user) return;
-    const { data } = await _sb.from('subscribers')
-      .select('role, name, avatar_url').eq('auth_uid', this.user.id).maybeSingle();
-    const p = this.user.user_metadata || {};
-    this.role      = data?.role       || 'subscriber';
-    this.userName  = data?.name       || p.full_name || this.user.email.split('@')[0];
-    this.avatarUrl = data?.avatar_url || p.avatar_url || null;
+    try {
+      const { data } = await sbClient.from('subscribers')
+        .select('role, name, avatar_url').eq('auth_uid', this.user.id).single();
+      if (data) {
+        this.role      = data.role       || 'subscriber';
+        this.userName  = data.name       || this.user.email.split('@')[0];
+        this.avatarUrl = data.avatar_url || null;
+      }
+    } catch(e) {
+      const p = this.user.user_metadata || {};
+      this.role      = 'subscriber';
+      this.userName  = p.full_name || this.user.email.split('@')[0];
+      this.avatarUrl = p.avatar_url || null;
+    }
   },
 
   async signInWithGoogle() {
-    if (!_sb) return;
-    await _sb.auth.signInWithOAuth({ provider: 'google',
-      options: { redirectTo: window.location.href } });
+    try {
+      await sbClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: 'https://teesra.in/feed' }
+      });
+    } catch(e) { console.error('signInWithGoogle error:', e); }
   },
 
   async signOut() {
-    if (_sb) await _sb.auth.signOut();
+    try { await sbClient.auth.signOut(); } catch(e) {}
     this.user = null; this.role = null; _jwt = null;
     window.location.href = '/';
   },
 
-  isAdmin() { return this.role === 'admin'; },
+  isAdmin()    { return this.role === 'admin'; },
+  isSignedIn() { return this.user !== null; },
 
   updateUI() {
     const userMenu = document.getElementById('auth-user-menu');
@@ -537,7 +546,7 @@ const TeesraAuth = window.TeesraAuth = {
       userMenu.style.display = 'flex';
       const nameEl = document.getElementById('auth-user-name');
       const avEl   = document.getElementById('auth-user-avatar');
-      if (nameEl) nameEl.textContent = this.userName || this.user.email;
+      if (nameEl) nameEl.textContent = (this.userName || this.user.email).split(' ')[0];
       if (avEl && this.avatarUrl) { avEl.src = this.avatarUrl; avEl.style.display = 'block'; }
     }
   }

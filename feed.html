@@ -9,6 +9,7 @@
   <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a120e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Teesra">
@@ -1623,11 +1624,11 @@
         SIGN IN
       </button>
       <div id="auth-user-menu" style="display:none;align-items:center;gap:8px;flex-shrink:0;">
-        <img id="auth-user-avatar" style="display:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--facts);" src="" alt="avatar">
-        <span id="auth-user-name" style="font-size:11px;color:var(--text);font-family:'DM Mono',monospace;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-        <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:12px;font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;">OUT</button>
+        <img id="auth-user-avatar" style="display:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--facts);object-fit:cover;" src="" alt="avatar">
+        <span id="auth-user-name" style="font-size:11px;color:var(--facts);font-family:monospace;letter-spacing:1px;font-weight:700;"></span>
+        <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:12px;font-size:10px;font-family:monospace;cursor:pointer;letter-spacing:0.5px;">SIGN OUT</button>
       </div>
-      <a id="nav-admin-link" href="/admin" style="display:none;font-size:11px;color:var(--facts);font-family:'DM Mono',monospace;letter-spacing:1px;text-decoration:none;white-space:nowrap;flex-shrink:0;">ADMIN</a>
+      <a id="nav-admin-link" href="/admin" style="display:none;font-size:10px;color:var(--facts);font-family:monospace;letter-spacing:1.5px;text-decoration:none;border:1px solid var(--facts);padding:3px 8px;border-radius:12px;white-space:nowrap;flex-shrink:0;">⚡ ADMIN</a>
       <!-- Theme swatch -->
       <div class="theme-wrap" style="position:relative;">
         <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleFeedThemePicker(event)" title="Change theme" aria-label="Change theme">
@@ -1644,6 +1645,18 @@
       </button>
     </div>
   </nav>
+
+  <!-- SIGNED-IN PERKS BANNER -->
+  <div id="signed-in-perks" style="display:none;">
+    <div style="background:linear-gradient(135deg,var(--surface) 0%,color-mix(in srgb,var(--facts) 8%,var(--surface)) 100%);border-bottom:1px solid var(--border);padding:6px 20px;display:flex;align-items:center;gap:16px;font-size:11px;font-family:monospace;color:var(--text-mid);letter-spacing:0.5px;flex-wrap:wrap;">
+      <span style="color:var(--facts);">✦ TEESRA MEMBER</span>
+      <span>✓ Crossword unlocked</span>
+      <span>✓ 5-day archive</span>
+      <span>✓ AI chat enabled</span>
+      <span>✓ Bias meter</span>
+      <span id="perk-admin-badge" style="display:none;color:var(--facts);font-weight:700;">⚡ ADMIN ACCESS</span>
+    </div>
+  </div>
 
   <!-- HERO -->
   <div class="feed-hero">
@@ -2991,96 +3004,111 @@
 
   <!-- ── TEESRA AUTH ─────────────────────────────────────────── -->
   <script>
-  (function() {
-    let _sb = null;
-    const TeesraAuth = window.TeesraAuth = {
-      user: null, role: null, userName: null, avatarUrl: null,
+  const sbClient = window.supabase.createClient(
+    'https://mcqgigetchudnaumxvsm.supabase.co',
+    'YOUR_SUPABASE_ANON_KEY'
+  );
 
-      async init() {
-        try {
-          const cfg = await fetch('/api/config').then(r => r.json());
-          if (cfg.supabase_url && cfg.supabase_anon_key) {
-            _sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key);
-          }
-        } catch(e) { return; }
-        if (!_sb) return;
+  const TeesraAuth = window.TeesraAuth = {
+    user: null, role: null, userName: null, avatarUrl: null,
 
-        const { data: { session } } = await _sb.auth.getSession();
-        if (session) {
+    async init() {
+      try {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session?.user) {
           this.user = session.user;
-          await this.ensureSubscriber();
           await this.loadRole();
         }
-        _sb.auth.onAuthStateChange(async (event, session) => {
+        sbClient.auth.onAuthStateChange(async (event, session) => {
           this.user = session?.user || null;
-          if (this.user) { await this.ensureSubscriber(); await this.loadRole(); }
-          else { this.role = null; this.userName = null; this.avatarUrl = null; }
+          if (this.user) {
+            await this.loadRole();
+          } else {
+            this.role = null; this.userName = null; this.avatarUrl = null;
+          }
           this.updateUI();
         });
-        this.updateUI();
-      },
+      } catch(e) {
+        console.error('TeesraAuth init error:', e);
+      }
+      this.updateUI();
+    },
 
-      async ensureSubscriber() {
-        if (!_sb || !this.user) return;
-        const p = this.user.user_metadata || {};
-        await _sb.from('subscribers').upsert({
-          auth_uid: this.user.id,
-          email: this.user.email,
-          name: p.full_name || this.user.email.split('@')[0],
-          avatar_url: p.avatar_url || null,
-          is_active: true,
-        }, { onConflict: 'email' });
-      },
-
-      async loadRole() {
-        if (!_sb || !this.user) return;
-        const { data } = await _sb.from('subscribers')
+    async loadRole() {
+      try {
+        const { data } = await sbClient
+          .from('subscribers')
           .select('role, name, avatar_url')
           .eq('auth_uid', this.user.id)
-          .maybeSingle();
-        const p = this.user.user_metadata || {};
-        this.role     = data?.role      || 'subscriber';
-        this.userName = data?.name      || p.full_name || this.user.email.split('@')[0];
-        this.avatarUrl= data?.avatar_url|| p.avatar_url|| null;
-      },
-
-      async signInWithGoogle() {
-        if (!_sb) return;
-        await _sb.auth.signInWithOAuth({ provider: 'google',
-          options: { redirectTo: window.location.href } });
-      },
-
-      async signOut() {
-        if (_sb) await _sb.auth.signOut();
-        this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
-        this.updateUI();
-      },
-
-      isAdmin()      { return this.role === 'admin'; },
-      isSubscriber() { return this.user !== null; },
-
-      updateUI() {
-        const signInBtn = document.getElementById('auth-signin-btn');
-        const userMenu  = document.getElementById('auth-user-menu');
-        const adminLink = document.getElementById('nav-admin-link');
-        if (this.user) {
-          if (signInBtn) signInBtn.style.display = 'none';
-          if (userMenu)  { userMenu.style.display = 'flex';
-            const nameEl   = document.getElementById('auth-user-name');
-            const avatarEl = document.getElementById('auth-user-avatar');
-            if (nameEl)   nameEl.textContent = this.userName || '';
-            if (avatarEl && this.avatarUrl) { avatarEl.src = this.avatarUrl; avatarEl.style.display = 'block'; }
-          }
-          if (adminLink) adminLink.style.display = this.isAdmin() ? 'inline' : 'none';
-        } else {
-          if (signInBtn) signInBtn.style.display = 'flex';
-          if (userMenu)  userMenu.style.display  = 'none';
-          if (adminLink) adminLink.style.display  = 'none';
+          .single();
+        if (data) {
+          this.role      = data.role      || 'subscriber';
+          this.userName  = data.name      || this.user.email.split('@')[0];
+          this.avatarUrl = data.avatar_url || null;
         }
+      } catch(e) {
+        console.error('loadRole error:', e);
+        const p = this.user.user_metadata || {};
+        this.role      = 'subscriber';
+        this.userName  = p.full_name || this.user.email.split('@')[0];
+        this.avatarUrl = p.avatar_url || null;
       }
-    };
-    document.addEventListener('DOMContentLoaded', () => TeesraAuth.init());
-  })();
+    },
+
+    async signInWithGoogle() {
+      try {
+        const { error } = await sbClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: 'https://teesra.in/feed' }
+        });
+        if (error) console.error('Sign in error:', error);
+      } catch(e) {
+        console.error('signInWithGoogle error:', e);
+      }
+    },
+
+    async signOut() {
+      try { await sbClient.auth.signOut(); } catch(e) { console.error('signOut error:', e); }
+      this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
+      this.updateUI();
+    },
+
+    isAdmin()    { return this.role === 'admin'; },
+    isSignedIn() { return this.user !== null; },
+
+    updateUI() {
+      const signInBtn  = document.getElementById('auth-signin-btn');
+      const userMenu   = document.getElementById('auth-user-menu');
+      const adminLink  = document.getElementById('nav-admin-link');
+      const nameEl     = document.getElementById('auth-user-name');
+      const avatarEl   = document.getElementById('auth-user-avatar');
+      const perksBar   = document.getElementById('signed-in-perks');
+      const adminBadge = document.getElementById('perk-admin-badge');
+
+      if (this.user) {
+        if (signInBtn) signInBtn.style.display = 'none';
+        if (userMenu)  userMenu.style.display  = 'flex';
+        if (nameEl) {
+          const firstName = (this.userName || this.user.email).split(' ')[0];
+          nameEl.textContent = firstName;
+        }
+        if (avatarEl && this.avatarUrl) {
+          avatarEl.src = this.avatarUrl;
+          avatarEl.style.display = 'block';
+        }
+        if (adminLink)  adminLink.style.display  = this.isAdmin() ? 'inline-block' : 'none';
+        if (perksBar)   perksBar.style.display   = 'block';
+        if (adminBadge) adminBadge.style.display = this.isAdmin() ? 'inline' : 'none';
+      } else {
+        if (signInBtn) signInBtn.style.display = 'flex';
+        if (userMenu)  userMenu.style.display  = 'none';
+        if (adminLink) adminLink.style.display = 'none';
+        if (perksBar)  perksBar.style.display  = 'none';
+      }
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => { TeesraAuth.init(); });
   </script>
 
 </body>

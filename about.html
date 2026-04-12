@@ -12,6 +12,8 @@
 </script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>About — Teesra</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -805,77 +807,85 @@
 
 <!-- ── TEESRA AUTH ─────────────────────────────────────────── -->
 <script>
-(function() {
-  let _sb = null;
-  const TeesraAuth = window.TeesraAuth = {
-    user: null, role: null, userName: null, avatarUrl: null,
-    async init() {
-      try {
-        const cfg = await fetch('/api/config').then(r => r.json());
-        if (cfg.supabase_url && cfg.supabase_anon_key)
-          _sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key);
-      } catch(e) { return; }
-      if (!_sb) return;
-      const { data: { session } } = await _sb.auth.getSession();
-      if (session) { this.user = session.user; await this.ensureSubscriber(); await this.loadRole(); }
-      _sb.auth.onAuthStateChange(async (event, session) => {
+const sbClient = window.supabase.createClient(
+  'https://mcqgigetchudnaumxvsm.supabase.co',
+  'YOUR_SUPABASE_ANON_KEY'
+);
+
+const TeesraAuth = window.TeesraAuth = {
+  user: null, role: null, userName: null, avatarUrl: null,
+
+  async init() {
+    try {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session?.user) { this.user = session.user; await this.loadRole(); }
+      sbClient.auth.onAuthStateChange(async (event, session) => {
         this.user = session?.user || null;
-        if (this.user) { await this.ensureSubscriber(); await this.loadRole(); }
+        if (this.user) { await this.loadRole(); }
         else { this.role = null; this.userName = null; this.avatarUrl = null; }
         this.updateUI();
       });
-      this.updateUI();
-    },
-    async ensureSubscriber() {
-      if (!_sb || !this.user) return;
-      const p = this.user.user_metadata || {};
-      await _sb.from('subscribers').upsert({
-        auth_uid: this.user.id, email: this.user.email,
-        name: p.full_name || this.user.email.split('@')[0],
-        avatar_url: p.avatar_url || null, is_active: true,
-      }, { onConflict: 'email' });
-    },
-    async loadRole() {
-      if (!_sb || !this.user) return;
-      const { data } = await _sb.from('subscribers')
-        .select('role, name, avatar_url').eq('auth_uid', this.user.id).maybeSingle();
-      const p = this.user.user_metadata || {};
-      this.role      = data?.role       || 'subscriber';
-      this.userName  = data?.name       || p.full_name || this.user.email.split('@')[0];
-      this.avatarUrl = data?.avatar_url || p.avatar_url || null;
-    },
-    async signInWithGoogle() {
-      if (!_sb) return;
-      await _sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
-    },
-    async signOut() {
-      if (_sb) await _sb.auth.signOut();
-      this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
-      this.updateUI();
-    },
-    isAdmin() { return this.role === 'admin'; },
-    updateUI() {
-      const signInBtn = document.getElementById('auth-signin-btn');
-      const userMenu  = document.getElementById('auth-user-menu');
-      const adminLink = document.getElementById('nav-admin-link');
-      if (this.user) {
-        if (signInBtn) signInBtn.style.display = 'none';
-        if (userMenu)  { userMenu.style.display = 'flex';
-          const nameEl = document.getElementById('auth-user-name');
-          const avEl   = document.getElementById('auth-user-avatar');
-          if (nameEl) nameEl.textContent = this.userName || '';
-          if (avEl && this.avatarUrl) { avEl.src = this.avatarUrl; avEl.style.display = 'block'; }
-        }
-        if (adminLink) adminLink.style.display = this.isAdmin() ? 'inline' : 'none';
-      } else {
-        if (signInBtn) signInBtn.style.display = 'flex';
-        if (userMenu)  userMenu.style.display  = 'none';
-        if (adminLink) adminLink.style.display  = 'none';
+    } catch(e) { console.error('TeesraAuth init error:', e); }
+    this.updateUI();
+  },
+
+  async loadRole() {
+    try {
+      const { data } = await sbClient.from('subscribers')
+        .select('role, name, avatar_url').eq('auth_uid', this.user.id).single();
+      if (data) {
+        this.role = data.role || 'subscriber';
+        this.userName = data.name || this.user.email.split('@')[0];
+        this.avatarUrl = data.avatar_url || null;
       }
+    } catch(e) {
+      const p = this.user.user_metadata || {};
+      this.role = 'subscriber';
+      this.userName = p.full_name || this.user.email.split('@')[0];
+      this.avatarUrl = p.avatar_url || null;
     }
-  };
-  document.addEventListener('DOMContentLoaded', () => TeesraAuth.init());
-})();
+  },
+
+  async signInWithGoogle() {
+    try {
+      const { error } = await sbClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: 'https://teesra.in/feed' }
+      });
+      if (error) console.error('Sign in error:', error);
+    } catch(e) { console.error('signInWithGoogle error:', e); }
+  },
+
+  async signOut() {
+    try { await sbClient.auth.signOut(); } catch(e) { console.error('signOut error:', e); }
+    this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
+    this.updateUI();
+  },
+
+  isAdmin()    { return this.role === 'admin'; },
+  isSignedIn() { return this.user !== null; },
+
+  updateUI() {
+    const signInBtn = document.getElementById('auth-signin-btn');
+    const userMenu  = document.getElementById('auth-user-menu');
+    const adminLink = document.getElementById('nav-admin-link');
+    const nameEl    = document.getElementById('auth-user-name');
+    const avatarEl  = document.getElementById('auth-user-avatar');
+    if (this.user) {
+      if (signInBtn) signInBtn.style.display = 'none';
+      if (userMenu)  userMenu.style.display  = 'flex';
+      if (nameEl) nameEl.textContent = (this.userName || this.user.email).split(' ')[0];
+      if (avatarEl && this.avatarUrl) { avatarEl.src = this.avatarUrl; avatarEl.style.display = 'block'; }
+      if (adminLink) adminLink.style.display = this.isAdmin() ? 'inline-block' : 'none';
+    } else {
+      if (signInBtn) signInBtn.style.display = 'flex';
+      if (userMenu)  userMenu.style.display  = 'none';
+      if (adminLink) adminLink.style.display = 'none';
+    }
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => { TeesraAuth.init(); });
 </script>
 </body>
 </html>
