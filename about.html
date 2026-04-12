@@ -819,12 +819,44 @@ const TeesraAuth = window.TeesraAuth = {
     try {
       const { data: { session } } = await sbClient.auth.getSession();
       if (session?.user) { this.user = session.user; await this.loadRole(); }
-      sbClient.auth.onAuthStateChange(async (event, session) => {
-        this.user = session?.user || null;
-        if (this.user) { await this.loadRole(); }
-        else { this.role = null; this.userName = null; this.avatarUrl = null; }
-        this.updateUI();
-      });
+      sbClient.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === 'SIGNED_IN' && session?.user) {
+            this.user = session.user;
+
+            // Sync user to subscribers table via Flask
+            // (bypasses Supabase trigger permission issues)
+            try {
+              const meta = session.user.user_metadata || {};
+              await fetch('/api/auth/sync', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  email:      session.user.email,
+                  auth_uid:   session.user.id,
+                  name:       meta.full_name ||
+                              meta.name || '',
+                  avatar_url: meta.avatar_url ||
+                              meta.picture || ''
+                })
+              });
+            } catch(e) {
+              console.error('Auth sync error:', e);
+            }
+
+            await this.loadRole();
+
+          } else if (event === 'SIGNED_OUT') {
+            this.user = null;
+            this.role = null;
+            this.userName = null;
+            this.avatarUrl = null;
+          }
+          this.updateUI();
+        }
+      );
     } catch(e) { console.error('TeesraAuth init error:', e); }
     this.updateUI();
   },

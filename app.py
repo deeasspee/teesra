@@ -91,6 +91,54 @@ def get_config():
     return resp
 
 
+# ── AUTH SYNC (replaces trigger) ─────────────────────────────────
+@app.route("/api/auth/sync", methods=["POST"])
+def sync_auth_user():
+    """
+    Called by frontend after Google OAuth sign-in succeeds.
+    Uses service_role key (via get_client) to bypass RLS entirely.
+    Replaces the Supabase trigger which failed due to schema
+    permission issues.
+    """
+    try:
+        from database import get_client
+        from datetime import datetime
+
+        data       = request.json or {}
+        email      = data.get('email', '').strip().lower()
+        auth_uid   = data.get('auth_uid', '').strip()
+        name       = data.get('name', '').strip()
+        avatar_url = data.get('avatar_url', '').strip()
+
+        if not email or not auth_uid:
+            return jsonify({"error": "Missing email or auth_uid"}), 400
+
+        # Admin check
+        ADMIN_EMAIL = 'dsp.fiem@gmail.com'
+        role = 'admin' if email == ADMIN_EMAIL else 'subscriber'
+
+        client = get_client()
+        client.table('subscribers').upsert(
+            {
+                'email':       email,
+                'auth_uid':    auth_uid,
+                'name':        name,
+                'avatar_url':  avatar_url,
+                'is_active':   True,
+                'role':        role,
+                'last_sign_in': datetime.now().isoformat(),
+            },
+            on_conflict='email'
+        ).execute()
+
+        print(f"  ✅ Auth sync: {email} ({role})")
+        return jsonify({"success": True, "role": role})
+
+    except Exception as e:
+        print(f"  ❌ Auth sync error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 # ── AUTH MIDDLEWARE ───────────────────────────────────────────────
 def get_auth_user(req):
     """Extract and verify Supabase JWT from Authorization header."""
