@@ -817,6 +817,14 @@ def unsubscribe():
 
 
 # ── CROSSWORD ─────────────────────────────────────────────────────
+@app.route("/privacy")
+def privacy():
+    return send_from_directory(".", "privacy.html")
+
+@app.route("/terms")
+def terms():
+    return send_from_directory(".", "terms.html")
+
 @app.route("/crossword")
 def crossword():
     return send_from_directory(".", "crossword.html")

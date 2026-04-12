@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="jungle">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MG22YJD5S2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MG22YJD5S2');
+</script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Terms of Use — Teesra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    [data-theme="jungle"]{--bg:#0a120e;--surface:#162018;--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;}
+    [data-theme="cosmos"]{--bg:#0d1117;--surface:#1a2332;--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;}
+    [data-theme="ember"]{--bg:#141410;--surface:#242420;--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;}
+    [data-theme="dawn"]{--bg:#faf7f0;--surface:#ffffff;--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;}
+    [data-theme="cloud"]{--bg:#f4f6fa;--surface:#ffffff;--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;}
+    [data-theme="parchment"]{--bg:#f5f0e4;--surface:#faf6ec;--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;}
+    .theme-wrap{position:relative;}
+    .theme-swatch-btn{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s;}
+    .theme-swatch-btn:hover{border-color:var(--facts);}
+    .swatch-inner{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .s1{grid-column:1/-1;}
+    .theme-picker{display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--bg);border:1px solid var(--border);padding:12px;z-index:500;width:210px;box-shadow:0 12px 32px rgba(0,0,0,0.3);}
+    .theme-picker.open{display:block;}
+    .tp-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+    .tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .tp-opt{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:6px;border:1px solid var(--border);transition:border-color 0.2s;}
+    .tp-opt:hover,.tp-opt.active{border-color:var(--facts);}
+    .tp-swatch{height:24px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .ts1{grid-column:1/-1;}
+    .tp-name{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0a0e14;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      animation: blobshift 20s ease-in-out infinite alternate;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      transition: color 0.4s;
+    }
+    @keyframes blobshift {
+      0% {
+        background-image:
+          radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+          radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+          radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      }
+      33% {
+        background-image:
+          radial-gradient(ellipse at 70% 30%, rgba(88, 28, 135, 0.30) 0%, transparent 50%),
+          radial-gradient(ellipse at 20% 60%, rgba(15, 118, 110, 0.35) 0%, transparent 45%),
+          radial-gradient(ellipse at 80% 70%, rgba(30, 27, 75, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 10%, rgba(127, 29, 29, 0.25) 0%, transparent 45%),
+          radial-gradient(ellipse at 30% 80%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      }
+      66% {
+        background-image:
+          radial-gradient(ellipse at 50% 70%, rgba(88, 28, 135, 0.25) 0%, transparent 50%),
+          radial-gradient(ellipse at 90% 40%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 20% 30%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 80%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 20%, rgba(12, 74, 110, 0.35) 0%, transparent 40%);
+      }
+      100% {
+        background-image:
+          radial-gradient(ellipse at 30% 50%, rgba(88, 28, 135, 0.30) 0%, transparent 50%),
+          radial-gradient(ellipse at 60% 20%, rgba(15, 118, 110, 0.25) 0%, transparent 45%),
+          radial-gradient(ellipse at 40% 90%, rgba(30, 27, 75, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 30%, rgba(127, 29, 29, 0.30) 0%, transparent 45%),
+          radial-gradient(ellipse at 10% 40%, rgba(12, 74, 110, 0.25) 0%, transparent 40%);
+      }
+    }
+    @keyframes blobshift-light {
+      0%   { filter: hue-rotate(0deg); }
+      50%  { filter: hue-rotate(15deg); }
+      100% { filter: hue-rotate(0deg); }
+    }
+    [data-theme="jungle"] body { background-color: #080f0a; }
+    [data-theme="cosmos"] body { background-color: #08090f; }
+    [data-theme="ember"]  body { background-color: #0f0a08; }
+    [data-theme="dawn"] body {
+      background-color: #faf7f0;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(184, 116, 0, 0.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(180, 100, 20, 0.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(200, 140, 40, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(160, 80, 0, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(140, 60, 0, 0.10) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="cloud"] body {
+      background-color: #f4f6fa;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(26, 79, 200, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(10, 138, 122, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(40, 80, 200, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(60, 100, 220, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(20, 60, 180, 0.08) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    [data-theme="parchment"] body {
+      background-color: #f5f0e4;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(138, 26, 42, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(106, 42, 10, 0.08) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(120, 40, 30, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(100, 30, 20, 0.07) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(90, 20, 10, 0.08) 0%, transparent 40%);
+      animation: blobshift-light 25s ease-in-out infinite alternate;
+    }
+    /* Light theme frosted glass */
+    [data-theme="dawn"] .about-wrap      { background: rgba(250,247,240,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
+    [data-theme="cloud"] .about-wrap     { background: rgba(244,246,250,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
+    [data-theme="parchment"] .about-wrap { background: rgba(245,240,228,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; margin-top: 20px; margin-bottom: 20px; }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--facts);
+      text-decoration: none;
+    }
+    .nav-logo span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      display: block;
+      margin-top: -3px;
+    }
+    .nav-back {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    .about-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--facts);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: 8px;
+    }
+    .page-subtitle {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-bottom: 56px;
+    }
+
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      margin-top: 48px;
+      letter-spacing: -0.3px;
+    }
+
+    .prose p {
+      font-size: 16px;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .prose p strong { color: var(--text); font-weight: 500; }
+    .prose ul {
+      list-style: none;
+      margin: 0 0 16px 0;
+      padding: 0;
+    }
+    .prose ul li {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.75;
+      padding: 4px 0 4px 20px;
+      position: relative;
+    }
+    .prose ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--facts);
+      font-size: 11px;
+      top: 7px;
+    }
+    .prose a {
+      color: var(--facts);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(212,168,32,0.3);
+    }
+    .prose a:hover { border-bottom-color: var(--facts); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .page-footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .page-footer a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+    .page-footer a:hover { color: var(--facts); }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .about-wrap { padding: 48px 20px; }
+      .page-title { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">
+      Teesra
+      <span>तीसरा नज़रिया</span>
+    </a>
+    <a href="/" class="nav-back">← Home</a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="auth-signin-btn" onclick="TeesraAuth.signInWithGoogle()" title="Sign in" style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:transparent;border:1px solid var(--facts);color:var(--facts);border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer;white-space:nowrap;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        SIGN IN
+      </button>
+      <div id="auth-user-menu" style="display:none;align-items:center;gap:8px;">
+        <img id="auth-user-avatar" style="display:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--facts);" src="" alt="avatar">
+        <span id="auth-user-name" style="font-size:11px;color:var(--text);font-family:'DM Mono',monospace;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:12px;font-size:10px;cursor:pointer;">Sign out</button>
+      </div>
+      <a id="nav-admin-link" href="/admin" style="display:none;font-size:11px;color:var(--facts);font-family:'DM Mono',monospace;letter-spacing:1px;text-decoration:none;">ADMIN</a>
+    </div>
+    <div class="theme-wrap" style="position:relative;">
+      <button class="theme-swatch-btn" onclick="toggleAboutPicker(event)" title="Change theme" aria-label="Change theme">
+        <div class="swatch-inner"><div class="s1" id="asw1"></div><div class="s2" id="asw2"></div><div class="s3" id="asw3"></div></div>
+      </button>
+      <div class="theme-picker" id="aboutPicker">
+        <div class="tp-title">Choose theme</div>
+        <div class="tp-grid" id="aboutThemeGrid"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="about-wrap">
+
+    <p class="page-eyebrow">Legal</p>
+    <h1 class="page-title">Terms of Use</h1>
+    <p class="page-subtitle">Last updated: April 2026</p>
+
+    <div class="prose">
+
+      <p class="section-num">01</p>
+      <h2 class="section-heading">Acceptance</h2>
+      <p>By using Teesra (<a href="https://teesra.in">teesra.in</a>), you agree to these terms. If you do not agree, please do not use the service.</p>
+
+      <hr class="divider">
+
+      <p class="section-num">02</p>
+      <h2 class="section-heading">What Teesra Is</h2>
+      <p>Teesra is a daily AI-powered news brief. It aggregates publicly available news from multiple sources and presents analysis generated by artificial intelligence (Anthropic Claude API).</p>
+      <p>Teesra is:</p>
+      <ul>
+        <li>A summarisation and analysis tool, not a news publisher</li>
+        <li>Not responsible for the accuracy of original source articles</li>
+        <li>Not affiliated with any political party, media organisation, or ideology</li>
+      </ul>
+
+      <hr class="divider">
+
+      <p class="section-num">03</p>
+      <h2 class="section-heading">AI-Generated Content</h2>
+      <ul>
+        <li>Story analysis (facts, left lens, right lens, street pulse) is generated by AI</li>
+        <li>AI can make errors — always read original sources for critical decisions</li>
+        <li>The left/right framing is a journalistic tool to show perspective, not Teesra's opinion</li>
+        <li>Teesra's crossword clues and quiz questions are AI-generated and may occasionally be inaccurate</li>
+      </ul>
+
+      <hr class="divider">
+
+      <p class="section-num">04</p>
+      <h2 class="section-heading">Acceptable Use</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Scrape or systematically copy Teesra's content</li>
+        <li>Use Teesra's API endpoints for commercial purposes without permission</li>
+        <li>Attempt to reverse-engineer the pipeline or AI prompts</li>
+        <li>Use the service to spread misinformation</li>
+      </ul>
+
+      <hr class="divider">
+
+      <p class="section-num">05</p>
+      <h2 class="section-heading">Intellectual Property</h2>
+      <ul>
+        <li>Teesra's design, code, and product are the property of Divyendu Shekhar</li>
+        <li>Original news content belongs to its respective publishers — Teesra links to and summarises, it does not reproduce in full</li>
+        <li>AI-generated analysis is produced under Anthropic's usage policies</li>
+      </ul>
+
+      <hr class="divider">
+
+      <p class="section-num">06</p>
+      <h2 class="section-heading">Disclaimer</h2>
+      <p>Teesra is provided "as is" without warranty. We do not guarantee:</p>
+      <ul>
+        <li>Uninterrupted daily delivery (pipeline may occasionally fail)</li>
+        <li>100% accuracy of AI-generated analysis</li>
+        <li>Completeness of news coverage</li>
+      </ul>
+
+      <hr class="divider">
+
+      <p class="section-num">07</p>
+      <h2 class="section-heading">Limitation of Liability</h2>
+      <p>Teesra is a free, independently operated product. We are not liable for any decisions made based on content read on Teesra.</p>
+
+      <hr class="divider">
+
+      <p class="section-num">08</p>
+      <h2 class="section-heading">Changes to Service</h2>
+      <p>We reserve the right to modify, pause, or discontinue any part of Teesra at any time. Subscribers will be notified of major changes via the newsletter.</p>
+
+      <hr class="divider">
+
+      <p class="section-num">09</p>
+      <h2 class="section-heading">Governing Law</h2>
+      <p>These terms are governed by the laws of India. Any disputes shall be subject to the jurisdiction of courts in West Bengal, India.</p>
+
+      <hr class="divider">
+
+      <p class="section-num">10</p>
+      <h2 class="section-heading">Contact</h2>
+      <p>For any questions about these terms: <a href="mailto:brief@teesra.in">brief@teesra.in</a></p>
+
+    </div>
+
+    <div class="page-footer">
+      <a href="/privacy">Privacy</a> &nbsp;·&nbsp;
+      <a href="/terms">Terms</a> &nbsp;·&nbsp;
+      <a href="mailto:brief@teesra.in">Contact</a>
+    </div>
+
+  </div>
+
+  <script>
+    const A_THEMES = [
+      {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+      {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+      {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+      {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+      {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+      {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+    ];
+    function applyAboutTheme(id) {
+      document.documentElement.setAttribute('data-theme', id);
+      localStorage.setItem('teesra-theme', id);
+      const t = A_THEMES.find(t => t.id === id);
+      if (t) {
+        document.getElementById('asw1').style.background = t.bg;
+        document.getElementById('asw2').style.background = t.a;
+        document.getElementById('asw3').style.background = t.b;
+      }
+      buildAboutGrid(id);
+    }
+    function buildAboutGrid(current) {
+      const g = document.getElementById('aboutThemeGrid');
+      if (!g) return;
+      g.innerHTML = A_THEMES.map(t => `
+        <div class="tp-opt ${t.id===current?'active':''}" onclick="applyAboutTheme('${t.id}');closeAboutPicker();">
+          <div class="tp-swatch"><div class="ts1" style="background:${t.bg}"></div><div style="background:${t.a}"></div><div style="background:${t.b}"></div></div>
+          <span class="tp-name">${t.name}</span>
+        </div>`).join('');
+    }
+    function toggleAboutPicker(e) { e.stopPropagation(); document.getElementById('aboutPicker').classList.toggle('open'); }
+    function closeAboutPicker() { document.getElementById('aboutPicker').classList.remove('open'); }
+    document.addEventListener('click', e => { if (!e.target.closest('.theme-wrap')) closeAboutPicker(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAboutPicker(); });
+    applyAboutTheme(localStorage.getItem('teesra-theme') || 'jungle');
+  </script>
+  <!-- Cloudflare Web Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "62bb87194c184e469a1d92594669ab48"}'></script>
+  <!-- End Cloudflare Web Analytics -->
+
+<!-- ── TEESRA AUTH ─────────────────────────────────────────── -->
+<script>
+const sbClient = window.supabase.createClient(
+  'https://mcqgigetchudnaumxvsm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcWdpZ2V0Y2h1ZG5hdW14dnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjAzODgsImV4cCI6MjA4OTQ5NjM4OH0.7KV3jqaMke31DEcazY7PuFxldmkKh1Uxj5YumwrhSTk',
+  {
+    auth: {
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  }
+);
+
+const TeesraAuth = window.TeesraAuth = {
+  user: null, role: null, userName: null, avatarUrl: null,
+
+  async init() {
+    // Handle OAuth redirect — clean token from URL
+    if (window.location.hash &&
+        window.location.hash.includes('access_token')) {
+      // Supabase client auto-reads the hash and
+      // establishes the session — just clean the URL
+      setTimeout(() => {
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+      }, 1500);
+    }
+    try {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session?.user) { this.user = session.user; await this.loadRole(); }
+      sbClient.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === 'SIGNED_IN' && session?.user) {
+            this.user = session.user;
+
+            // Sync user to subscribers table via Flask
+            // (bypasses Supabase trigger permission issues)
+            try {
+              const meta = session.user.user_metadata || {};
+              await fetch('/api/auth/sync', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  email:      session.user.email,
+                  auth_uid:   session.user.id,
+                  name:       meta.full_name ||
+                              meta.name || '',
+                  avatar_url: meta.avatar_url ||
+                              meta.picture || ''
+                })
+              });
+            } catch(e) {
+              console.error('Auth sync error:', e);
+            }
+
+            await this.loadRole();
+
+          } else if (event === 'SIGNED_OUT') {
+            this.user = null;
+            this.role = null;
+            this.userName = null;
+            this.avatarUrl = null;
+          }
+          this.updateUI();
+        }
+      );
+    } catch(e) { console.error('TeesraAuth init error:', e); }
+    this.updateUI();
+  },
+
+  async loadRole() {
+    try {
+      const { data } = await sbClient.from('subscribers')
+        .select('role, name, avatar_url').eq('auth_uid', this.user.id).single();
+      if (data) {
+        this.role = data.role || 'subscriber';
+        this.userName = data.name || this.user.email.split('@')[0];
+        this.avatarUrl = data.avatar_url || null;
+      }
+    } catch(e) {
+      const p = this.user.user_metadata || {};
+      this.role = 'subscriber';
+      this.userName = p.full_name || this.user.email.split('@')[0];
+      this.avatarUrl = p.avatar_url || null;
+    }
+  },
+
+  async signInWithGoogle() {
+    try {
+      const { error } = await sbClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: 'https://teesra.in/feed' }
+      });
+      if (error) console.error('Sign in error:', error);
+    } catch(e) { console.error('signInWithGoogle error:', e); }
+  },
+
+  async signOut() {
+    try { await sbClient.auth.signOut(); } catch(e) { console.error('signOut error:', e); }
+    this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
+    this.updateUI();
+  },
+
+  isAdmin()    { return this.role === 'admin'; },
+  isSignedIn() { return this.user !== null; },
+
+  updateUI() {
+    const signInBtn = document.getElementById('auth-signin-btn');
+    const userMenu  = document.getElementById('auth-user-menu');
+    const adminLink = document.getElementById('nav-admin-link');
+    const nameEl    = document.getElementById('auth-user-name');
+    const avatarEl  = document.getElementById('auth-user-avatar');
+    if (this.user) {
+      if (signInBtn) signInBtn.style.display = 'none';
+      if (userMenu)  userMenu.style.display  = 'flex';
+      if (nameEl) nameEl.textContent = (this.userName || this.user.email).split(' ')[0];
+      if (avatarEl && this.avatarUrl) { avatarEl.src = this.avatarUrl; avatarEl.style.display = 'block'; }
+      if (adminLink) adminLink.style.display = this.isAdmin() ? 'inline-block' : 'none';
+    } else {
+      if (signInBtn) signInBtn.style.display = 'flex';
+      if (userMenu)  userMenu.style.display  = 'none';
+      if (adminLink) adminLink.style.display = 'none';
+    }
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => { TeesraAuth.init(); });
+</script>
+</body>
+</html>
