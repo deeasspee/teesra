@@ -25,6 +25,7 @@
   <meta name="description" content="Every morning, Teesra delivers India's top stories with verified facts, left lens, right lens and street pulse. AI-powered. Bias-aware. Free."/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     [data-theme="jungle"]{--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.95);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--accent:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--glow:rgba(212,168,32,0.07);--nav-bg:rgba(10,18,14,0.97);}
     [data-theme="cosmos"]{--bg:#0d1117;--bg2:#131a24;--surface:rgba(26,35,50,0.95);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--accent:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--glow:rgba(240,165,0,0.07);--nav-bg:rgba(13,17,23,0.97);}
@@ -415,6 +416,18 @@
     <li><a href="/about">About</a></li>
     <li><a href="#" onclick="event.preventDefault();document.getElementById('qrModal').classList.add('active')">Support Teesra</a></li>
     <li><a href="#signup" class="nav-cta">Subscribe →</a></li>
+    <li style="display:flex;align-items:center;gap:8px;">
+      <button id="auth-signin-btn" onclick="TeesraAuth.signInWithGoogle()" title="Sign in with Google" style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer;white-space:nowrap;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        SIGN IN
+      </button>
+      <div id="auth-user-menu" style="display:none;align-items:center;gap:8px;">
+        <img id="auth-user-avatar" style="display:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--accent);" src="" alt="avatar">
+        <span id="auth-user-name" style="font-size:11px;color:var(--text);font-family:'DM Mono',monospace;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:12px;font-size:10px;cursor:pointer;">Sign out</button>
+      </div>
+      <a id="nav-admin-link" href="/admin" style="display:none;font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;letter-spacing:1px;text-decoration:none;">ADMIN</a>
+    </li>
     <li class="theme-wrap">
       <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleTP(event)" title="Change theme">
         <div class="swatch-inner"><div class="s1" id="sw1"></div><div class="s2" id="sw2"></div><div class="s3" id="sw3"></div></div>
@@ -560,7 +573,7 @@
   <div class="signup-inner">
     <p class="signup-tag">Free · No spam · Unsubscribe anytime</p>
     <h2 class="signup-title">Read smarter every morning.</h2>
-    <p class="signup-desc">Join readers who start their day with Teesra — India's news from all three sides, delivered before 8 AM.</p>
+    <p class="signup-desc">Join readers who start their day with Teesra — India's news from all three sides, delivered before 10 AM.</p>
     <div class="signup-form">
       <input type="email" class="signup-input" id="signupEmail" placeholder="yourname@gmail.com"/>
       <button class="signup-btn" id="signupBtn" onclick="handleSignup()">Subscribe →</button>
@@ -768,5 +781,80 @@ document.querySelectorAll('.side-card,.pillar').forEach(el => {
 <!-- Cloudflare Web Analytics -->
  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "62bb87194c184e469a1d92594669ab48"}'></script>
  <!-- End Cloudflare Web Analytics -->
+
+<!-- ── TEESRA AUTH ─────────────────────────────────────────── -->
+<script>
+(function() {
+  let _sb = null;
+  const TeesraAuth = window.TeesraAuth = {
+    user: null, role: null, userName: null, avatarUrl: null,
+    async init() {
+      try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.supabase_url && cfg.supabase_anon_key)
+          _sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key);
+      } catch(e) { return; }
+      if (!_sb) return;
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) { this.user = session.user; await this.ensureSubscriber(); await this.loadRole(); }
+      _sb.auth.onAuthStateChange(async (event, session) => {
+        this.user = session?.user || null;
+        if (this.user) { await this.ensureSubscriber(); await this.loadRole(); }
+        else { this.role = null; this.userName = null; this.avatarUrl = null; }
+        this.updateUI();
+      });
+      this.updateUI();
+    },
+    async ensureSubscriber() {
+      if (!_sb || !this.user) return;
+      const p = this.user.user_metadata || {};
+      await _sb.from('subscribers').upsert({
+        auth_uid: this.user.id, email: this.user.email,
+        name: p.full_name || this.user.email.split('@')[0],
+        avatar_url: p.avatar_url || null, is_active: true,
+      }, { onConflict: 'email' });
+    },
+    async loadRole() {
+      if (!_sb || !this.user) return;
+      const { data } = await _sb.from('subscribers')
+        .select('role, name, avatar_url').eq('auth_uid', this.user.id).maybeSingle();
+      const p = this.user.user_metadata || {};
+      this.role      = data?.role       || 'subscriber';
+      this.userName  = data?.name       || p.full_name || this.user.email.split('@')[0];
+      this.avatarUrl = data?.avatar_url || p.avatar_url || null;
+    },
+    async signInWithGoogle() {
+      if (!_sb) return;
+      await _sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+    },
+    async signOut() {
+      if (_sb) await _sb.auth.signOut();
+      this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
+      this.updateUI();
+    },
+    isAdmin() { return this.role === 'admin'; },
+    updateUI() {
+      const signInBtn = document.getElementById('auth-signin-btn');
+      const userMenu  = document.getElementById('auth-user-menu');
+      const adminLink = document.getElementById('nav-admin-link');
+      if (this.user) {
+        if (signInBtn) signInBtn.style.display = 'none';
+        if (userMenu)  { userMenu.style.display = 'flex';
+          const nameEl = document.getElementById('auth-user-name');
+          const avEl   = document.getElementById('auth-user-avatar');
+          if (nameEl) nameEl.textContent = this.userName || '';
+          if (avEl && this.avatarUrl) { avEl.src = this.avatarUrl; avEl.style.display = 'block'; }
+        }
+        if (adminLink) adminLink.style.display = this.isAdmin() ? 'inline' : 'none';
+      } else {
+        if (signInBtn) signInBtn.style.display = 'flex';
+        if (userMenu)  userMenu.style.display  = 'none';
+        if (adminLink) adminLink.style.display  = 'none';
+      }
+    }
+  };
+  document.addEventListener('DOMContentLoaded', () => TeesraAuth.init());
+})();
+</script>
 </body>
 </html>

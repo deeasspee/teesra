@@ -67,12 +67,23 @@ def detect_story_type(title, summary, source=""):
         if word in title_lower:
             return "tech"
 
+    # Security keywords — national/cyber security
+    security_keywords = [
+        "border", "military", "army", "defence", "terror",
+        "naxal", "insurgency", "espionage", "surgical strike",
+        "national security", "intelligence", "crpf", "bsf",
+        "cyber attack", "data breach", "hacking", "armed forces",
+        "missile", "drdo", "nuclear", "infiltration",
+    ]
+    for word in security_keywords:
+        if word in title_lower:
+            return "security"
+
     # International keywords
     international_sources = ['Reuters World', 'Al Jazeera']
     if source in ['BBC World', 'Reuters']:
         return "international"
 
-    
     return "general"
 
 
@@ -213,6 +224,22 @@ Return this exact JSON:
   "left_lens": "how progressive outlets frame this globally",
   "right_lens": "how conservative outlets frame this globally",
   "public_pulse": "what Indians and global audiences are saying about this"
+}"""
+
+    elif story_type == "security":
+        return base_context + """
+This is a NATIONAL/CYBER SECURITY story. Focus on factual reporting and strategic context.
+Do NOT sensationalise. Present verified facts only.
+
+Return this exact JSON:
+{
+  "story_type": "security",
+  "headline": "factual rewrite of headline, max 12 words",
+  "facts": "what happened — who, what, where. Dry wire-report style. 2-3 sentences only.",
+  "impact": "what this means for India's security or citizens — one direct sentence",
+  "left_lens": "how left-leaning outlets frame the security/policy angle",
+  "right_lens": "how right-leaning outlets frame the security/national interest angle",
+  "public_pulse": "what citizens and experts are saying about this development"
 }"""
 
     else:  # general

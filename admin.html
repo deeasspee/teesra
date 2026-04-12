@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="jungle">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Teesra</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    /* ── 6 THEMES ──────────────────────────────────────────────── */
+    [data-theme="jungle"]   {--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.95);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--accent:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--nav-bg:rgba(10,18,14,0.97);}
+    [data-theme="cosmos"]   {--bg:#0d1117;--bg2:#131a24;--surface:rgba(26,35,50,0.95);--border:#1e2d42;--text:#e8edf4;--text-dim:#4a6280;--text-mid:#8aa4c0;--accent:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--nav-bg:rgba(13,17,23,0.97);}
+    [data-theme="ember"]    {--bg:#141410;--bg2:#1c1c18;--surface:rgba(36,36,32,0.95);--border:#2e2e28;--text:#f5f0e8;--text-dim:#5a5850;--text-mid:#a8a290;--accent:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--nav-bg:rgba(20,20,16,0.97);}
+    [data-theme="dawn"]     {--bg:#faf7f0;--bg2:#f2ede4;--surface:rgba(255,255,255,0.98);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--accent:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--nav-bg:rgba(250,247,240,0.97);}
+    [data-theme="cloud"]    {--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--accent:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--nav-bg:rgba(244,246,250,0.97);}
+    [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--accent:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--nav-bg:rgba(245,240,228,0.97);}
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* ── NAV ───────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      gap: 16px;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--accent);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .nav-logo span {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      display: block;
+      letter-spacing: 2px;
+      margin-top: -2px;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .nav-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-mid);
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+    .nav-back:hover { color: var(--accent); }
+
+    /* ── THEME SWATCH ──────────────────────────────────────────── */
+    .theme-wrap { position: relative; }
+    .theme-swatch-btn {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--border); cursor: pointer;
+      position: relative; flex-shrink: 0; background: none;
+      padding: 0; overflow: hidden; transition: border-color 0.2s;
+    }
+    .theme-swatch-btn:hover { border-color: var(--accent); }
+    .swatch-inner { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+    .s1 { grid-column: 1/-1; }
+    .theme-picker {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--bg2); border: 1px solid var(--border);
+      padding: 12px; z-index: 500; width: 200px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+    .theme-picker.open { display: block; }
+    .tp-title { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+    .tp-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .tp-opt   { display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border: 1px solid var(--border); transition: border-color 0.2s; }
+    .tp-opt:hover, .tp-opt.active { border-color: var(--accent); }
+    .tp-swatch { height: 22px; border-radius: 2px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+    .ts1 { grid-column: 1/-1; }
+    .tp-name { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--text-mid); text-align: center; }
+
+    /* ── LAYOUT ────────────────────────────────────────────────── */
+    .admin-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    .admin-header {
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .admin-header p {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* ── SECTION ───────────────────────────────────────────────── */
+    .admin-section {
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── STAT CARDS ────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (min-width: 640px) {
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px 18px;
+      border-radius: 2px;
+    }
+    .stat-card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .stat-card-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    /* ── PIPELINE CARDS ────────────────────────────────────────── */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .pipeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pipeline-card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .pipeline-card-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ── TABLE ─────────────────────────────────────────────────── */
+    .table-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 8px 12px;
+      outline: none;
+      width: 240px;
+      border-radius: 2px;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text-dim); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      text-align: left;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    th:hover { color: var(--accent); }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-mid);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .badge-active   { background: rgba(109,232,106,0.12); color: var(--pulse); border: 1px solid rgba(109,232,106,0.25); }
+    .badge-inactive { background: rgba(232,112,74,0.12);  color: var(--right); border: 1px solid rgba(232,112,74,0.25); }
+    .badge-admin    { background: rgba(212,168,32,0.12);  color: var(--accent);border: 1px solid rgba(212,168,32,0.25); }
+    .badge-sub      { background: rgba(144,176,148,0.10); color: var(--text-mid); border: 1px solid var(--border); }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 3px 9px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── LOADING / ACCESS ──────────────────────────────────────── */
+    .access-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      gap: 16px;
+    }
+    .access-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .access-msg {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+    .access-spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ─────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--surface); border: 1px solid var(--accent);
+      color: var(--text); padding: 12px 20px;
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      z-index: 9999; border-radius: 2px;
+      animation: fadeInUp 0.25s ease;
+    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">Teesra<span>ADMIN</span></a>
+  <div class="nav-right">
+    <a href="/feed" class="nav-back">← Feed</a>
+    <div id="auth-user-menu" style="display:none;align-items:center;gap:8px;">
+      <img id="auth-user-avatar" style="display:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--accent);" src="" alt="avatar">
+      <span id="auth-user-name" style="font-size:11px;color:var(--text);font-family:'DM Mono',monospace;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:2px;font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;">SIGN OUT</button>
+    </div>
+    <!-- Theme swatch -->
+    <div class="theme-wrap">
+      <button class="theme-swatch-btn" id="adminSwatchBtn" onclick="toggleAdminPicker(event)" title="Change theme">
+        <div class="swatch-inner"><div class="s1" id="asw1"></div><div class="s2" id="asw2"></div><div class="s3" id="asw3"></div></div>
+      </button>
+      <div class="theme-picker" id="adminPicker">
+        <div class="tp-title">Theme</div>
+        <div class="tp-grid" id="adminThemeGrid"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ACCESS GATE (shown while checking auth) -->
+<div id="accessScreen" class="admin-wrap">
+  <div class="access-screen">
+    <div class="access-logo">Teesra</div>
+    <div class="access-spinner"></div>
+    <div class="access-msg">Checking credentials…</div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD (hidden until auth confirmed) -->
+<div id="adminDashboard" class="admin-wrap" style="display:none;">
+  <div class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <p id="adminDateLine">Loading…</p>
+  </div>
+
+  <!-- SUBSCRIBER STATS -->
+  <div class="admin-section">
+    <div class="section-title">Subscriber Stats</div>
+    <div class="stat-grid" id="statGrid">
+      <div class="stat-card"><div class="stat-card-label">Total</div><div class="stat-card-value" id="statTotal">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">Active</div><div class="stat-card-value" id="statActive">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">Google Users</div><div class="stat-card-value" id="statGoogle">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">New This Week</div><div class="stat-card-value" id="statWeek">—</div></div>
+    </div>
+  </div>
+
+  <!-- PIPELINE STATUS -->
+  <div class="admin-section">
+    <div class="section-title">Pipeline Status — Today</div>
+    <div class="pipeline-grid" id="pipelineGrid">
+      <div class="pipeline-card">
+        <span class="pipeline-card-label">Articles Today</span>
+        <span class="pipeline-card-value" id="pipelineCount">—</span>
+      </div>
+      <div class="pipeline-card">
+        <span class="pipeline-card-label">Last Run</span>
+        <span class="pipeline-card-value" id="pipelineLastRun" style="font-size:13px;">—</span>
+      </div>
+    </div>
+    <div id="topicBreakdown" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"></div>
+  </div>
+
+  <!-- SUBSCRIBERS TABLE -->
+  <div class="admin-section">
+    <div class="section-title">Subscribers</div>
+    <div class="table-controls">
+      <input class="search-input" id="subSearch" type="text" placeholder="Search by email…" oninput="filterTable()">
+      <span id="subCount" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);"></span>
+    </div>
+    <div class="table-wrap">
+      <table id="subTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('email')">Email</th>
+            <th onclick="sortTable('name')">Name</th>
+            <th onclick="sortTable('role')">Role</th>
+            <th onclick="sortTable('is_active')">Status</th>
+            <th onclick="sortTable('created_at')">Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="subTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── THEME SYSTEM ──────────────────────────────────────────────────
+const ADMIN_THEMES = [
+  {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+  {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+  {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+  {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+  {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+  {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+];
+function applyAdminTheme(id) {
+  document.documentElement.setAttribute('data-theme', id);
+  localStorage.setItem('teesra-theme', id);
+  const t = ADMIN_THEMES.find(t => t.id === id);
+  if (t) {
+    document.getElementById('asw1').style.background = t.bg;
+    document.getElementById('asw2').style.background = t.a;
+    document.getElementById('asw3').style.background = t.b;
+  }
+  buildAdminGrid(id);
+}
+function buildAdminGrid(current) {
+  const g = document.getElementById('adminThemeGrid');
+  if (!g) return;
+  g.innerHTML = ADMIN_THEMES.map(t => `
+    <div class="tp-opt ${t.id===current?'active':''}" onclick="applyAdminTheme('${t.id}');closeAdminPicker();">
+      <div class="tp-swatch"><div class="ts1" style="background:${t.bg}"></div><div style="background:${t.a}"></div><div style="background:${t.b}"></div></div>
+      <div class="tp-name">${t.name}</div>
+    </div>`).join('');
+}
+function toggleAdminPicker(e) { e.stopPropagation(); document.getElementById('adminPicker').classList.toggle('open'); }
+function closeAdminPicker()   { document.getElementById('adminPicker').classList.remove('open'); }
+document.addEventListener('click', e => { if (!e.target.closest('.theme-wrap')) closeAdminPicker(); });
+applyAdminTheme(localStorage.getItem('teesra-theme') || 'jungle');
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg, dur = 2500) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
+
+// ── AUTH + DASHBOARD ──────────────────────────────────────────────
+let _sb     = null;
+let _jwt    = null;
+let _allSubs = [];
+let _sortKey = 'created_at';
+let _sortAsc = false;
+
+const TeesraAuth = window.TeesraAuth = {
+  user: null, role: null, userName: null, avatarUrl: null,
+
+  async init() {
+    try {
+      const cfg = await fetch('/api/config').then(r => r.json());
+      if (cfg.supabase_url && cfg.supabase_anon_key)
+        _sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key);
+    } catch(e) {
+      showAccessDenied('Cannot connect to auth service.');
+      return;
+    }
+    if (!_sb) { showAccessDenied('Auth not configured.'); return; }
+
+    const { data: { session } } = await _sb.auth.getSession();
+    if (session) {
+      this.user = session.user;
+      _jwt = session.access_token;
+      await this.loadRole();
+    }
+
+    _sb.auth.onAuthStateChange(async (event, session) => {
+      this.user = session?.user || null;
+      _jwt = session?.access_token || null;
+      if (this.user) await this.loadRole();
+      else { this.role = null; }
+      this.updateUI();
+    });
+
+    this.updateUI();
+    checkAccess();
+  },
+
+  async loadRole() {
+    if (!_sb || !this.user) return;
+    const { data } = await _sb.from('subscribers')
+      .select('role, name, avatar_url').eq('auth_uid', this.user.id).maybeSingle();
+    const p = this.user.user_metadata || {};
+    this.role      = data?.role       || 'subscriber';
+    this.userName  = data?.name       || p.full_name || this.user.email.split('@')[0];
+    this.avatarUrl = data?.avatar_url || p.avatar_url || null;
+  },
+
+  async signInWithGoogle() {
+    if (!_sb) return;
+    await _sb.auth.signInWithOAuth({ provider: 'google',
+      options: { redirectTo: window.location.href } });
+  },
+
+  async signOut() {
+    if (_sb) await _sb.auth.signOut();
+    this.user = null; this.role = null; _jwt = null;
+    window.location.href = '/';
+  },
+
+  isAdmin() { return this.role === 'admin'; },
+
+  updateUI() {
+    const userMenu = document.getElementById('auth-user-menu');
+    if (this.user && userMenu) {
+      userMenu.style.display = 'flex';
+      const nameEl = document.getElementById('auth-user-name');
+      const avEl   = document.getElementById('auth-user-avatar');
+      if (nameEl) nameEl.textContent = this.userName || this.user.email;
+      if (avEl && this.avatarUrl) { avEl.src = this.avatarUrl; avEl.style.display = 'block'; }
+    }
+  }
+};
+
+function showAccessDenied(msg) {
+  document.getElementById('accessScreen').innerHTML = `
+    <div class="access-screen">
+      <div class="access-logo">Teesra</div>
+      <div class="access-msg">${msg}</div>
+      <button onclick="TeesraAuth.signInWithGoogle()" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:var(--bg);border:none;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;cursor:pointer;border-radius:2px;">SIGN IN WITH GOOGLE</button>
+      <a href="/" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;margin-top:8px;">← Back to Teesra</a>
+    </div>`;
+}
+
+async function checkAccess() {
+  // Wait up to 1.5s for auth to resolve
+  await new Promise(r => setTimeout(r, 1200));
+  if (!TeesraAuth.user) {
+    showAccessDenied('Sign in to access admin.');
+    return;
+  }
+  if (!TeesraAuth.isAdmin()) {
+    showAccessDenied('Access denied — admin only.');
+    return;
+  }
+  // Confirmed admin — show dashboard
+  document.getElementById('accessScreen').style.display = 'none';
+  document.getElementById('adminDashboard').style.display = 'block';
+  document.getElementById('adminDateLine').textContent =
+    new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  loadAdminDashboard();
+}
+
+// ── ADMIN DASHBOARD ───────────────────────────────────────────────
+function authHeaders() {
+  return { 'Authorization': `Bearer ${_jwt}`, 'Content-Type': 'application/json' };
+}
+
+async function loadAdminDashboard() {
+  await Promise.all([loadStats(), loadPipeline(), loadSubscribers()]);
+}
+
+async function loadStats() {
+  try {
+    const res  = await fetch('/api/admin/stats', { headers: authHeaders() });
+    const data = await res.json();
+    if (data.error) return;
+    document.getElementById('statTotal').textContent  = data.total       ?? '—';
+    document.getElementById('statActive').textContent = data.active      ?? '—';
+    document.getElementById('statGoogle').textContent = data.google_users ?? '—';
+    document.getElementById('statWeek').textContent   = data.new_this_week ?? '—';
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+async function loadPipeline() {
+  try {
+    const res  = await fetch('/api/admin/pipeline', { headers: authHeaders() });
+    const data = await res.json();
+    if (data.error) return;
+    document.getElementById('pipelineCount').textContent = data.today_count ?? '—';
+    if (data.last_run) {
+      const d = new Date(data.last_run);
+      document.getElementById('pipelineLastRun').textContent =
+        d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (data.topics) {
+      const breakdown = document.getElementById('topicBreakdown');
+      breakdown.innerHTML = Object.entries(data.topics)
+        .sort((a, b) => b[1] - a[1])
+        .map(([t, c]) => `<span style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 10px;border:1px solid var(--border);color:var(--text-mid);border-radius:10px;">${t}: ${c}</span>`)
+        .join('');
+    }
+  } catch(e) { console.error('Pipeline error:', e); }
+}
+
+async function loadSubscribers() {
+  try {
+    const res  = await fetch('/api/admin/subscribers', { headers: authHeaders() });
+    _allSubs   = await res.json();
+    if (!Array.isArray(_allSubs)) { _allSubs = []; return; }
+    renderTable(_allSubs);
+  } catch(e) { console.error('Subscribers error:', e); }
+}
+
+// ── TABLE RENDER ──────────────────────────────────────────────────
+function renderTable(data) {
+  const tbody = document.getElementById('subTableBody');
+  document.getElementById('subCount').textContent = `${data.length} shown`;
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-dim);">No subscribers found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(s => {
+    const joined = s.created_at ? new Date(s.created_at).toLocaleDateString('en-IN') : '—';
+    const badge  = s.is_active
+      ? `<span class="badge badge-active">Active</span>`
+      : `<span class="badge badge-inactive">Off</span>`;
+    const roleBadge = s.role === 'admin'
+      ? `<span class="badge badge-admin">Admin</span>`
+      : `<span class="badge badge-sub">Sub</span>`;
+    const toggleLabel = s.is_active ? 'Deactivate' : 'Activate';
+    const newRole     = s.role === 'admin' ? 'subscriber' : 'admin';
+    const roleLabel   = s.role === 'admin' ? 'Demote' : 'Make Admin';
+    return `<tr>
+      <td style="color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;">${s.email || '—'}</td>
+      <td>${s.name || '—'}</td>
+      <td>${roleBadge}</td>
+      <td>${badge}</td>
+      <td>${joined}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="action-btn" onclick="toggleActive('${s.email}', ${!s.is_active})">${toggleLabel}</button>
+        <button class="action-btn" onclick="changeRole('${s.email}', '${newRole}')">${roleLabel}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('subSearch').value.toLowerCase().trim();
+  const filtered = q ? _allSubs.filter(s => (s.email || '').toLowerCase().includes(q)) : _allSubs;
+  renderTable(sortData(filtered));
+}
+
+function sortTable(key) {
+  if (_sortKey === key) _sortAsc = !_sortAsc;
+  else { _sortKey = key; _sortAsc = true; }
+  filterTable();
+}
+
+function sortData(data) {
+  return [...data].sort((a, b) => {
+    const va = a[_sortKey] ?? '';
+    const vb = b[_sortKey] ?? '';
+    const cmp = String(va).localeCompare(String(vb));
+    return _sortAsc ? cmp : -cmp;
+  });
+}
+
+async function toggleActive(email, is_active) {
+  try {
+    const res = await fetch('/api/admin/toggle-subscriber', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email, is_active }),
+    });
+    const d = await res.json();
+    if (d.success) {
+      const sub = _allSubs.find(s => s.email === email);
+      if (sub) sub.is_active = is_active;
+      filterTable();
+      showToast(`${email} ${is_active ? 'activated' : 'deactivated'}`);
+    }
+  } catch(e) { showToast('Action failed.'); }
+}
+
+async function changeRole(email, role) {
+  try {
+    const res = await fetch('/api/admin/set-role', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email, role }),
+    });
+    const d = await res.json();
+    if (d.success) {
+      const sub = _allSubs.find(s => s.email === email);
+      if (sub) sub.role = role;
+      filterTable();
+      showToast(`${email} → ${role}`);
+    }
+  } catch(e) { showToast('Role change failed.'); }
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => TeesraAuth.init());
+</script>
+</body>
+</html>

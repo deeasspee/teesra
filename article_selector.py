@@ -7,6 +7,25 @@ from collections import defaultdict
 import re
 import urllib.parse
 
+# ── SECURITY KEYWORDS ─────────────────────────────────────────────
+SECURITY_KEYWORDS = [
+    'border', 'military', 'army', 'defence', 'terror',
+    'naxal', 'insurgency', 'cyber attack', 'espionage',
+    'national security', 'intelligence agency', 'raw ',
+    'crpf', 'bsf', 'surgical', 'missile', 'drdo',
+    'data breach', 'hacking', 'armed forces', 'counterterrorism',
+    'infiltration', 'ceasefire line', 'loc ', 'nuclear',
+]
+
+# ── INDIA TECH KEYWORDS ───────────────────────────────────────────
+INDIA_TECH_KEYWORDS = [
+    'india', 'indian', 'bengaluru', 'bangalore',
+    'hyderabad', 'pune', 'mumbai', 'delhi',
+    'startup', 'reliance', 'tata', 'infosys',
+    'wipro', 'jio', 'meity', 'digital india',
+    'upi', 'npci', 'isro', 'bharat',
+]
+
 
 # ── CLEAN TITLE ───────────────────────────────────────────────────
 def clean_title(title: str) -> str:
@@ -95,6 +114,9 @@ def detect_topic(title: str, source: str) -> str:
         'government ', 'govt '
     ]):
         return 'politics'
+
+    if any(w in t for w in SECURITY_KEYWORDS):
+        return 'security'
 
     return 'general'
 
@@ -202,13 +224,27 @@ def score_group(group: list) -> dict:
             score -= 20
             break
 
+    topic = detect_topic(group[0]['title'], group[0].get('source', ''))
+
+    # ── Security boost ────────────────────────────────────────────
+    if topic == 'security':
+        score += 20
+
+    # ── Tech India filter — penalise non-India tech ───────────────
+    if topic == 'tech':
+        text = (group[0]['title'] + ' ' + group[0].get('description', '')).lower()
+        if not any(kw in text for kw in INDIA_TECH_KEYWORDS):
+            score -= 25
+            print(f"    ↓ Tech story penalised (no India connection): "
+                  f"{group[0]['title'][:50]}")
+
     return {
         "score":        score,
         "source_count": source_count,
         "sources":      sources,
         "biases":       biases,
         "title":        group[0]['title'],
-        "topic":        detect_topic(group[0]['title'], group[0].get('source', '')),
+        "topic":        topic,
         "articles":     group
     }
 
@@ -252,6 +288,56 @@ def check_not_duplicate_of_yesterday(headline: str, yesterday_headlines: list) -
     return True
 
 
+# ── JACCARD CROSS-DAY DEDUP ──────────────────────────────────────
+def is_duplicate_of_recent(title: str, recent_headlines: list) -> bool:
+    """Returns True if title is too similar to any headline in the last 4 days."""
+    STOPWORDS = {
+        'says', 'said', 'will', 'from', 'with', 'that',
+        'this', 'have', 'been', 'over', 'into', 'after',
+        'india', 'court', 'government', 'party', 'while',
+        'report', 'reports', 'amid', 'under', 'ahead',
+    }
+
+    def key_words(s):
+        return {w for w in s.lower().split() if len(w) > 4 and w not in STOPWORDS}
+
+    article_keys = key_words(title)
+    if not article_keys:
+        return False
+
+    for recent in recent_headlines:
+        recent_keys = key_words(recent)
+        if not recent_keys:
+            continue
+        intersection = article_keys & recent_keys
+        union = article_keys | recent_keys
+        similarity = len(intersection) / len(union) if union else 0
+        if similarity > 0.35:
+            return True
+        if len(intersection) >= 3:
+            return True
+
+    return False
+
+
+# ── SAME-SOURCE SAME-TOPIC BLOCK ──────────────────────────────────
+def is_same_source_repeated(best: dict, recent_full: list) -> bool:
+    """Block if same source covered the same broad topic in the last 3 days."""
+    source = best.get('source', '').lower()
+    headline = best.get('title', '').lower()
+    words = {w for w in headline.split() if len(w) > 5}
+    if not words:
+        return False
+    for recent in recent_full:
+        if recent.get('source', '').lower() != source:
+            continue
+        recent_text = (recent.get('headline', '') or recent.get('original_title', '')).lower()
+        recent_words = {w for w in recent_text.split() if len(w) > 5}
+        if len(words & recent_words) >= 2:
+            return True
+    return False
+
+
 # ── SOURCE DOMAIN EXTRACTOR ───────────────────────────────────────
 def source_domain(article: dict) -> str:
     """Returns a normalised key for capping articles per portal."""
@@ -270,14 +356,22 @@ def source_domain(article: dict) -> str:
 def select_top_stories(all_articles: list, n: int = 20) -> list:
     print(f"\n🧠 Selecting top {n} stories from {len(all_articles)} articles...")
 
-    # Load yesterday's headlines for cross-day dedup
-    yesterday_headlines = []
+    # Load recent headlines (4 days) for cross-day dedup
+    recent_headlines = []
     try:
-        from database import get_yesterday_headlines
-        yesterday_headlines = get_yesterday_headlines()
-        print(f"   Loaded {len(yesterday_headlines)} yesterday's headlines for dedup")
+        from database import get_recent_headlines
+        recent_headlines = get_recent_headlines(days=4)
     except Exception as e:
-        print(f"   ⚠️  Could not load yesterday's headlines: {e}")
+        print(f"   ⚠️  Could not load recent headlines: {e}")
+
+    # Load recent articles (3 days) for same-source block
+    recent_articles_full = []
+    try:
+        from database import get_recent_articles
+        recent_articles_full = get_recent_articles(days=3)
+        print(f"   Loaded {len(recent_articles_full)} recent articles for source-dedup (3 days)")
+    except Exception as e:
+        print(f"   ⚠️  Could not load recent articles: {e}")
 
     # Step 1: Group + score
     print(f"   📥 Raw articles entering selector: {len(all_articles)}")
@@ -293,9 +387,10 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
         'general':       6,
         'economy':       5,
         'international': 4,
-        'tech':          4,
+        'tech':          2,   # REDUCED — non-India tech penalised at scoring stage
         'sports':        4,
         'ipl':           3,
+        'security':      2,   # NEW
         'sensitive':     2,
     }
     # Minimum guaranteed slots
@@ -306,12 +401,15 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
         'tech':          1,
         'sports':        1,
         'ipl':           1,
+        'security':      0,   # optional — only if good story exists
     }
-    topic_counts   = defaultdict(int)
-    source_counts  = defaultdict(int)  # per-portal cap
-    conflict_used  = set()   # one story per conflict zone
-    selected       = []
+    topic_counts    = defaultdict(int)
+    source_counts   = defaultdict(int)  # per-portal cap
+    conflict_used   = set()             # one story per conflict zone
+    selected        = []
     selected_titles = set()
+    dedup_removed   = 0
+    total_fetched   = len(all_articles)
 
     # Step 3: First pass — fill by score with topic caps
     for story in scored:
@@ -330,9 +428,17 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
         if topic_counts[topic] >= topic_max.get(topic, 4):
             continue
 
-        # Cross-day duplicate check
-        if yesterday_headlines and not check_not_duplicate_of_yesterday(story['title'], yesterday_headlines):
-            print(f"   ⛔ Yesterday's story: {story['title'][:60]}")
+        # Cross-day duplicate check (Jaccard similarity over 4 days)
+        if recent_headlines and is_duplicate_of_recent(story['title'], recent_headlines):
+            print(f"   ⛔ Cross-day duplicate: {story['title'][:60]}")
+            dedup_removed += 1
+            continue
+
+        # Same-source same-topic block (last 3 days)
+        best_candidate = pick_best_article(story['articles'])
+        if recent_articles_full and is_same_source_repeated(best_candidate, recent_articles_full):
+            print(f"   ⛔ Same-source repeat: {story['title'][:60]}")
+            dedup_removed += 1
             continue
 
         # One story per conflict zone
@@ -347,8 +453,8 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
                 continue
             conflict_used.add(conflict_zone)
 
-        # Pick best source from group
-        best = pick_best_article(story['articles'])
+        # best_candidate was already picked above during dedup checks
+        best = best_candidate
 
         # Source cap: max 2 articles per portal (Google News feeds exempt)
         domain = source_domain(best)
@@ -361,9 +467,10 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
 
         best['covered_by']   = story['sources']
         best['source_count'] = story['source_count']
-        if topic == 'ipl':           best['is_ipl'] = True
-        if topic == 'tech':          best['is_tech'] = True
+        if topic == 'ipl':           best['is_ipl']           = True
+        if topic == 'tech':          best['is_tech']          = True
         if topic == 'international': best['is_international'] = True
+        if topic == 'security':      best['is_security']      = True
 
         selected.append(best)
         selected_titles.add(story['title'])
@@ -381,8 +488,9 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
                     best = pick_best_article(story['articles'])
                     best['covered_by']   = story['sources']
                     best['source_count'] = story['source_count']
-                    if topic == 'tech':          best['is_tech'] = True
+                    if topic == 'tech':          best['is_tech']          = True
                     if topic == 'international': best['is_international'] = True
+                    if topic == 'security':      best['is_security']      = True
                     selected.append(best)
                     selected_titles.add(story['title'])
                     topic_counts[topic] += 1
@@ -401,17 +509,35 @@ def select_top_stories(all_articles: list, n: int = 20) -> list:
 
     selected.sort(key=sort_order)
 
-    # Summary
-    counts = defaultdict(int)
+    # Summary + diagnostic logging
+    topic_counts_final = defaultdict(int)
     for a in selected:
-        t = detect_topic(a.get('title',''), a.get('source',''))
-        if a.get('is_ipl'): t = 'ipl'
-        counts[t] += 1
+        t = detect_topic(a.get('title', ''), a.get('source', ''))
+        if a.get('is_ipl'):      t = 'ipl'
+        if a.get('is_security'): t = 'security'
+        topic_counts_final[t] += 1
 
-    print(f"\n✅ Final selection: {len(selected)} stories")
-    for t, c in sorted(counts.items()):
-        print(f"   {t:14}: {c}")
+    tech_removed = sum(
+        1 for s in scored
+        if s['topic'] == 'tech' and s['score'] < 0 and
+           not any(kw in (s['title'] + ' ').lower() for kw in INDIA_TECH_KEYWORDS)
+    )
+
+    print(f"\n📊 SELECTION SUMMARY:")
+    print(f"   Total fetched:       {total_fetched}")
+    print(f"   After grouping:      {len(scored)} unique stories")
+    print(f"   Dedup removed:       {dedup_removed}")
+    print(f"   Tech non-India pen.: {tech_removed}")
+    print(f"   Final selected:      {len(selected)}")
+    print(f"\n📂 TOPIC BREAKDOWN:")
+    for t, c in sorted(topic_counts_final.items()):
+        if c > 0:
+            print(f"   {t:14}: {c}")
     print()
+
+    # NOTE: If articles still delete after 3 days, check
+    # Supabase dashboard > Database > Scheduled Jobs for
+    # any cron jobs deleting old rows
 
     return selected
 

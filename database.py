@@ -67,6 +67,51 @@ def get_yesterday_headlines() -> list:
         return []
 
 
+# ── GET RECENT HEADLINES (MULTI-DAY DEDUP) ────────────────────────
+def get_recent_headlines(days: int = 4) -> list:
+    """Return headline + original_title strings from last N days (excludes today) for cross-day dedup."""
+    try:
+        client = get_client()
+        cutoff = str(date.today() - timedelta(days=days))
+        today  = str(date.today())
+        response = (
+            client.table("article")
+            .select("headline, original_title, fetched_date")
+            .gte("fetched_date", cutoff)
+            .lt("fetched_date", today)
+            .execute()
+        )
+        headlines = []
+        for row in response.data:
+            if row.get("headline"):
+                headlines.append(row["headline"])
+            if row.get("original_title"):
+                headlines.append(row["original_title"])
+        print(f"  📋 Loaded {len(headlines)} recent headlines for dedup (last {days} days)")
+        return headlines
+    except Exception as e:
+        print(f"  ⚠️ Could not fetch recent headlines: {e}")
+        return []
+
+
+# ── GET ARTICLES BY DATE ──────────────────────────────────────────
+def get_articles_by_date(target_date) -> list:
+    """Return articles for a specific date (date object or ISO string)."""
+    try:
+        client = get_client()
+        response = (
+            client.table("article")
+            .select("*")
+            .eq("fetched_date", str(target_date))
+            .order("id", desc=False)
+            .execute()
+        )
+        return response.data
+    except Exception as e:
+        print(f"❌ Failed to fetch articles for {target_date}: {e}")
+        return []
+
+
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
 def clear_todays_articles():
     """Delete articles older than 5 days; keeps a rolling 5-day window"""

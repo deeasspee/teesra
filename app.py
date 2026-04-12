@@ -1,6 +1,6 @@
 # app.py
 # Teesra local server
-from database import get_todays_articles, save_subscriber, get_recent_articles, unsubscribe_email
+from database import get_todays_articles, save_subscriber, get_recent_articles, unsubscribe_email, get_articles_by_date
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from send_welcome import send_welcome_email
@@ -26,6 +26,8 @@ except ImportError:
 FEED_API_KEY        = os.getenv("FEED_API_KEY")
 CRICAPI_KEY         = os.getenv("CRICAPI_KEY")
 FOOTBALL_API_KEY    = os.getenv("FOOTBALL_API_KEY")
+SUPABASE_ANON_KEY   = os.getenv("SUPABASE_ANON_KEY", "")
+SUPABASE_URL        = os.getenv("SUPABASE_URL", "")
 anthropic_client = Anthropic()
 
 # ── BIAS SCORE ────────────────────────────────────────────────────
@@ -77,6 +79,58 @@ def is_authorised() -> bool:
         provided = request.headers.get('X-API-Key') or request.args.get('api_key', '')
         return provided == FEED_API_KEY
     return True
+
+# ── PUBLIC CONFIG (anon key safe to expose) ───────────────────────
+@app.route("/api/config")
+def get_config():
+    resp = jsonify({
+        "supabase_url":      SUPABASE_URL,
+        "supabase_anon_key": SUPABASE_ANON_KEY,
+    })
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    return resp
+
+
+# ── AUTH MIDDLEWARE ───────────────────────────────────────────────
+def get_auth_user(req):
+    """Extract and verify Supabase JWT from Authorization header."""
+    auth_header = req.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return None
+    token = auth_header.split(' ', 1)[1]
+    try:
+        from database import get_client
+        client = get_client()
+        response = client.auth.get_user(token)
+        return response.user if response and response.user else None
+    except Exception:
+        return None
+
+
+def require_admin(f):
+    """Decorator — 401 if no valid JWT, 403 if not admin role."""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user = get_auth_user(request)
+        if not user:
+            return jsonify({"error": "Unauthorized"}), 401
+        try:
+            from database import get_client
+            client = get_client()
+            result = client.table('subscribers')\
+                .select('role')\
+                .eq('auth_uid', user.id)\
+                .limit(1)\
+                .execute()
+            role = result.data[0].get('role') if result.data else None
+            if role != 'admin':
+                return jsonify({"error": "Forbidden"}), 403
+        except Exception:
+            return jsonify({"error": "Forbidden"}), 403
+        return f(*args, **kwargs)
+    return decorated
+
 
 # ── SERVE FRONTEND ────────────────────────────────────────────────
 @app.route("/")
@@ -250,18 +304,18 @@ def get_articles():
     if not is_authorised():
         return jsonify({"error": "Unauthorized"}), 401
     try:
-        days = int(request.args.get('days', 1))
-        days = min(days, 5)
-        if days == 1:
-            articles = get_todays_articles()
-            if not articles:
-                try:
-                    with open("analyzed_articles.json", "r", encoding="utf-8") as f:
-                        articles = json.load(f)
-                except FileNotFoundError:
-                    articles = []
-        else:
-            articles = get_recent_articles(days)
+        from datetime import date, timedelta
+        days_back = int(request.args.get('days', 1))
+        days_back = max(1, min(days_back, 5))        # clamp 1-5
+        target_date = date.today() - timedelta(days=days_back - 1)
+        articles = get_articles_by_date(target_date)
+        # Fallback to local JSON for today if DB is empty
+        if not articles and days_back == 1:
+            try:
+                with open("analyzed_articles.json", "r", encoding="utf-8") as f:
+                    articles = json.load(f)
+            except FileNotFoundError:
+                articles = []
         enriched = [enrich_article(a) for a in articles]
         resp = jsonify({"articles": enriched, "count": len(enriched)})
         resp.headers['Cache-Control'] = 'public, max-age=120'
@@ -781,6 +835,113 @@ Return this exact JSON structure with no markdown, no explanation:
         return jsonify(data)
     except Exception as e:
         print(f"❌ Crossword generation failed: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ── ADMIN PAGE + API ──────────────────────────────────────────────
+@app.route("/admin")
+def admin_page():
+    return send_from_directory(".", "admin.html")
+
+
+@app.route("/api/admin/stats")
+@require_admin
+def admin_stats():
+    from datetime import date, timedelta
+    try:
+        from database import get_client
+        client = get_client()
+        total    = client.table('subscribers').select('id', count='exact').execute()
+        active   = client.table('subscribers').select('id', count='exact').eq('is_active', True).execute()
+        google   = client.table('subscribers').select('id', count='exact').not_.is_('auth_uid', 'null').execute()
+        week_ago = str(date.today() - timedelta(days=7))
+        new_week = client.table('subscribers').select('id', count='exact').gte('created_at', week_ago).execute()
+        return jsonify({
+            "total":        total.count or 0,
+            "active":       active.count or 0,
+            "google_users": google.count or 0,
+            "new_this_week": new_week.count or 0,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/subscribers")
+@require_admin
+def admin_subscribers():
+    try:
+        from database import get_client
+        client = get_client()
+        result = client.table('subscribers')\
+            .select('id, email, name, role, is_active, auth_uid, created_at')\
+            .order('created_at', desc=True)\
+            .execute()
+        return jsonify(result.data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/pipeline")
+@require_admin
+def admin_pipeline():
+    try:
+        from datetime import date
+        from database import get_client
+        client = get_client()
+        today  = str(date.today())
+        result = client.table('article')\
+            .select('story_type, fetched_date, created_at')\
+            .eq('fetched_date', today)\
+            .order('created_at', desc=True)\
+            .limit(1)\
+            .execute()
+        all_today = client.table('article').select('story_type').eq('fetched_date', today).execute()
+        topic_counts = {}
+        for row in all_today.data:
+            t = row.get('story_type', 'general')
+            topic_counts[t] = topic_counts.get(t, 0) + 1
+        last_run = result.data[0].get('created_at') if result.data else None
+        return jsonify({
+            "today_count": len(all_today.data),
+            "date":        today,
+            "last_run":    last_run,
+            "topics":      topic_counts,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/toggle-subscriber", methods=["POST"])
+@require_admin
+def toggle_subscriber():
+    try:
+        from database import get_client
+        client = get_client()
+        data      = request.json
+        email     = data.get('email', '')
+        is_active = data.get('is_active', True)
+        if not email:
+            return jsonify({"error": "Missing email"}), 400
+        client.table('subscribers').update({'is_active': is_active}).eq('email', email).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/set-role", methods=["POST"])
+@require_admin
+def set_role():
+    try:
+        from database import get_client
+        client = get_client()
+        data  = request.json
+        email = data.get('email', '')
+        role  = data.get('role', 'subscriber')
+        if not email or role not in ('subscriber', 'admin'):
+            return jsonify({"error": "Invalid params"}), 400
+        client.table('subscribers').update({'role': role}).eq('email', email).execute()
+        return jsonify({"success": True})
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
