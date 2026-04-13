@@ -2369,6 +2369,32 @@
     let _marketHtml  = '';
     let _tilHtml     = '';
 
+    // ── IST DATE HELPERS ─────────────────────────────────────────
+    function getISTDateString(daysBack = 0) {
+      // IST = UTC + 5:30. Add offset then subtract daysBack.
+      const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+      const now = new Date(Date.now() + IST_OFFSET);
+      now.setUTCDate(now.getUTCDate() - daysBack);
+      return now.toISOString().split('T')[0];
+    }
+
+    function formatTabDate(dateStr) {
+      const [y, m, d] = dateStr.split('-');
+      const date = new Date(Date.UTC(+y, +m - 1, +d));
+      return date.toLocaleDateString('en-IN', {
+        weekday: 'short', day: 'numeric', month: 'short',
+        timeZone: 'Asia/Kolkata'
+      });
+    }
+
+    // Safe response parser — handles both plain array and {articles:[]}
+    function parseArticles(data) {
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.articles)) return data.articles;
+      if (data && Array.isArray(data.data)) return data.data;
+      return [];
+    }
+
     // ── LOAD FEED ─────────────────────────────────────────────────
     async function loadFeed() {
       const container = document.getElementById('feedContainer');
@@ -2389,7 +2415,7 @@
       }
 
       const data = await articlesRes.json();
-      allArticles = Array.isArray(data) ? data : (data.articles || []);
+      allArticles = parseArticles(data);
 
       if (!allArticles.length) {
         if (skeleton) skeleton.style.display = 'none';
@@ -2431,14 +2457,12 @@
       const tabs = document.getElementById('dateTabs');
       if (!tabs) return;
       const DAYS_TO_SHOW = 5;
-      const today = new Date().toISOString().slice(0, 10);
-      selectedDate = today;
+      const todayIST = getISTDateString(0);
+      selectedDate = todayIST;
       let html = '';
       for (let i = 0; i < DAYS_TO_SHOW; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const label   = i === 0 ? 'Today' : formatDateLabel(dateStr);
+        const dateStr  = getISTDateString(i);
+        const label    = i === 0 ? 'Today' : formatTabDate(dateStr);
         const daysBack = i + 1;
         html += `<button class="date-tab ${i === 0 ? 'active' : ''}"
           onclick="selectDate('${dateStr}', ${daysBack}, this)">${label}</button>`;
@@ -2447,8 +2471,7 @@
     }
 
     function formatDateLabel(dateStr) {
-      const d = new Date(dateStr + 'T00:00:00');
-      return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+      return formatTabDate(dateStr);
     }
 
     function buildTopicFilters() {
@@ -2476,7 +2499,7 @@
       try {
         const res  = await fetch(`/api/articles?days=${daysBack}`);
         const data = await res.json();
-        allArticles = Array.isArray(data) ? data : (data.articles || []);
+        allArticles = parseArticles(data);
         renderFeed();
       } catch(e) {
         container.innerHTML = `<div class="empty-state"><p class="empty-title">Failed to load articles</p></div>`;
@@ -2505,10 +2528,10 @@
         return;
       }
 
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getISTDateString(0);
       const dateLabel = selectedDate === today
-        ? new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long'})
-        : formatDateLabel(selectedDate);
+        ? new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', timeZone:'Asia/Kolkata'})
+        : formatTabDate(selectedDate);
 
       const isToday = selectedDate === today;
       container.innerHTML = `
