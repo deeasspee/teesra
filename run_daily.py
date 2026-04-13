@@ -1,17 +1,21 @@
 # run_daily.py
-# Teesra — Full daily pipeline
-# Runs automatically every morning via GitHub Actions
-# Order: fetch → analyze → send newsletter
+# Teesra — Daily pipeline runner
+# Modes:
+#   pipeline   — fetch, analyze, save to Supabase (runs at midnight IST)
+#   newsletter — send newsletter from today's saved articles (runs at 7 AM IST)
+#   full       — pipeline + newsletter (for manual local testing)
 
 import sys
 from datetime import datetime
 
-def run():
-    print(f"\n🌅 Teesra Daily Pipeline Starting...")
-    print(f"   Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+def run_pipeline():
+    """Full fetch + analyze + save pipeline. Does NOT send newsletter."""
+    print(f"\n🚀 TEESRA DAILY PIPELINE — FETCH & ANALYZE")
+    print(f"   Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 50)
 
     # ── STEP 1: FETCH + ANALYZE ───────────────────────────────────
-    print("=" * 50)
     print("STEP 1 — Fetching and analyzing news")
     print("=" * 50)
 
@@ -72,41 +76,74 @@ def run():
         print(f"   Stage 2 — After scoring:   {len(top_articles)} candidates")
         print(f"   Stage 3 — Claude analysis: {len(results)} passed, {failed_analysis} rejected")
         print(f"   Stage 4 — Saved to DB:     {len(results)} articles")
-        print(f"\n✅ Step 1 done — {len(results)} articles saved\n")
+        print(f"\n✅ Pipeline done — {len(results)} articles saved\n")
 
     except Exception as e:
-        print(f"❌ Step 1 failed: {e}")
-        sys.exit(1)
-
-    # ── STEP 2: SEND NEWSLETTER ───────────────────────────────────
-    print("=" * 50)
-    print("STEP 2 — Sending newsletter")
-    print("=" * 50)
-
-    try:
-        from newsletter import send_newsletter
-        from database import get_all_subscribers
-
-        subscribers = get_all_subscribers()
-
-        if not subscribers:
-            print("⚠️  No subscribers yet — skipping newsletter")
-        else:
-            print(f"📬 Sending to {len(subscribers)} subscribers...")
-            success = 0
-            for sub in subscribers:
-                email = sub['email'] if isinstance(sub, dict) else sub
-                if send_newsletter(email):
-                    success += 1
-            print(f"✅ Sent to {success}/{len(subscribers)} subscribers")
-
-    except Exception as e:
-        print(f"❌ Step 2 failed: {e}")
+        print(f"❌ Pipeline failed: {e}")
         sys.exit(1)
 
     print("\n" + "=" * 50)
-    print("✅ Teesra daily pipeline complete!")
+    print("✅ Teesra fetch & analyze complete!")
     print("=" * 50 + "\n")
 
+
+def run_newsletter():
+    """Send newsletter only — articles must already exist in Supabase
+    from today's pipeline run."""
+    print(f"\n📧 TEESRA NEWSLETTER SEND")
+    print(f"   Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 50)
+
+    from newsletter import send_newsletter
+    from database import get_all_subscribers, get_todays_articles
+
+    # Safety check — confirm today's articles exist
+    articles = get_todays_articles()
+    if not articles:
+        print("❌ No articles found for today.")
+        print("   Pipeline may not have run yet.")
+        print("   Newsletter send aborted.")
+        return False
+
+    print(f"  ✅ Found {len(articles)} articles for today")
+
+    subscribers = get_all_subscribers()
+    if not subscribers:
+        print("  ⚠️  No active subscribers found")
+        return False
+
+    print(f"  📬 Sending to {len(subscribers)} subscribers...")
+    success = 0
+    failed = 0
+    for sub in subscribers:
+        email = sub['email'] if isinstance(sub, dict) else sub
+        if send_newsletter(email):
+            success += 1
+        else:
+            failed += 1
+
+    print(f"\n  ✅ Newsletter sent: {success}/{len(subscribers)}")
+    if failed > 0:
+        print(f"  ❌ Failed: {failed}")
+
+    print("\n" + "=" * 50)
+    print("✅ Teesra newsletter send complete!")
+    print("=" * 50 + "\n")
+    return success > 0
+
+
 if __name__ == "__main__":
-    run()
+    mode = sys.argv[1] if len(sys.argv) > 1 else "pipeline"
+
+    if mode == "pipeline":
+        run_pipeline()
+    elif mode == "newsletter":
+        run_newsletter()
+    elif mode == "full":
+        # Keep full mode for manual testing
+        run_pipeline()
+        run_newsletter()
+    else:
+        print(f"Unknown mode: {mode}")
+        print("Usage: python run_daily.py [pipeline|newsletter|full]")
+        sys.exit(1)
