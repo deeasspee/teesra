@@ -16,6 +16,13 @@ import time
 app = Flask(__name__)
 CORS(app)
 
+from datetime import datetime, timezone, timedelta
+IST = timezone(timedelta(hours=5, minutes=30))
+
+def get_ist_today():
+    """Returns today's date in IST regardless of server timezone."""
+    return datetime.now(IST).date()
+
 # Gzip compression
 try:
     from flask_compress import Compress
@@ -353,10 +360,10 @@ def get_articles():
     if not is_authorised():
         return jsonify({"error": "Unauthorized"}), 401
     try:
-        from datetime import date, timedelta
+        from datetime import timedelta
         days_back = int(request.args.get('days', 1))
         days_back = max(1, min(days_back, 5))        # clamp 1-5
-        target_date = date.today() - timedelta(days=days_back - 1)
+        target_date = get_ist_today() - timedelta(days=days_back - 1)
         articles = get_articles_by_date(target_date)
         # Fallback to local JSON for today if DB is empty
         if not articles and days_back == 1:
@@ -366,11 +373,11 @@ def get_articles():
             except FileNotFoundError:
                 articles = []
         enriched = [enrich_article(a) for a in articles]
-        resp = jsonify({"articles": enriched, "count": len(enriched)})
+        resp = jsonify(enriched)
         resp.headers['Cache-Control'] = 'public, max-age=120'
         return resp
     except Exception as e:
-        return jsonify({"articles": [], "count": 0, "error": str(e)})
+        return jsonify([])
 
 # ── SINGLE STORY PERMALINK ────────────────────────────────────────
 @app.route("/story/<int:story_id>")
@@ -832,8 +839,7 @@ def crossword():
 
 @app.route("/api/crossword")
 def get_crossword():
-    from datetime import date as _date
-    today_str = str(_date.today())
+    today_str = str(get_ist_today())
 
     if today_str in _crossword_cache:
         return jsonify(_crossword_cache[today_str])
@@ -898,9 +904,8 @@ Return this exact JSON structure with no markdown, no explanation:
 # ── TODAY I LEARNED ──────────────────────────────────────────────
 @app.route("/api/til")
 def get_til():
-    from datetime import date as _date
     import random
-    today_str = str(_date.today())
+    today_str = str(get_ist_today())
 
     # Return cached result — one TIL per day
     if today_str in _til_cache:
@@ -1001,7 +1006,7 @@ def admin_stats():
         total    = client.table('subscribers').select('id', count='exact').execute()
         active   = client.table('subscribers').select('id', count='exact').eq('is_active', True).execute()
         google   = client.table('subscribers').select('id', count='exact').not_.is_('auth_uid', 'null').execute()
-        week_ago = str(date.today() - timedelta(days=7))
+        week_ago = str(get_ist_today() - timedelta(days=7))
         new_week = client.table('subscribers').select('id', count='exact').gte('created_at', week_ago).execute()
         return jsonify({
             "total":        total.count or 0,
@@ -1032,10 +1037,9 @@ def admin_subscribers():
 @require_admin
 def admin_pipeline():
     try:
-        from datetime import date
         from database import get_client
         client = get_client()
-        today  = str(date.today())
+        today  = str(get_ist_today())
         result = client.table('article')\
             .select('story_type, fetched_date, created_at')\
             .eq('fetched_date', today)\

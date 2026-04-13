@@ -2389,7 +2389,7 @@
       }
 
       const data = await articlesRes.json();
-      allArticles = data.articles || [];
+      allArticles = Array.isArray(data) ? data : (data.articles || []);
 
       if (!allArticles.length) {
         if (skeleton) skeleton.style.display = 'none';
@@ -2476,7 +2476,7 @@
       try {
         const res  = await fetch(`/api/articles?days=${daysBack}`);
         const data = await res.json();
-        allArticles = data.articles || [];
+        allArticles = Array.isArray(data) ? data : (data.articles || []);
         renderFeed();
       } catch(e) {
         container.innerHTML = `<div class="empty-state"><p class="empty-title">Failed to load articles</p></div>`;
