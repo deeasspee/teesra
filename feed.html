@@ -1953,6 +1953,139 @@
       }
     })();
 
+    // ── TODAY I LEARNED ───────────────────────────────────────────
+    async function loadTIL() {
+      try {
+        const res = await fetch('/api/til');
+        const data = await res.json();
+        if (data.error || !data.fact) return;
+
+        window._tilFact = data.fact;
+
+        _tilHtml = `
+        <div style="
+            margin: 0 0 12px 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 14px 16px;
+            position: relative;
+            overflow: hidden;
+        ">
+            <div style="
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 48px;
+                opacity: 0.04;
+                pointer-events: none;
+                line-height: 1;
+            ">💡</div>
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 8px;
+            ">
+                <span style="
+                    font-family: 'DM Mono', monospace;
+                    font-size: 9px;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    color: var(--accent);
+                    font-weight: 500;
+                ">💡 Today I Learned</span>
+                <span style="
+                    font-family: 'DM Mono', monospace;
+                    font-size: 8px;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                    color: var(--muted);
+                    background: var(--bg);
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                    border: 1px solid var(--border);
+                ">${data.topic || ''}</span>
+            </div>
+            <p style="
+                margin: 0 0 10px 0;
+                font-family: 'Playfair Display', Georgia, serif;
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--text);
+                line-height: 1.5;
+                font-style: italic;
+            ">${data.fact}</p>
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            ">
+                <span style="
+                    font-family: 'DM Mono', monospace;
+                    font-size: 9px;
+                    color: var(--muted);
+                    letter-spacing: 0.5px;
+                ">— from today's Teesra brief</span>
+                <button onclick="shareTIL()" style="
+                    background: transparent;
+                    border: 1px solid var(--border);
+                    color: var(--accent);
+                    font-family: 'DM Mono', monospace;
+                    font-size: 9px;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
+                    padding: 4px 10px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                ">Share ↗</button>
+            </div>
+        </div>`;
+
+        renderFeed();
+      } catch(e) {
+        console.error('TIL load error:', e);
+      }
+    }
+
+    function shareTIL() {
+      const fact = window._tilFact || '';
+      if (!fact) return;
+
+      const text = `💡 Today I Learned from Teesra:\n\n"${fact}"\n\nRead today's brief: teesra.in/feed`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'Today I Learned — Teesra',
+          text: text,
+          url: 'https://teesra.in/feed'
+        }).catch(() => {});
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        // Find the share button by traversing — no fixed ID needed
+        const btns = document.querySelectorAll('button');
+        const shareBtn = Array.from(btns).find(b => b.textContent.trim().startsWith('Share'));
+        if (shareBtn) {
+          const orig = shareBtn.textContent;
+          shareBtn.textContent = 'Copied ✓';
+          shareBtn.style.color = 'var(--pulse)';
+          setTimeout(() => {
+            shareBtn.textContent = orig;
+            shareBtn.style.color = 'var(--accent)';
+          }, 2000);
+        }
+      }).catch(() => {
+        window.open(
+          'https://wa.me/?text=' + encodeURIComponent(text),
+          '_blank'
+        );
+      });
+    }
+
     // ── DATE ──────────────────────────────────────────────────────
     const dateEl = document.getElementById('todayDate');
     if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', {
@@ -2222,6 +2355,7 @@
     let selectedDate = '';
     let selectedTopic = 'all';
     let _marketHtml  = '';
+    let _tilHtml     = '';
 
     // ── LOAD FEED ─────────────────────────────────────────────────
     async function loadFeed() {
@@ -2263,7 +2397,8 @@
       document.getElementById('feedControls').style.display = 'block';
       renderFeed();
 
-      // ── Priority 2: Market + Trends (non-blocking, after render) ─
+      // ── Priority 2: Market + Trends + TIL (non-blocking, after render) ─
+      loadTIL();
       const mktCacheKey = 'teesra_market_' + new Date().toISOString().slice(0, 10);
       const cachedMkt = sessionStorage.getItem(mktCacheKey);
       if (cachedMkt) {
@@ -2367,6 +2502,7 @@
       container.innerHTML = `
         <div class="articles-feed">
           ${isToday ? _marketHtml : ''}
+          ${isToday ? _tilHtml : ''}
           <div class="feed-count-badge">
             ✦ ${filtered.length} STORIES · ${dateLabel.toUpperCase()}
           </div>

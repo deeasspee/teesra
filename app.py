@@ -66,6 +66,7 @@ _cricket_cache = {"data": None, "ts": 0}
 
 # Crossword cache keyed by date string
 _crossword_cache = {}
+_til_cache = {}
 IPL_CACHE_SECS = 1800  # 30 minutes
 
 # ── API KEY CHECK ─────────────────────────────────────────────────
@@ -891,6 +892,96 @@ Return this exact JSON structure with no markdown, no explanation:
         return jsonify(data)
     except Exception as e:
         print(f"❌ Crossword generation failed: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ── TODAY I LEARNED ──────────────────────────────────────────────
+@app.route("/api/til")
+def get_til():
+    from datetime import date as _date
+    import random
+    today_str = str(_date.today())
+
+    # Return cached result — one TIL per day
+    if today_str in _til_cache:
+        resp = jsonify(_til_cache[today_str])
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    # Fetch ALL articles analyzed today from Supabase
+    # — not just the 20 selected for the feed
+    # This gives 40-60 articles for a broader,
+    # more surprising fact range
+    try:
+        from database import get_client
+        client = get_client()
+        result = client.table('article')\
+            .select('facts, headline, story_type')\
+            .eq('fetched_date', today_str)\
+            .not_.is_('facts', 'null')\
+            .execute()
+        all_articles = result.data or []
+    except Exception as e:
+        print(f"  ⚠️ TIL fetch error: {e}")
+        all_articles = get_todays_articles()
+
+    if not all_articles:
+        return jsonify({"error": "no_articles"})
+
+    # Shuffle for variety — don't always pick
+    # from the same top articles each day
+    shuffled = all_articles.copy()
+    random.shuffle(shuffled)
+
+    # Use up to 30 articles for broad range
+    facts_text = "\n".join(
+        f"- {a.get('facts', '')[:300]}"
+        for a in shuffled[:30]
+        if a.get('facts')
+    )
+
+    prompt = f"""From these news facts, extract ONE \
+surprising, specific, and interesting fact that most \
+people would not know. It should be genuinely \
+surprising — a number, a contrast, an unexpected \
+connection, or a little-known detail.
+
+Rules:
+- Must be a single sentence, max 35 words
+- Must be specific — include numbers, names, \
+  or places where possible
+- Must be factual — directly from the text below
+- Do NOT start with "Did you know" or "TIL"
+- Do NOT include source attribution in the fact
+- Write it as a clean declarative statement
+
+Facts:
+{facts_text}
+
+Return ONLY this JSON, nothing else:
+{{
+  "fact": "your single surprising fact here",
+  "topic": "one word topic like ECONOMY or POLITICS or SPORTS"
+}}"""
+
+    try:
+        response = anthropic_client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=150,
+            system="Return only valid JSON. No markdown.",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = response.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        data = json.loads(raw)
+        _til_cache[today_str] = data
+        resp = jsonify(data)
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+    except Exception as e:
+        print(f"❌ TIL generation failed: {e}")
         return jsonify({"error": str(e)}), 500
 
 
