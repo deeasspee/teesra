@@ -719,7 +719,7 @@ async function loadHeroStories() {
     } else {
       const res  = await fetch('/api/articles');
       const data = await res.json();
-      articles = data.articles || [];
+      articles = Array.isArray(data) ? data : (data.articles || []);
       if (articles.length) sessionStorage.setItem(cacheKey, JSON.stringify(articles.slice(0, 5)));
     }
     if (!articles.length) {
