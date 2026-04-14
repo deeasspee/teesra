@@ -518,6 +518,14 @@
       .clues-panel { grid-template-columns: 1fr; }
       .clue-text { font-size: 13px; }
     }
+    @media (min-width: 769px) {
+      nav a.nav-logo span { font-size: 10px !important; opacity: 0.9 !important; }
+      nav a:not(.nav-logo) { font-size: 13px !important; color: var(--text) !important; opacity: 1 !important; font-weight: 500 !important; }
+      nav a:not(.nav-logo):hover { color: var(--facts) !important; }
+      #auth-signin-btn { font-size: 12px !important; padding: 6px 14px !important; border-width: 1.5px !important; }
+      #auth-user-name { font-size: 13px !important; color: var(--facts) !important; font-weight: 600 !important; }
+      #auth-user-menu button { font-size: 11px !important; color: var(--text) !important; opacity: 0.8 !important; }
+    }
   </style>
 </head>
 <body>

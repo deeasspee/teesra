@@ -374,6 +374,23 @@
       .hero-main    { min-height: 280px; }
       .hero-stories { min-height: 220px; }
     }
+
+    /* ── DESKTOP NAV TEXT READABILITY ──────────────────────────── */
+    @media (min-width: 901px) {
+      .nav-links a {
+        font-size: 13px !important;
+        color: var(--text) !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.3px !important;
+      }
+      .nav-links a:hover { color: var(--accent) !important; }
+      .nav-links a.nav-cta { color: var(--bg) !important; }
+      #auth-signin-btn { font-size: 12px !important; padding: 6px 14px !important; border-width: 1.5px !important; }
+      #auth-user-name { font-size: 13px !important; color: var(--accent) !important; font-weight: 600 !important; }
+      #auth-user-menu button { font-size: 11px !important; color: var(--text) !important; opacity: 0.8 !important; }
+      #nav-admin-link { font-size: 11px !important; padding: 4px 10px !important; font-weight: 700 !important; }
+    }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2122518631079548"
   crossorigin="anonymous"></script>

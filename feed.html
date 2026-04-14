@@ -1551,6 +1551,44 @@
     }
     @keyframes skel-pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
 
+    /* ── DESKTOP NAV TEXT READABILITY ──────────────────────────── */
+    @media (min-width: 769px) {
+      .nav-date {
+        font-size: 13px !important;
+        color: var(--text) !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .nav-back {
+        font-size: 13px !important;
+        color: var(--text) !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.3px !important;
+      }
+      .nav-back:hover { color: var(--facts) !important; }
+      #auth-signin-btn {
+        font-size: 12px !important;
+        padding: 6px 14px !important;
+        border-width: 1.5px !important;
+      }
+      #auth-user-name {
+        font-size: 13px !important;
+        color: var(--facts) !important;
+        font-weight: 600 !important;
+      }
+      #auth-user-menu button {
+        font-size: 11px !important;
+        color: var(--text) !important;
+        opacity: 0.8 !important;
+      }
+      #nav-admin-link {
+        font-size: 11px !important;
+        padding: 4px 10px !important;
+        font-weight: 700 !important;
+      }
+    }
+
     /* Tablet — 2 columns, hide football sidebar */
     @media(max-width:1100px) and (min-width:769px) {
       .feed-layout { grid-template-columns: 220px 1fr; grid-template-areas: "left center"; padding: 0 8px; }
@@ -1657,18 +1695,6 @@
       </button>
     </div>
   </nav>
-
-  <!-- SIGNED-IN PERKS BANNER -->
-  <div id="signed-in-perks" style="display:none;">
-    <div style="background:linear-gradient(135deg,var(--surface) 0%,color-mix(in srgb,var(--facts) 8%,var(--surface)) 100%);border-bottom:1px solid var(--border);padding:6px 20px;display:flex;align-items:center;gap:16px;font-size:11px;font-family:monospace;color:var(--text-mid);letter-spacing:0.5px;flex-wrap:wrap;">
-      <span style="color:var(--facts);">✦ TEESRA MEMBER</span>
-      <span>✓ Crossword unlocked</span>
-      <span>✓ 5-day archive</span>
-      <span>✓ AI chat enabled</span>
-      <span>✓ Bias meter</span>
-      <span id="perk-admin-badge" style="display:none;color:var(--facts);font-weight:700;">⚡ ADMIN ACCESS</span>
-    </div>
-  </div>
 
   <!-- HERO -->
   <div class="feed-hero">
@@ -1965,139 +1991,6 @@
       }
     })();
 
-    // ── TODAY I LEARNED ───────────────────────────────────────────
-    async function loadTIL() {
-      try {
-        const res = await fetch('/api/til');
-        const data = await res.json();
-        if (data.error || !data.fact) return;
-
-        window._tilFact = data.fact;
-
-        _tilHtml = `
-        <div style="
-            margin: 0 0 12px 0;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--accent);
-            border-radius: 10px;
-            padding: 14px 16px;
-            position: relative;
-            overflow: hidden;
-        ">
-            <div style="
-                position: absolute;
-                right: 12px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 48px;
-                opacity: 0.04;
-                pointer-events: none;
-                line-height: 1;
-            ">💡</div>
-            <div style="
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 8px;
-            ">
-                <span style="
-                    font-family: 'DM Mono', monospace;
-                    font-size: 9px;
-                    letter-spacing: 2px;
-                    text-transform: uppercase;
-                    color: var(--accent);
-                    font-weight: 500;
-                ">💡 Today I Learned</span>
-                <span style="
-                    font-family: 'DM Mono', monospace;
-                    font-size: 8px;
-                    letter-spacing: 1.5px;
-                    text-transform: uppercase;
-                    color: var(--muted);
-                    background: var(--bg);
-                    padding: 2px 8px;
-                    border-radius: 10px;
-                    border: 1px solid var(--border);
-                ">${data.topic || ''}</span>
-            </div>
-            <p style="
-                margin: 0 0 10px 0;
-                font-family: 'Playfair Display', Georgia, serif;
-                font-size: 15px;
-                font-weight: 700;
-                color: var(--text);
-                line-height: 1.5;
-                font-style: italic;
-            ">${data.fact}</p>
-            <div style="
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            ">
-                <span style="
-                    font-family: 'DM Mono', monospace;
-                    font-size: 9px;
-                    color: var(--muted);
-                    letter-spacing: 0.5px;
-                ">— from today's Teesra brief</span>
-                <button onclick="shareTIL()" style="
-                    background: transparent;
-                    border: 1px solid var(--border);
-                    color: var(--accent);
-                    font-family: 'DM Mono', monospace;
-                    font-size: 9px;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                    padding: 4px 10px;
-                    border-radius: 12px;
-                    cursor: pointer;
-                ">Share ↗</button>
-            </div>
-        </div>`;
-
-        renderFeed();
-      } catch(e) {
-        console.error('TIL load error:', e);
-      }
-    }
-
-    function shareTIL() {
-      const fact = window._tilFact || '';
-      if (!fact) return;
-
-      const text = `💡 Today I Learned from Teesra:\n\n"${fact}"\n\nRead today's brief: teesra.in/feed`;
-
-      if (navigator.share) {
-        navigator.share({
-          title: 'Today I Learned — Teesra',
-          text: text,
-          url: 'https://teesra.in/feed'
-        }).catch(() => {});
-        return;
-      }
-
-      navigator.clipboard.writeText(text).then(() => {
-        // Find the share button by traversing — no fixed ID needed
-        const btns = document.querySelectorAll('button');
-        const shareBtn = Array.from(btns).find(b => b.textContent.trim().startsWith('Share'));
-        if (shareBtn) {
-          const orig = shareBtn.textContent;
-          shareBtn.textContent = 'Copied ✓';
-          shareBtn.style.color = 'var(--pulse)';
-          setTimeout(() => {
-            shareBtn.textContent = orig;
-            shareBtn.style.color = 'var(--accent)';
-          }, 2000);
-        }
-      }).catch(() => {
-        window.open(
-          'https://wa.me/?text=' + encodeURIComponent(text),
-          '_blank'
-        );
-      });
-    }
-
     // ── DATE ──────────────────────────────────────────────────────
     const dateEl = document.getElementById('todayDate');
     if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', {
@@ -2367,7 +2260,6 @@
     let selectedDate = '';
     let selectedTopic = 'all';
     let _marketHtml  = '';
-    let _tilHtml     = '';
 
     // ── IST DATE HELPERS ─────────────────────────────────────────
     function getISTDateString(daysBack = 0) {
@@ -2406,10 +2298,10 @@
         articlesRes = await fetch('/api/articles?days=1');
       } catch(e) {
         container.innerHTML = `
-          <div class="empty-state">
-            <p class="empty-title">Backend not running</p>
-            <p class="empty-desc">Start the Flask server first</p>
-            <div class="empty-code">python app.py</div>
+          <div style="text-align:center;padding:60px 20px;">
+            <div style="font-size:36px;margin-bottom:16px;opacity:0.25;">📰</div>
+            <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Unable to load stories</p>
+            <p style="font-size:13px;color:var(--text-dim);opacity:0.6;line-height:1.6;">Please try refreshing the page.</p>
           </div>`;
         return;
       }
@@ -2420,10 +2312,10 @@
       if (!allArticles.length) {
         if (skeleton) skeleton.style.display = 'none';
         container.innerHTML = `
-          <div class="empty-state">
-            <p class="empty-title">No articles yet</p>
-            <p class="empty-desc">Run the analyzer first</p>
-            <div class="empty-code">python analyze_article.py</div>
+          <div style="text-align:center;padding:60px 20px;">
+            <div style="font-size:36px;margin-bottom:16px;opacity:0.25;">📰</div>
+            <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Today's brief is on its way</p>
+            <p style="font-size:13px;color:var(--text-dim);opacity:0.6;line-height:1.6;">Stories are published daily after 7 AM IST.<br>Check back soon or browse yesterday's brief.</p>
           </div>`;
         return;
       }
@@ -2435,8 +2327,7 @@
       document.getElementById('feedControls').style.display = 'block';
       renderFeed();
 
-      // ── Priority 2: Market + Trends + TIL (non-blocking, after render) ─
-      loadTIL();
+      // ── Priority 2: Market (non-blocking, after render) ─
       const mktCacheKey = 'teesra_market_' + new Date().toISOString().slice(0, 10);
       const cachedMkt = sessionStorage.getItem(mktCacheKey);
       if (cachedMkt) {
@@ -2537,7 +2428,6 @@
       container.innerHTML = `
         <div class="articles-feed">
           ${isToday ? _marketHtml : ''}
-          ${isToday ? _tilHtml : ''}
           <div class="feed-count-badge">
             ✦ ${filtered.length} STORIES · ${dateLabel.toUpperCase()}
           </div>
@@ -3302,9 +3192,6 @@
       const adminLink  = document.getElementById('nav-admin-link');
       const nameEl     = document.getElementById('auth-user-name');
       const avatarEl   = document.getElementById('auth-user-avatar');
-      const perksBar   = document.getElementById('signed-in-perks');
-      const adminBadge = document.getElementById('perk-admin-badge');
-
       if (this.user) {
         if (signInBtn) signInBtn.style.display = 'none';
         if (userMenu)  userMenu.style.display  = 'flex';
@@ -3317,13 +3204,10 @@
           avatarEl.style.display = 'block';
         }
         if (adminLink)  adminLink.style.display  = this.isAdmin() ? 'inline-block' : 'none';
-        if (perksBar)   perksBar.style.display   = 'block';
-        if (adminBadge) adminBadge.style.display = this.isAdmin() ? 'inline' : 'none';
       } else {
         if (signInBtn) signInBtn.style.display = 'flex';
         if (userMenu)  userMenu.style.display  = 'none';
         if (adminLink) adminLink.style.display = 'none';
-        if (perksBar)  perksBar.style.display  = 'none';
       }
     }
   };
