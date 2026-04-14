@@ -2260,6 +2260,7 @@
     let selectedDate = '';
     let selectedTopic = 'all';
     let _marketHtml  = '';
+    let _isFallback  = false;
 
     // ── IST DATE HELPERS ─────────────────────────────────────────
     function getISTDateString(daysBack = 0) {
@@ -2288,46 +2289,41 @@
     }
 
     // ── LOAD FEED ─────────────────────────────────────────────────
-    async function loadFeed() {
-      const container = document.getElementById('feedContainer');
-      const skeleton  = document.getElementById('articles-skeleton');
+    function _istHour() {
+      return new Date(Date.now() + 5.5 * 60 * 60 * 1000).getUTCHours();
+    }
 
-      // ── Priority 1: Articles (blocks page content) ────────────
-      let articlesRes;
-      try {
-        articlesRes = await fetch('/api/articles?days=1');
-      } catch(e) {
-        container.innerHTML = `
-          <div style="text-align:center;padding:60px 20px;">
-            <div style="font-size:36px;margin-bottom:16px;opacity:0.25;">📰</div>
-            <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Unable to load stories</p>
-            <p style="font-size:13px;color:var(--text-dim);opacity:0.6;line-height:1.6;">Please try refreshing the page.</p>
-          </div>`;
-        return;
-      }
+    function _showNetworkError(container) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;">
+          <div style="font-size:36px;margin-bottom:16px;opacity:0.25;">📰</div>
+          <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Unable to load stories</p>
+          <p style="font-size:13px;color:var(--text-dim);opacity:0.6;line-height:1.6;">Please try refreshing the page.</p>
+        </div>`;
+    }
 
-      const data = await articlesRes.json();
-      allArticles = parseArticles(data);
+    function _showEmptyState(container) {
+      const hourIST = _istHour();
+      const msg = hourIST >= 7
+        ? 'Stories are loading — refresh in a few minutes.'
+        : 'Stories are published daily after 7 AM IST.<br>Check back soon or browse yesterday\'s brief.';
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;">
+          <div style="font-size:36px;margin-bottom:16px;opacity:0.25;">📰</div>
+          <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Today's brief is on its way</p>
+          <p style="font-size:13px;color:var(--text-dim);opacity:0.6;line-height:1.6;">${msg}</p>
+        </div>`;
+    }
 
-      if (!allArticles.length) {
-        if (skeleton) skeleton.style.display = 'none';
-        container.innerHTML = `
-          <div style="text-align:center;padding:60px 20px;">
-            <div style="font-size:36px;margin-bottom:16px;opacity:0.25;">📰</div>
-            <p style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Today's brief is on its way</p>
-            <p style="font-size:13px;color:var(--text-dim);opacity:0.6;line-height:1.6;">Stories are published daily after 7 AM IST.<br>Check back soon or browse yesterday's brief.</p>
-          </div>`;
-        return;
-      }
-
-      // Hide skeleton, show real content
+    function _initFeedUI(skeleton) {
       if (skeleton) skeleton.style.display = 'none';
       buildDateTabs();
       buildTopicFilters();
       document.getElementById('feedControls').style.display = 'block';
       renderFeed();
+    }
 
-      // ── Priority 2: Market (non-blocking, after render) ─
+    function _loadMarket() {
       const mktCacheKey = 'teesra_market_' + new Date().toISOString().slice(0, 10);
       const cachedMkt = sessionStorage.getItem(mktCacheKey);
       if (cachedMkt) {
@@ -2342,6 +2338,50 @@
           } catch(e) {}
         }).catch(() => {});
       }
+    }
+
+    async function loadFeed() {
+      const container = document.getElementById('feedContainer');
+      const skeleton  = document.getElementById('articles-skeleton');
+
+      // ── Priority 1: Articles (blocks page content) ────────────
+      let data;
+      try {
+        const res = await fetch('/api/articles?days=1');
+        data = await res.json();
+      } catch(e) {
+        _showNetworkError(container);
+        return;
+      }
+
+      allArticles = parseArticles(data);
+
+      if (!allArticles.length) {
+        // ── Midnight fallback: before 7 AM IST with no articles ──
+        if (_istHour() < 7) {
+          try {
+            const res2 = await fetch('/api/articles?days=2');
+            const data2 = await res2.json();
+            const prevArticles = parseArticles(data2);
+            if (prevArticles.length > 0) {
+              allArticles = prevArticles;
+              _isFallback  = true;
+              selectedDate = getISTDateString(1); // yesterday
+              _initFeedUI(skeleton);
+              _loadMarket();
+              return;
+            }
+          } catch(e) {}
+        }
+        // No fallback available
+        if (skeleton) skeleton.style.display = 'none';
+        _showEmptyState(container);
+        return;
+      }
+
+      _isFallback = false;
+      _initFeedUI(skeleton);
+      _loadMarket();
     }
 
     function buildDateTabs() {
@@ -2380,6 +2420,7 @@
     async function selectDate(dateStr, daysBack, btn) {
       selectedDate = dateStr;
       selectedTopic = 'all';
+      _isFallback = false;
       document.querySelectorAll('.date-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.querySelectorAll('.topic-filter').forEach(b => {
@@ -2391,9 +2432,30 @@
         const res  = await fetch(`/api/articles?days=${daysBack}`);
         const data = await res.json();
         allArticles = parseArticles(data);
-        renderFeed();
+
+        // Midnight fallback — only for Today tab (daysBack === 1)
+        if (!allArticles.length && daysBack === 1 && _istHour() < 7) {
+          try {
+            const res2 = await fetch('/api/articles?days=2');
+            const data2 = await res2.json();
+            const prevArticles = parseArticles(data2);
+            if (prevArticles.length > 0) {
+              allArticles = prevArticles;
+              _isFallback  = true;
+              selectedDate = getISTDateString(1);
+              renderFeed();
+              return;
+            }
+          } catch(e) {}
+        }
+
+        if (!allArticles.length) {
+          _showEmptyState(container);
+        } else {
+          renderFeed();
+        }
       } catch(e) {
-        container.innerHTML = `<div class="empty-state"><p class="empty-title">Failed to load articles</p></div>`;
+        _showNetworkError(container);
       }
     }
 
@@ -2425,9 +2487,15 @@
         : formatTabDate(selectedDate);
 
       const isToday = selectedDate === today;
+      const preparingBannerHtml = _isFallback ? `
+        <div style="background:color-mix(in srgb,var(--facts) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--facts) 25%,var(--border));border-radius:8px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--facts);text-transform:uppercase;">
+          <span style="font-size:14px;">⏳</span>
+          <span>Today's brief is being prepared — showing yesterday's stories</span>
+        </div>` : '';
       container.innerHTML = `
         <div class="articles-feed">
-          ${isToday ? _marketHtml : ''}
+          ${(isToday || _isFallback) ? _marketHtml : ''}
+          ${preparingBannerHtml}
           <div class="feed-count-badge">
             ✦ ${filtered.length} STORIES · ${dateLabel.toUpperCase()}
           </div>
