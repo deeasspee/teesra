@@ -927,15 +927,18 @@ def get_story_of_week():
 def get_reddit_india():
     """Fetch top posts from r/india — no API key needed"""
     try:
-        import json as _json
+        import requests as _req
 
-        url = "https://www.reddit.com/r/india/hot.json?limit=15"
-        req = urllib.request.Request(
-            url,
-            headers={"User-Agent": "Teesra/1.0 (https://teesra.in)"}
-        )
-        with urllib.request.urlopen(req, timeout=10) as r:
-            data = _json.loads(r.read().decode())
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+        }
+        url = "https://www.reddit.com/r/india/hot.json?limit=20"
+        r = _req.get(url, headers=headers, timeout=10)
+        r.raise_for_status()
+        data = r.json()
 
         posts = []
         for post in data['data']['children']:

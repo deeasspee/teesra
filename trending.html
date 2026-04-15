@@ -614,7 +614,7 @@
     try {
       const r = await fetch('/api/trends');
       const d = await r.json();
-      const items = (d.trends || []).slice(0, 10);
+      const items = (d.trends || []).slice(0, 20);
       if (!items.length) throw new Error('empty');
       body.innerHTML = items.map((item, i) => `
         <a class="trend-item" href="${escHtml(item.link || 'https://www.google.com/search?q=' + encodeURIComponent(item.title) + '&gl=in')}" target="_blank" rel="noopener">

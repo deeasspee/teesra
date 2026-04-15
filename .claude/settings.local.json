@@ -7,7 +7,9 @@
       "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(python:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)",
+      "Bash(set PYTHONIOENCODING=utf-8)"
     ]
   }
 }
