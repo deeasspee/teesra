@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="jungle">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teesra — What India is Talking About</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="shortcut icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a120e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Teesra">
+  <meta name="description" content="What India is talking about right now — Google trends, Reddit r/india, YouTube trending, and the Story of the Week."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  </noscript>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    /* ── 6 THEMES ─────────────────────────────────────────────── */
+    [data-theme="jungle"]{--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.92);--border:#1e2e20;--text:#e8f0e4;--text-dim:#9abea0;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--glow:rgba(212,168,32,0.06);--card-max:1200px;}
+    [data-theme="cosmos"]{--bg:#0d1117;--bg2:#131a24;--surface:rgba(26,35,50,0.92);--border:#1e2d42;--text:#e8edf4;--text-dim:#9aaec4;--text-mid:#8aa4c0;--facts:#f0a500;--left:#00c9b1;--right:#ff6b6b;--pulse:#56d364;--glow:rgba(240,165,0,0.06);--card-max:1200px;}
+    [data-theme="ember"]{--bg:#141410;--bg2:#1c1c18;--surface:rgba(36,36,32,0.92);--border:#2e2e28;--text:#f5f0e8;--text-dim:#b8b09a;--text-mid:#a8a290;--facts:#e8440a;--left:#4a9edd;--right:#dd4a8a;--pulse:#4add8a;--glow:rgba(232,68,10,0.06);--card-max:1200px;}
+    [data-theme="dawn"]{--bg:#faf7f0;--bg2:#f2ede4;--surface:rgba(255,255,255,0.98);--border:#e0d8c8;--text:#1a1608;--text-dim:#8a7e60;--text-mid:#5a5040;--facts:#b87400;--left:#1a6096;--right:#c04020;--pulse:#2a7a2e;--glow:rgba(184,116,0,0.06);--card-max:1200px;}
+    [data-theme="cloud"]{--bg:#f4f6fa;--bg2:#eaecf4;--surface:rgba(255,255,255,0.98);--border:#d4d8e8;--text:#0e1428;--text-dim:#7a82a0;--text-mid:#4a5270;--facts:#1a4fc8;--left:#0a8a7a;--right:#c83040;--pulse:#2a8a2e;--glow:rgba(26,79,200,0.06);--card-max:1200px;}
+    [data-theme="parchment"]{--bg:#f5f0e4;--bg2:#ede6d4;--surface:rgba(250,246,236,0.98);--border:#d4c8a8;--text:#1e1408;--text-dim:#8a7a5a;--text-mid:#5a4a30;--facts:#8a1a2a;--left:#1a4a8a;--right:#6a2a0a;--pulse:#1a6a2a;--glow:rgba(138,26,42,0.06);--card-max:1200px;}
+
+    /* ── THEME SWATCH ─────────────────────────────────────────── */
+    .theme-wrap{position:relative;}
+    .theme-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
+    .theme-swatch-btn:hover{border-color:var(--facts);transform:scale(1.1);}
+    .swatch-inner{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .s1{grid-column:1/-1;}
+    .theme-picker{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg);border:1px solid var(--border);padding:12px;z-index:500;width:220px;box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+    .theme-picker.open{display:block;}
+    .theme-picker-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+    .theme-grid-picker{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .theme-opt{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:7px;border:1px solid var(--border);transition:border-color 0.2s;}
+    .theme-opt:hover{border-color:var(--facts);}
+    .theme-opt.active{border-color:var(--facts);background:rgba(255,255,255,0.04);}
+    .tsp{height:26px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+    .ts1{grid-column:1/-1;}
+    .tnl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: #0a0e14;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(88, 28, 135, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(15, 118, 110, 0.30) 0%, transparent 45%),
+        radial-gradient(ellipse at 60% 80%, rgba(30, 27, 75, 0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at 10% 70%, rgba(127, 29, 29, 0.20) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 60%, rgba(12, 74, 110, 0.30) 0%, transparent 40%);
+      animation: blobshift 20s ease-in-out infinite alternate;
+      animation-delay: 800ms;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      transition: color 0.3s;
+      min-height: 100vh;
+    }
+    @keyframes blobshift {
+      0%   { background-image: radial-gradient(ellipse at 20% 20%, rgba(88,28,135,0.35) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(15,118,110,0.30) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(30,27,75,0.40) 0%,transparent 50%),radial-gradient(ellipse at 10% 70%,rgba(127,29,29,0.20) 0%,transparent 45%),radial-gradient(ellipse at 90% 60%,rgba(12,74,110,0.30) 0%,transparent 40%); }
+      50%  { background-image: radial-gradient(ellipse at 70% 30%, rgba(88,28,135,0.30) 0%,transparent 50%),radial-gradient(ellipse at 20% 60%,rgba(15,118,110,0.35) 0%,transparent 45%),radial-gradient(ellipse at 80% 70%,rgba(30,27,75,0.35) 0%,transparent 50%),radial-gradient(ellipse at 50% 10%,rgba(127,29,29,0.25) 0%,transparent 45%),radial-gradient(ellipse at 30% 80%,rgba(12,74,110,0.30) 0%,transparent 40%); }
+      100% { background-image: radial-gradient(ellipse at 30% 50%, rgba(88,28,135,0.30) 0%,transparent 50%),radial-gradient(ellipse at 60% 20%,rgba(15,118,110,0.25) 0%,transparent 45%),radial-gradient(ellipse at 40% 90%,rgba(30,27,75,0.35) 0%,transparent 50%),radial-gradient(ellipse at 80% 30%,rgba(127,29,29,0.30) 0%,transparent 45%),radial-gradient(ellipse at 10% 40%,rgba(12,74,110,0.25) 0%,transparent 40%); }
+    }
+    [data-theme="jungle"] body { background-color: #080f0a; }
+    [data-theme="cosmos"] body { background-color: #08090f; }
+    [data-theme="ember"]  body { background-color: #0f0a08; }
+    @keyframes blobshift-light { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    [data-theme="dawn"] body    { background-color:#faf7f0; background-image:radial-gradient(ellipse at 20% 20%,rgba(184,116,0,0.14) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(180,100,20,0.10) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(200,140,40,0.12) 0%,transparent 50%); animation:blobshift-light 25s ease-in-out infinite alternate; }
+    [data-theme="cloud"] body   { background-color:#f4f6fa; background-image:radial-gradient(ellipse at 20% 20%,rgba(26,79,200,0.10) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(10,138,122,0.08) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(40,80,200,0.10) 0%,transparent 50%); animation:blobshift-light 25s ease-in-out infinite alternate; }
+    [data-theme="parchment"] body { background-color:#f5f0e4; background-image:radial-gradient(ellipse at 20% 20%,rgba(138,26,42,0.10) 0%,transparent 50%),radial-gradient(ellipse at 80% 10%,rgba(106,42,10,0.08) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(120,40,30,0.10) 0%,transparent 50%); animation:blobshift-light 25s ease-in-out infinite alternate; }
+
+    /* ── NAV ──────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; font-weight: 900;
+      color: var(--facts); text-decoration: none; flex-shrink: 0;
+    }
+    .nav-logo span {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--text-mid); letter-spacing: 2px; display: block; margin-top: -3px;
+    }
+    .nav-right {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .nav-back {
+      font-size: 12px; color: var(--text-mid); font-weight: 500;
+      text-decoration: none; transition: color 0.2s; white-space: nowrap;
+    }
+    .nav-back:hover { color: var(--facts); }
+
+    /* Hamburger — hidden on desktop */
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 4px; background: none; border: none; flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--text-mid); transition: all 0.25s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .nav-drawer {
+      display: none; position: fixed; inset: 0; top: 0; z-index: 190;
+      background: rgba(10,10,8,0.97); backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 32px; padding: 80px 32px 48px;
+    }
+    [data-theme="dawn"] .nav-drawer    { background: rgba(250,247,240,0.97); }
+    [data-theme="cloud"] .nav-drawer   { background: rgba(244,246,250,0.97); }
+    [data-theme="parchment"] .nav-drawer { background: rgba(245,240,228,0.97); }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700;
+      color: var(--text-mid); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-drawer a:hover { color: var(--facts); }
+    [data-theme="dawn"] .nav-drawer a,
+    [data-theme="cloud"] .nav-drawer a,
+    [data-theme="parchment"] .nav-drawer a { color: var(--text) !important; }
+
+    @media (max-width: 700px) {
+      nav { padding: 12px 16px; }
+      .nav-back:not(.always-show) { display: none; }
+      .nav-hamburger { display: flex; }
+    }
+
+    /* ── PAGE HEADER ─────────────────────────────────────────── */
+    .page-header {
+      max-width: var(--card-max);
+      margin: 0 auto;
+      padding: 40px 32px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: 3px; color: var(--facts); text-transform: uppercase;
+      margin-bottom: 10px; font-weight: 600;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 5vw, 48px); font-weight: 900;
+      letter-spacing: -1px; line-height: 1.1; margin-bottom: 10px;
+    }
+    .page-subtitle {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--text-mid); letter-spacing: 2px; text-transform: uppercase;
+    }
+    .page-updated {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--text-mid); letter-spacing: 1px; margin-top: 8px;
+    }
+    @media (max-width: 700px) {
+      .page-header { padding: 28px 16px 20px; }
+    }
+
+    /* ── SKELETON ─────────────────────────────────────────────── */
+    @keyframes skel-pulse { 0%,100%{opacity:0.3} 50%{opacity:0.6} }
+    .skel-line {
+      height: 16px; background: var(--border); border-radius: 4px;
+      margin-bottom: 12px; animation: skel-pulse 1.5s ease-in-out infinite;
+    }
+
+    /* ── THREE-COLUMN GRID ────────────────────────────────────── */
+    .trending-grid {
+      max-width: var(--card-max);
+      margin: 0 auto;
+      padding: 32px 32px 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 960px) {
+      .trending-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 620px) {
+      .trending-grid { grid-template-columns: 1fr; padding: 16px 16px 0; gap: 16px; }
+    }
+
+    /* ── SECTION CARD ─────────────────────────────────────────── */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--facts); font-weight: 600; margin-bottom: 2px;
+    }
+    .section-sub {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--text-mid); letter-spacing: 1px;
+    }
+    .section-body { padding: 8px 0; }
+    .section-error {
+      padding: 20px; font-family: 'DM Mono', monospace;
+      font-size: 11px; color: var(--text-mid); letter-spacing: 1px; text-align: center;
+    }
+
+    /* ── TREND ITEMS (Google) ─────────────────────────────────── */
+    .trend-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 20px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.15s;
+      text-decoration: none;
+    }
+    .trend-item:last-child { border-bottom: none; }
+    .trend-item:hover { background: var(--glow); border-left: 2px solid var(--facts); padding-left: 18px; }
+    .trend-rank {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--text-mid); width: 18px; flex-shrink: 0; text-align: right;
+    }
+    .trend-label {
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      color: var(--text); font-weight: 500; flex: 1;
+    }
+
+    /* ── REDDIT ITEMS ─────────────────────────────────────────── */
+    .reddit-item {
+      display: block; padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none; transition: background 0.15s;
+    }
+    .reddit-item:last-child { border-bottom: none; }
+    .reddit-item:hover { background: var(--glow); }
+    .reddit-title {
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--text); font-weight: 500; line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .reddit-meta {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--text-mid); display: flex; gap: 8px; flex-wrap: wrap;
+      align-items: center;
+    }
+    .reddit-score { color: var(--facts); font-weight: 600; }
+    .reddit-flair {
+      background: color-mix(in srgb, var(--facts) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--facts) 30%, transparent);
+      color: var(--facts); padding: 1px 6px; border-radius: 3px; font-size: 9px;
+    }
+
+    /* ── YOUTUBE ITEMS ────────────────────────────────────────── */
+    .yt-item {
+      display: flex; gap: 12px; padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none; transition: background 0.15s; align-items: flex-start;
+    }
+    .yt-item:last-child { border-bottom: none; }
+    .yt-item:hover { background: var(--glow); }
+    .yt-thumb {
+      width: 100px; height: 56px; object-fit: cover; border-radius: 4px;
+      flex-shrink: 0; background: var(--border);
+    }
+    .yt-info { flex: 1; min-width: 0; }
+    .yt-title {
+      font-family: 'DM Sans', sans-serif; font-size: 12px;
+      color: var(--text); font-weight: 500; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; margin-bottom: 4px;
+    }
+    .yt-channel {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--text-mid); margin-bottom: 2px;
+    }
+    .yt-views {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--facts); font-weight: 600;
+    }
+
+    /* ── STORY OF THE WEEK ────────────────────────────────────── */
+    .sotw-wrap {
+      max-width: var(--card-max);
+      margin: 0 auto;
+      padding: 24px 32px 0;
+    }
+    @media (max-width: 620px) { .sotw-wrap { padding: 16px 16px 0; } }
+    .sotw-card {
+      background: var(--surface);
+      border: 2px solid var(--facts);
+      border-radius: 12px;
+      padding: 28px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sotw-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--facts);
+    }
+    .sotw-label {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--facts); font-weight: 600; margin-bottom: 4px;
+    }
+    .sotw-dates {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--text-mid); letter-spacing: 1px; margin-bottom: 16px;
+    }
+    .sotw-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 3vw, 28px); font-weight: 900;
+      line-height: 1.2; letter-spacing: -0.5px;
+      margin-bottom: 14px; color: var(--text);
+    }
+    .sotw-summary {
+      font-size: 15px; color: var(--text-mid);
+      line-height: 1.75; margin-bottom: 18px;
+    }
+    .sotw-matters-label {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--facts); font-weight: 600; margin-bottom: 8px;
+    }
+    .sotw-matters { font-size: 15px; color: var(--text); line-height: 1.7; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .page-footer {
+      max-width: var(--card-max);
+      margin: 48px auto 0;
+      padding: 24px 32px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-back {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--text-mid); text-decoration: none; letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+    .footer-back:hover { color: var(--facts); }
+    .footer-links {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--text-mid); letter-spacing: 1px;
+    }
+    .footer-links a { color: var(--text-mid); text-decoration: none; }
+    .footer-links a:hover { color: var(--facts); }
+    @media (max-width: 620px) {
+      .page-footer { flex-direction: column; align-items: flex-start; padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE DRAWER -->
+  <div class="nav-drawer" id="navDrawer">
+    <a href="/feed" onclick="closeDrawer()">← Today's Brief</a>
+    <a href="/" onclick="closeDrawer()">Home</a>
+    <a href="/about" onclick="closeDrawer()">About</a>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
+      <div style="display:grid;grid-template-columns:repeat(3,40px);gap:8px;" id="drawerThemeSwatches"></div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo">
+      Teesra
+      <span>तीसरा नज़रिया</span>
+    </a>
+    <div class="nav-right">
+      <a href="/feed" class="nav-back always-show">← Today's Brief</a>
+      <a href="/" class="nav-back">Home</a>
+      <!-- Auth UI -->
+      <button id="auth-signin-btn" onclick="TeesraAuth.signInWithGoogle()" title="Sign in with Google"
+              style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:transparent;border:1px solid var(--facts);color:var(--facts);border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        SIGN IN
+      </button>
+      <div id="auth-user-menu" style="display:none;align-items:center;gap:8px;flex-shrink:0;">
+        <img id="auth-user-avatar" style="display:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--facts);object-fit:cover;" src="" alt="avatar">
+        <span id="auth-user-name" style="font-size:11px;color:var(--facts);font-family:monospace;letter-spacing:1px;font-weight:700;"></span>
+        <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:12px;font-size:10px;font-family:monospace;cursor:pointer;letter-spacing:0.5px;">SIGN OUT</button>
+      </div>
+      <a id="nav-admin-link" href="/admin" style="display:none;font-size:10px;color:var(--facts);font-family:monospace;letter-spacing:1.5px;text-decoration:none;border:1px solid var(--facts);padding:3px 8px;border-radius:12px;white-space:nowrap;flex-shrink:0;">⚡ ADMIN</a>
+      <!-- Theme swatch -->
+      <div class="theme-wrap" style="position:relative;">
+        <button class="theme-swatch-btn" id="themeSwatchBtn" onclick="toggleThemePicker(event)" title="Change theme" aria-label="Change theme">
+          <div class="swatch-inner"><div class="s1" id="tsw1"></div><div class="s2" id="tsw2"></div><div class="s3" id="tsw3"></div></div>
+        </button>
+        <div class="theme-picker" id="themePicker">
+          <div class="theme-picker-title">Choose theme</div>
+          <div class="theme-grid-picker" id="themeGrid"></div>
+        </div>
+      </div>
+      <!-- Hamburger: mobile only -->
+      <button class="nav-hamburger" id="hamburgerBtn" onclick="toggleDrawer()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <p class="page-eyebrow">Live · Updated hourly</p>
+    <h1 class="page-title">What India is Talking About</h1>
+    <p class="page-subtitle">Google Trends · Reddit · YouTube · Story of the Week</p>
+    <p class="page-updated" id="updatedAt"></p>
+  </div>
+
+  <!-- THREE COLUMN GRID -->
+  <div class="trending-grid">
+
+    <!-- SECTION 1: Google Trends -->
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-title">🔥 Trending Searches</div>
+        <div class="section-sub">Google India — right now</div>
+      </div>
+      <div class="section-body" id="trendsBody">
+        <div style="padding:16px 20px;">
+          <div class="skel-line" style="width:80%"></div>
+          <div class="skel-line" style="width:70%"></div>
+          <div class="skel-line" style="width:85%"></div>
+          <div class="skel-line" style="width:65%"></div>
+          <div class="skel-line" style="width:78%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Reddit r/india -->
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-title">💬 Reddit r/india</div>
+        <div class="section-sub">Top posts today</div>
+      </div>
+      <div class="section-body" id="redditBody">
+        <div style="padding:16px 20px;">
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:75%"></div>
+          <div class="skel-line" style="width:88%"></div>
+          <div class="skel-line" style="width:70%"></div>
+          <div class="skel-line" style="width:82%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: YouTube Trending -->
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-title">▶ YouTube Trending</div>
+        <div class="section-sub">Most watched in India today</div>
+      </div>
+      <div class="section-body" id="youtubeBody">
+        <div style="padding:16px 20px;">
+          <div class="skel-line" style="width:85%"></div>
+          <div class="skel-line" style="width:70%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:75%"></div>
+          <div class="skel-line" style="width:80%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STORY OF THE WEEK -->
+  <div class="sotw-wrap" id="sotwWrap" style="display:none;">
+    <div class="sotw-card" id="sotwCard">
+      <p class="sotw-label">✦ Story of the Week</p>
+      <p class="sotw-dates" id="sotwDates"></p>
+      <h2 class="sotw-headline" id="sotwHeadline"></h2>
+      <p class="sotw-summary" id="sotwSummary"></p>
+      <h4 class="sotw-matters-label">Why it Matters</h4>
+      <p class="sotw-matters" id="sotwMatters"></p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <a href="/feed" class="footer-back">← Back to Feed</a>
+    <div class="footer-links">
+      <a href="/privacy">Privacy</a>
+      &nbsp;·&nbsp;
+      <a href="/terms">Terms</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:brief@teesra.in">Contact</a>
+    </div>
+  </div>
+
+<script>
+  // ── THEME SYSTEM ──────────────────────────────────────────────────
+  const THEMES = [
+    {id:'jungle',    name:'Jungle',    bg:'#0a120e', a:'#d4a820', b:'#5ba8e8'},
+    {id:'cosmos',    name:'Cosmos',    bg:'#0d1117', a:'#f0a500', b:'#00c9b1'},
+    {id:'ember',     name:'Ember',     bg:'#141410', a:'#e8440a', b:'#4a9edd'},
+    {id:'dawn',      name:'Dawn',      bg:'#faf7f0', a:'#b87400', b:'#1a6096'},
+    {id:'cloud',     name:'Cloud',     bg:'#f4f6fa', a:'#1a4fc8', b:'#0a8a7a'},
+    {id:'parchment', name:'Parchment', bg:'#f5f0e4', a:'#8a1a2a', b:'#1a4a8a'},
+  ];
+
+  function applyTheme(id) {
+    document.documentElement.setAttribute('data-theme', id);
+    localStorage.setItem('teesra-theme', id);
+    const t = THEMES.find(t => t.id === id);
+    if (t) {
+      const s1 = document.getElementById('tsw1');
+      const s2 = document.getElementById('tsw2');
+      const s3 = document.getElementById('tsw3');
+      if (s1) s1.style.background = t.bg;
+      if (s2) s2.style.background = t.a;
+      if (s3) s3.style.background = t.b;
+    }
+    buildThemeGrid(id);
+    buildDrawerSwatches(id);
+  }
+
+  function buildThemeGrid(current) {
+    const grid = document.getElementById('themeGrid');
+    if (!grid) return;
+    grid.innerHTML = THEMES.map(t => `
+      <div class="theme-opt ${t.id===current?'active':''}" onclick="applyTheme('${t.id}');closeThemePicker();">
+        <div class="tsp"><div class="ts1" style="background:${t.bg}"></div><div style="background:${t.a}"></div><div style="background:${t.b}"></div></div>
+        <span class="tnl">${t.name}</span>
+      </div>`).join('');
+  }
+
+  function buildDrawerSwatches(current) {
+    const wrap = document.getElementById('drawerThemeSwatches');
+    if (!wrap) return;
+    wrap.innerHTML = THEMES.map(t => `
+      <div onclick="applyTheme('${t.id}');closeDrawer();" title="${t.name}"
+           style="width:40px;height:40px;border-radius:6px;overflow:hidden;cursor:pointer;
+                  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+                  border:2px solid ${t.id===current?'var(--facts)':'rgba(255,255,255,0.1)'};">
+        <div style="background:${t.bg};grid-column:1/-1;"></div>
+        <div style="background:${t.a};"></div>
+        <div style="background:${t.b};"></div>
+      </div>`).join('');
+  }
+
+  function toggleThemePicker(e) {
+    e.stopPropagation();
+    document.getElementById('themePicker').classList.toggle('open');
+  }
+  function closeThemePicker() {
+    const p = document.getElementById('themePicker');
+    if (p) p.classList.remove('open');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.theme-wrap')) closeThemePicker();
+  });
+
+  // Init theme
+  (function() {
+    var VALID = ['jungle','cosmos','ember','dawn','cloud','parchment'];
+    var saved = localStorage.getItem('teesra-theme');
+    if (saved === 'light') saved = 'dawn';
+    if (!saved || !VALID.includes(saved)) saved = 'jungle';
+    localStorage.setItem('teesra-theme', saved);
+    applyTheme(saved);
+  })();
+
+  // ── DRAWER ───────────────────────────────────────────────────────
+  function toggleDrawer() {
+    document.getElementById('navDrawer').classList.toggle('open');
+    document.getElementById('hamburgerBtn').classList.toggle('open');
+  }
+  function closeDrawer() {
+    document.getElementById('navDrawer').classList.remove('open');
+    document.getElementById('hamburgerBtn').classList.remove('open');
+  }
+
+  // ── HELPERS ──────────────────────────────────────────────────────
+  function fmtViews(n) {
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return String(n);
+  }
+  function fmtScore(n) {
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+    return String(n);
+  }
+  function escHtml(s) {
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── LOAD GOOGLE TRENDS ────────────────────────────────────────────
+  async function loadTrends() {
+    const body = document.getElementById('trendsBody');
+    try {
+      const r = await fetch('/api/trends');
+      const d = await r.json();
+      const items = (d.trends || []).slice(0, 10);
+      if (!items.length) throw new Error('empty');
+      body.innerHTML = items.map((item, i) => `
+        <a class="trend-item" href="${escHtml(item.link || 'https://www.google.com/search?q=' + encodeURIComponent(item.title) + '&gl=in')}" target="_blank" rel="noopener">
+          <span class="trend-rank">${i + 1}</span>
+          <span class="trend-label">${escHtml(item.title)}</span>
+        </a>`).join('');
+    } catch(e) {
+      body.innerHTML = '<div class="section-error">Trends unavailable</div>';
+    }
+  }
+
+  // ── LOAD REDDIT ───────────────────────────────────────────────────
+  async function loadReddit() {
+    const body = document.getElementById('redditBody');
+    try {
+      const r = await fetch('/api/reddit-india');
+      const posts = await r.json();
+      if (posts.error || !posts.length) throw new Error('empty');
+      body.innerHTML = posts.map(p => {
+        const flairHtml = p.flair ? `<span class="reddit-flair">${escHtml(p.flair)}</span>` : '';
+        return `
+        <a class="reddit-item" href="${escHtml(p.url)}" target="_blank" rel="noopener">
+          <div class="reddit-title">${escHtml(p.title)}</div>
+          <div class="reddit-meta">
+            <span class="reddit-score">▲ ${fmtScore(p.score)}</span>
+            <span>${p.comments} comments</span>
+            ${flairHtml}
+          </div>
+        </a>`;
+      }).join('');
+    } catch(e) {
+      body.innerHTML = '<div class="section-error">Reddit data unavailable</div>';
+    }
+  }
+
+  // ── LOAD YOUTUBE ──────────────────────────────────────────────────
+  async function loadYouTube() {
+    const body = document.getElementById('youtubeBody');
+    try {
+      const r = await fetch('/api/youtube-trending');
+      const data = await r.json();
+      if (data.error === 'no_api_key') {
+        body.innerHTML = '<div class="section-error">Add YOUTUBE_API_KEY to enable YouTube trends</div>';
+        return;
+      }
+      if (data.error || !data.length) throw new Error('empty');
+      body.innerHTML = data.map(v => `
+        <a class="yt-item" href="${escHtml(v.url)}" target="_blank" rel="noopener">
+          <img class="yt-thumb" src="${escHtml(v.thumbnail)}" alt="" loading="lazy" onerror="this.style.opacity='0.2'">
+          <div class="yt-info">
+            <div class="yt-title">${escHtml(v.title)}</div>
+            <div class="yt-channel">${escHtml(v.channel)}</div>
+            <div class="yt-views">${fmtViews(v.views)} views</div>
+          </div>
+        </a>`).join('');
+    } catch(e) {
+      body.innerHTML = '<div class="section-error">YouTube data unavailable</div>';
+    }
+  }
+
+  // ── LOAD STORY OF THE WEEK ────────────────────────────────────────
+  async function loadSOTW() {
+    try {
+      const r = await fetch('/api/story-of-week');
+      const d = await r.json();
+      if (d.error || !d.headline) return;
+      document.getElementById('sotwDates').textContent =
+        `${d.week_start || ''} to ${d.week_end || ''}`;
+      document.getElementById('sotwHeadline').textContent = d.headline || '';
+      document.getElementById('sotwSummary').textContent = d.summary || '';
+      document.getElementById('sotwMatters').textContent = d.why_it_matters || '';
+      document.getElementById('sotwWrap').style.display = 'block';
+    } catch(e) {
+      // No story of week — section stays hidden
+    }
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────
+  (async function() {
+    // Set updated timestamp
+    const upd = document.getElementById('updatedAt');
+    if (upd) {
+      const now = new Date();
+      upd.textContent = 'Updated: ' + now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}) + ' IST';
+    }
+
+    // Load all sections in parallel
+    await Promise.allSettled([
+      loadTrends(),
+      loadReddit(),
+      loadYouTube(),
+      loadSOTW()
+    ]);
+  })();
+</script>
+
+<!-- ── TEESRA AUTH ─────────────────────────────────────────── -->
+<script>
+const sbClient = window.supabase.createClient(
+  'https://mcqgigetchudnaumxvsm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcWdpZ2V0Y2h1ZG5hdW14dnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjAzODgsImV4cCI6MjA4OTQ5NjM4OH0.7KV3jqaMke31DEcazY7PuFxldmkKh1Uxj5YumwrhSTk',
+  { auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } }
+);
+
+const TeesraAuth = window.TeesraAuth = {
+  user: null, role: null, userName: null, avatarUrl: null,
+
+  async init() {
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      setTimeout(() => { window.history.replaceState({}, document.title, window.location.pathname); }, 1500);
+    }
+    try {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session?.user) { this.user = session.user; await this.loadRole(); }
+      sbClient.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          this.user = session.user;
+          try {
+            const meta = session.user.user_metadata || {};
+            await fetch('/api/auth/sync', { method: 'POST', headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({ email: session.user.email, auth_uid: session.user.id,
+                name: meta.full_name || meta.name || '', avatar_url: meta.avatar_url || meta.picture || '' }) });
+          } catch(e) {}
+          await this.loadRole();
+        } else if (event === 'SIGNED_OUT') {
+          this.user = null; this.role = null; this.userName = null; this.avatarUrl = null;
+        }
+        this.updateUI();
+      });
+    } catch(e) {}
+    this.updateUI();
+  },
+
+  async loadRole() {
+    try {
+      const { data } = await sbClient.from('subscribers').select('role, name, avatar_url').eq('auth_uid', this.user.id).single();
+      if (data) { this.role = data.role || 'subscriber'; this.userName = data.name || this.user.email.split('@')[0]; this.avatarUrl = data.avatar_url || null; }
+    } catch(e) {
+      const p = this.user.user_metadata || {};
+      this.role = 'subscriber'; this.userName = p.full_name || this.user.email.split('@')[0]; this.avatarUrl = p.avatar_url || null;
+    }
+  },
+
+  async signInWithGoogle() {
+    try { const { error } = await sbClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://teesra.in/trending' } }); if (error) console.error(error); } catch(e) {}
+  },
+  async signOut() {
+    try { await sbClient.auth.signOut(); } catch(e) {}
+    this.user = null; this.role = null; this.userName = null; this.avatarUrl = null; this.updateUI();
+  },
+  isAdmin()    { return this.role === 'admin'; },
+  isSignedIn() { return this.user !== null; },
+
+  updateUI() {
+    const signInBtn = document.getElementById('auth-signin-btn');
+    const userMenu  = document.getElementById('auth-user-menu');
+    const adminLink = document.getElementById('nav-admin-link');
+    const nameEl    = document.getElementById('auth-user-name');
+    const avatarEl  = document.getElementById('auth-user-avatar');
+    if (this.user) {
+      if (signInBtn) signInBtn.style.display = 'none';
+      if (userMenu)  userMenu.style.display  = 'flex';
+      if (nameEl) { const firstName = (this.userName || this.user.email).split(' ')[0]; nameEl.textContent = firstName; }
+      if (avatarEl && this.avatarUrl) { avatarEl.src = this.avatarUrl; avatarEl.style.display = 'block'; }
+      if (adminLink) adminLink.style.display = this.isAdmin() ? 'inline-block' : 'none';
+    } else {
+      if (signInBtn) signInBtn.style.display = 'flex';
+      if (userMenu)  userMenu.style.display  = 'none';
+      if (adminLink) adminLink.style.display = 'none';
+    }
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => { TeesraAuth.init(); });
+</script>
+
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "62bb87194c184e469a1d92594669ab48"}'></script>
+
+</body>
+</html>

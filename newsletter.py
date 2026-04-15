@@ -7,8 +7,10 @@ import requests
 from collections import defaultdict
 from dotenv import load_dotenv
 from database import get_todays_articles, get_all_subscribers
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 from market_data import fetch_market_data, format_market_for_email
+
+IST = timezone(timedelta(hours=5, minutes=30))
 
 load_dotenv()
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
@@ -117,8 +119,9 @@ def build_story_html(article, index):
 
 
 # ── BUILD FULL EMAIL ──────────────────────────────────────────────
-def build_email_html(articles, market_data=None, recipient_email=""):
-    today = date.today().strftime("%A, %d %B %Y")
+def build_email_html(articles, market_data=None, recipient_email="",
+                     story_of_week=None):
+    today = datetime.now(IST).strftime("%A, %d %B %Y")
     article_count = len(articles)
     # Market section — safe even if None
     market_section = ""
@@ -128,6 +131,35 @@ def build_email_html(articles, market_data=None, recipient_email=""):
         except Exception as e:
             print(f"  ⚠️ Market email section failed: {e}")
             market_section = ""
+    # Story of the Week section — Sundays only
+    sotw_section = ""
+    if story_of_week:
+        sotw_section = f"""
+  <!-- STORY OF THE WEEK -->
+  <tr>
+    <td style="padding:0 0 24px 0;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f1a0f;border:2px solid #e8c84a;">
+        <tr>
+          <td style="padding:16px 20px 0 20px;">
+            <p style="margin:0 0 4px 0;font-family:monospace;font-size:9px;color:#e8c84a;letter-spacing:3px;text-transform:uppercase;">✦ Story of the Week</p>
+            <p style="margin:0 0 4px 0;font-family:monospace;font-size:9px;color:#7a7660;">{story_of_week.get('week_start','')} to {story_of_week.get('week_end','')}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 20px 16px 20px;">
+            <h2 style="margin:0 0 12px 0;font-family:Georgia,serif;font-size:20px;font-weight:700;color:#e8e4d4;line-height:1.3;">{story_of_week.get('headline','')}</h2>
+            <p style="margin:0 0 10px 0;font-size:13px;color:#b0aa90;line-height:1.65;">{story_of_week.get('summary','')}</p>
+            <p style="margin:0 0 4px 0;font-family:monospace;font-size:9px;color:#e8c84a;letter-spacing:2px;text-transform:uppercase;">Why it matters</p>
+            <p style="margin:0 0 0 0;font-size:13px;color:#e8e4d4;line-height:1.6;">{story_of_week.get('why_it_matters','')}</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <!-- DIVIDER -->
+  <tr><td style="padding:0 0 24px 0;border-bottom:1px solid #2a2a1f;"></td></tr>
+  <tr><td style="height:24px;"></td></tr>
+"""
     # Build all story cards
     stories_html = ""
     for i, article in enumerate(articles):
@@ -161,6 +193,8 @@ def build_email_html(articles, market_data=None, recipient_email=""):
   <!-- DIVIDER -->
   <tr><td style="padding:0 0 24px 0;border-bottom:1px solid #2a2a1f;"></td></tr>
   <tr><td style="height:24px;"></td></tr>
+
+  {sotw_section}
 
   <!-- MARKET DATA -->
   {market_section}
@@ -278,9 +312,30 @@ def send_newsletter(to_email: str):
         print(f"  ⚠️ Market data failed: {e}")
         market_data = None
 
-    # Build email once — with market data
-    html = build_email_html(articles, market_data, recipient_email=to_email)
-    today = date.today().strftime("%A, %d %B")
+    # Detect Sunday IST — add Story of the Week
+    ist_now = datetime.now(IST)
+    is_sunday = ist_now.weekday() == 6
+    today_str = ist_now.strftime("%A, %d %B")
+
+    story_of_week = None
+    if is_sunday:
+        try:
+            from story_of_week import get_latest_story_of_week
+            story_of_week = get_latest_story_of_week()
+            if story_of_week:
+                print(f"  📅 Sunday edition — adding Story of the Week")
+        except Exception as e:
+            print(f"  ⚠️ Story of week failed: {e}")
+
+    # Build email with optional story of week
+    html = build_email_html(articles, market_data,
+                            recipient_email=to_email,
+                            story_of_week=story_of_week)
+
+    if is_sunday:
+        subject = f"☀️ Teesra Sunday Brief — {today_str} · Week in Review"
+    else:
+        subject = f"☀️ Teesra Brief — {today_str} · {len(articles)} stories"
 
     # ── FROM ADDRESS ──────────────────────────────────────────────
     FROM_ADDRESS = "Teesra <brief@teesra.in>"
@@ -291,7 +346,7 @@ def send_newsletter(to_email: str):
             "email": "brief@teesra.in"
         },
         "to": [{"email": to_email}],
-        "subject": f"☀️ Teesra Brief — {today} · {len(articles)} stories",
+        "subject": subject,
         "htmlContent": html
     }
 

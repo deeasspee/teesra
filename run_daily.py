@@ -83,6 +83,25 @@ def run_pipeline():
         print(f"   Stage 4 — Saved to DB:     {len(results)} articles")
         print(f"\n✅ Pipeline done — {len(results)} articles saved\n")
 
+        # ── SUNDAY: Generate Story of the Week ────────────────────
+        from datetime import timezone, timedelta
+        IST = timezone(timedelta(hours=5, minutes=30))
+        if datetime.now(IST).weekday() == 6:  # Sunday
+            print("\n📰 Sunday — generating Story of Week...")
+            try:
+                from story_of_week import (
+                    generate_story_of_week,
+                    save_story_of_week
+                )
+                story = generate_story_of_week()
+                if story:
+                    save_story_of_week(story)
+                    print("  ✅ Story of the Week saved")
+                else:
+                    print("  ⚠️ Story of Week: no story generated")
+            except Exception as e:
+                print(f"  ⚠️ Story of Week failed: {e}")
+
     except Exception as e:
         print(f"❌ Pipeline failed: {e}")
         sys.exit(1)

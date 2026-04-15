@@ -901,6 +901,109 @@ Return this exact JSON structure with no markdown, no explanation:
         return jsonify({"error": str(e)}), 500
 
 
+# ── TRENDING PAGE ─────────────────────────────────────────────────
+@app.route("/trending")
+def trending_page():
+    return send_from_directory(".", "trending.html")
+
+
+# ── STORY OF THE WEEK ─────────────────────────────────────────────
+@app.route("/api/story-of-week")
+def get_story_of_week():
+    try:
+        from story_of_week import get_latest_story_of_week
+        story = get_latest_story_of_week()
+        if not story:
+            return jsonify({"error": "not_available"})
+        resp = jsonify(story)
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── REDDIT INDIA ──────────────────────────────────────────────────
+@app.route("/api/reddit-india")
+def get_reddit_india():
+    """Fetch top posts from r/india — no API key needed"""
+    try:
+        import json as _json
+
+        url = "https://www.reddit.com/r/india/hot.json?limit=15"
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Teesra/1.0 (https://teesra.in)"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = _json.loads(r.read().decode())
+
+        posts = []
+        for post in data['data']['children']:
+            p = post['data']
+            if p.get('stickied'):
+                continue
+            posts.append({
+                'title':    p.get('title', ''),
+                'score':    p.get('score', 0),
+                'comments': p.get('num_comments', 0),
+                'url':      f"https://reddit.com{p.get('permalink', '')}",
+                'flair':    p.get('link_flair_text', ''),
+                'author':   p.get('author', ''),
+                'created':  p.get('created_utc', 0)
+            })
+
+        resp = jsonify(posts[:10])
+        resp.headers['Cache-Control'] = 'public, max-age=900'
+        return resp
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── YOUTUBE TRENDING INDIA ────────────────────────────────────────
+@app.route("/api/youtube-trending")
+def get_youtube_trending():
+    """Fetch YouTube trending videos for India"""
+    YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
+    if not YOUTUBE_API_KEY:
+        return jsonify({"error": "no_api_key"})
+
+    try:
+        import json as _json
+
+        params = urllib.parse.urlencode({
+            'part':       'snippet,statistics',
+            'chart':      'mostPopular',
+            'regionCode': 'IN',
+            'maxResults': 10,
+            'key':        YOUTUBE_API_KEY
+        })
+        url = f"https://www.googleapis.com/youtube/v3/videos?{params}"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = _json.loads(r.read().decode())
+
+        videos = []
+        for item in data.get('items', []):
+            snippet = item.get('snippet', {})
+            stats   = item.get('statistics', {})
+            videos.append({
+                'id':        item.get('id', ''),
+                'title':     snippet.get('title', ''),
+                'channel':   snippet.get('channelTitle', ''),
+                'thumbnail': snippet.get('thumbnails', {}).get('medium', {}).get('url', ''),
+                'views':     int(stats.get('viewCount', 0)),
+                'likes':     int(stats.get('likeCount', 0)),
+                'url':       f"https://youtube.com/watch?v={item.get('id', '')}",
+                'category':  snippet.get('categoryId', '')
+            })
+
+        resp = jsonify(videos)
+        resp.headers['Cache-Control'] = 'public, max-age=1800'
+        return resp
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ── TODAY I LEARNED ──────────────────────────────────────────────
 @app.route("/api/til")
 def get_til():
