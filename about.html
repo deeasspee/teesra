@@ -52,7 +52,7 @@
       animation: blobshift 20s ease-in-out infinite alternate;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
+      font-weight: 400;
       line-height: 1.6;
       transition: color 0.4s;
     }
@@ -264,9 +264,11 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 2px;
-      color: var(--text-dim);
+      color: var(--facts);
+      font-weight: 600;
       text-transform: uppercase;
       margin-bottom: 16px;
+      opacity: 1;
     }
 
     .builder-name {
@@ -293,11 +295,14 @@
 
     .builder-tag-item {
       font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      padding: 4px 10px;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
+      font-size: 12px;
+      padding: 5px 12px;
+      border: 1.5px solid var(--facts);
+      color: var(--text);
+      font-weight: 500;
       letter-spacing: 0.5px;
+      background: color-mix(in srgb, var(--facts) 8%, transparent);
+      opacity: 1;
     }
 
     /* ── CV / Portfolio section ─────────────────────────────── */
@@ -313,7 +318,7 @@
 
     .cv-section-sub {
       font-size: 13px;
-      color: var(--text-dim);
+      color: var(--text-mid);
       font-family: 'DM Mono', monospace;
       letter-spacing: 1px;
       margin-bottom: 36px;
@@ -352,7 +357,7 @@
     .cv-period {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
-      color: var(--text-dim);
+      color: var(--text-mid);
       letter-spacing: 1px;
       white-space: nowrap;
       margin-top: 3px;
@@ -373,21 +378,24 @@
 
     .cv-tag {
       font-family: 'DM Mono', monospace;
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: 0.5px;
-      padding: 3px 9px;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
+      padding: 4px 10px;
+      border: 1.5px solid var(--border);
+      color: var(--text-mid);
+      font-weight: 500;
     }
 
-    .cv-highlight { color: var(--facts); border-color: rgba(232,200,74,0.3); }
+    .cv-highlight { color: var(--facts); border-color: var(--facts); background: color-mix(in srgb, var(--facts) 10%, transparent); }
 
     .cv-category-label {
       font-family: 'DM Mono', monospace;
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--text-dim);
+      color: var(--facts);
+      font-weight: 600;
+      opacity: 1;
       margin: 40px 0 16px;
     }
 
@@ -413,8 +421,9 @@
 
     .skill-detail {
       font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
+      font-size: 11px;
+      color: var(--text-mid);
+      font-weight: 400;
       letter-spacing: 0.5px;
     }
 
@@ -458,8 +467,9 @@
     .btn-primary:hover { opacity: 0.85; }
 
     .btn-ghost {
-      color: var(--text-dim);
+      color: var(--text-mid);
       font-size: 13px;
+      font-weight: 500;
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -686,12 +696,13 @@
       <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
         <a href="https://www.linkedin.com/in/divyendu22" target="_blank"
            style="display:inline-flex; align-items:center; gap:8px;
-                  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px;
-                  color:var(--facts); text-decoration:none;
-                  border:1px solid rgba(212,168,32,0.25); padding:8px 16px;
-                  transition:background 0.2s;"
-           onmouseover="this.style.background='rgba(212,168,32,0.08)'"
-           onmouseout="this.style.background='transparent'">
+                  font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;
+                  font-weight:600; color:var(--text); text-decoration:none;
+                  border:1.5px solid #0077b5; padding:8px 16px;
+                  background:color-mix(in srgb,#0077b5 15%,transparent);
+                  transition:opacity 0.2s;"
+           onmouseover="this.style.opacity='0.85'"
+           onmouseout="this.style.opacity='1'">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
           </svg>
@@ -699,9 +710,9 @@
         </a>
         <a href="https://github.com/deeasspee/teesra" target="_blank"
            style="display:inline-flex; align-items:center; gap:8px;
-                  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px;
-                  color:var(--text-dim); text-decoration:none;
-                  border:1px solid var(--border); padding:8px 16px;
+                  font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;
+                  font-weight:600; color:var(--text); text-decoration:none;
+                  border:1.5px solid var(--border); padding:8px 16px;
                   transition:border-color 0.2s;"
            onmouseover="this.style.borderColor='var(--facts)'"
            onmouseout="this.style.borderColor='var(--border)'">
@@ -865,12 +876,12 @@
 
     </div>
 
-    <div style="margin-top:48px;padding-top:28px;border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:1px;">
-      <a href="/privacy" style="color:var(--text-dim);text-decoration:none;">Privacy Policy</a>
+    <div style="margin-top:48px;padding-top:28px;border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--text-mid);letter-spacing:1px;">
+      <a href="/privacy" style="color:var(--text-mid);text-decoration:none;">Privacy Policy</a>
       &nbsp;·&nbsp;
-      <a href="/terms" style="color:var(--text-dim);text-decoration:none;">Terms of Use</a>
+      <a href="/terms" style="color:var(--text-mid);text-decoration:none;">Terms of Use</a>
       &nbsp;·&nbsp;
-      <a href="mailto:brief@teesra.in" style="color:var(--text-dim);text-decoration:none;">brief@teesra.in</a>
+      <a href="mailto:brief@teesra.in" style="color:var(--text-mid);text-decoration:none;">brief@teesra.in</a>
     </div>
 
   </div>
