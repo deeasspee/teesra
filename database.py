@@ -5,7 +5,15 @@
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+def get_ist_today():
+    """Always returns today's date in IST regardless of server timezone.
+    GitHub Actions runs on UTC — this ensures articles are dated correctly
+    for Indian users."""
+    return datetime.now(IST).date()
 
 load_dotenv()
 
@@ -38,7 +46,7 @@ def save_article(analysis: dict) -> bool:
             "source_bias":    analysis.get("source_bias", ""),
             "original_title": analysis.get("original_title", ""),
             "url":            analysis.get("url", ""),
-            "fetched_date":   str(date.today())
+            "fetched_date":   str(get_ist_today())
         }
 
         client.table("article").insert(row).execute()
@@ -54,7 +62,7 @@ def get_yesterday_headlines() -> list:
     """Return headline strings from yesterday for cross-day dedup."""
     try:
         client = get_client()
-        yesterday = str(date.today() - timedelta(days=1))
+        yesterday = str(get_ist_today() - timedelta(days=1))
         response = (
             client.table("article")
             .select("headline")
@@ -72,8 +80,8 @@ def get_recent_headlines(days: int = 4) -> list:
     """Return headline + original_title strings from last N days (excludes today) for cross-day dedup."""
     try:
         client = get_client()
-        cutoff = str(date.today() - timedelta(days=days))
-        today  = str(date.today())
+        cutoff = str(get_ist_today() - timedelta(days=days))
+        today  = str(get_ist_today())
         response = (
             client.table("article")
             .select("headline, original_title, fetched_date")
@@ -115,7 +123,7 @@ def get_articles_by_date(target_date) -> list:
 # ── CLEAR TODAY'S ARTICLES ────────────────────────────────────────
 def clear_todays_articles():
     """Delete articles older than 5 days; keeps a rolling 5-day window"""
-    cutoff = str(date.today() - timedelta(days=5))
+    cutoff = str(get_ist_today() - timedelta(days=5))
     try:
         client = get_client()
         client.table("article").delete().lt("fetched_date", cutoff).execute()
@@ -130,7 +138,7 @@ def get_todays_articles() -> list:
         response = (
             client.table("article")
             .select("*")
-            .eq("fetched_date", str(date.today()))
+            .eq("fetched_date", str(get_ist_today()))
             .order("id", desc=False)
             .execute()
         )
@@ -147,7 +155,7 @@ def get_recent_articles(days=5) -> list:
     """Fetch articles from last N days, ordered by date descending"""
     try:
         client = get_client()
-        cutoff = str(date.today() - timedelta(days=days))
+        cutoff = str(get_ist_today() - timedelta(days=days))
         response = (
             client.table("article")
             .select("*")
@@ -171,7 +179,7 @@ def get_articles_by_type(story_type: str) -> list:
             client.table("article")
             .select("*")
             .eq("story_type", story_type)
-            .eq("fetched_date", str(date.today()))
+            .eq("fetched_date", str(get_ist_today()))
             .execute()
         )
 
