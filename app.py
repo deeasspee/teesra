@@ -923,92 +923,86 @@ def get_story_of_week():
 
 
 # ── REDDIT INDIA ──────────────────────────────────────────────────
+def fetch_reddit_rss(url, subreddit, category):
+    """Fetch posts from a subreddit RSS feed using xml.etree.ElementTree."""
+    import xml.etree.ElementTree as ET
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Teesra/1.0 RSS Reader",
+                "Accept":     "application/rss+xml, application/xml",
+            }
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            content = r.read().decode('utf-8')
+
+        root = ET.fromstring(content)
+        ns = {'atom': 'http://www.w3.org/2005/Atom'}
+
+        # Reddit uses Atom format; fall back to plain RSS <item>
+        entries = root.findall('.//atom:entry', ns)
+        if not entries:
+            entries = root.findall('.//entry', ns)
+        if not entries:
+            entries = root.findall('.//item')
+
+        posts = []
+        for entry in entries[:5]:
+            title = entry.find('atom:title', ns) or entry.find('title')
+            link  = entry.find('atom:link',  ns) or entry.find('link')
+
+            title_text = title.text if title is not None else ''
+            if link is not None:
+                link_text = link.get('href', '') or link.text or ''
+            else:
+                link_text = ''
+
+            if not title_text or '[deleted]' in title_text:
+                continue
+
+            posts.append({
+                'title':     title_text,
+                'url':       link_text,
+                'subreddit': subreddit,
+                'category':  category,
+                'score':     0,
+                'comments':  0,
+                'flair':     category,
+            })
+        return posts
+    except Exception as e:
+        print(f"RSS fetch failed for {subreddit}: {e}")
+        return []
+
+
+# ── REDDIT INDIA ──────────────────────────────────────────────────
 @app.route("/api/reddit-india")
 def get_reddit_india():
-    """Fetch top posts from multiple India-focused subreddits"""
-    try:
-        import json as _json
-        import random
-        import gzip as _gzip
+    """Fetch top posts from multiple India-focused subreddits via RSS"""
+    FEEDS = [
+        ("https://www.reddit.com/r/india/.rss",             "r/india",            "General"),
+        ("https://www.reddit.com/r/Cricket/.rss",           "r/Cricket",          "Sports"),
+        ("https://www.reddit.com/r/bollywood/.rss",         "r/bollywood",        "Entertainment"),
+        ("https://www.reddit.com/r/IndiaInvestments/.rss",  "r/IndiaInvestments", "Finance"),
+    ]
 
-        USER_AGENTS = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        ]
+    all_posts = []
+    for url, subreddit, category in FEEDS:
+        posts = fetch_reddit_rss(url, subreddit, category)
+        all_posts.extend(posts)
+        time.sleep(0.3)
 
-        SUBREDDITS = [
-            ("india",            "General"),
-            ("Cricket",          "Sports"),
-            ("bollywood",        "Entertainment"),
-            ("IndiaInvestments", "Finance"),
-            ("bangalore",        "Tech/Startup"),
-        ]
+    if not all_posts:
+        return jsonify({"posts": [], "error": "All RSS feeds failed"})
 
-        def fetch_subreddit(name, category):
-            url = f"https://www.reddit.com/r/{name}/hot.json?limit=8&raw_json=1"
-            try:
-                req = urllib.request.Request(
-                    url,
-                    headers={
-                        "User-Agent":      random.choice(USER_AGENTS),
-                        "Accept":          "application/json",
-                        "Accept-Language": "en-US,en;q=0.9",
-                        "Accept-Encoding": "gzip, deflate",
-                        "Cache-Control":   "no-cache",
-                    }
-                )
-                with urllib.request.urlopen(req, timeout=15) as r:
-                    raw = r.read()
-                    try:
-                        raw = _gzip.decompress(raw)
-                    except Exception:
-                        pass
-                    data = _json.loads(raw.decode('utf-8'))
-
-                posts = []
-                for post in data.get('data', {}).get('children', []):
-                    p = post.get('data', {})
-                    if p.get('stickied') or not p.get('title'):
-                        continue
-                    posts.append({
-                        'title':      p.get('title', ''),
-                        'score':      p.get('score', 0),
-                        'comments':   p.get('num_comments', 0),
-                        'url':        'https://reddit.com' + p.get('permalink', ''),
-                        'flair':      p.get('link_flair_text', '') or '',
-                        'author':     p.get('author', ''),
-                        'subreddit':  f"r/{name}",
-                        'category':   category,
-                    })
-                return posts
-            except Exception as e:
-                print(f"Reddit r/{name} failed: {e}")
-                return []
-
-        all_posts = []
-        fetched_sources = []
-        for name, category in SUBREDDITS:
-            posts = fetch_subreddit(name, category)
-            if posts:
-                all_posts.extend(posts)
-                fetched_sources.append(f"r/{name}")
-            time.sleep(0.5)
-
-        all_posts.sort(key=lambda x: x['score'], reverse=True)
-        top_posts = all_posts[:15]
-
-        resp = jsonify({
-            "posts":   top_posts,
-            "sources": fetched_sources,
-            "count":   len(top_posts),
-        })
-        resp.headers['Cache-Control'] = 'public, max-age=900'
-        return resp
-
-    except Exception as e:
-        print(f"Reddit route error: {e}")
-        return jsonify({"posts": [], "error": str(e)}), 500
+    resp = jsonify({
+        "posts":   all_posts[:15],
+        "count":   len(all_posts[:15]),
+        "sources": [f[1] for f in FEEDS],
+    })
+    resp.headers['Cache-Control'] = 'public, max-age=900'
+    return resp
 
 
 # ── YOUTUBE TRENDING INDIA ────────────────────────────────────────
