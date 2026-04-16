@@ -1125,6 +1125,144 @@ def get_tmdb_trending():
         return jsonify({"error": str(e), "movies": [], "shows": []}), 500
 
 
+# ── YOUTUBE MUSIC TRENDING ───────────────────────────────────────
+@app.route("/api/youtube-music")
+def get_youtube_music():
+    """Fetch trending music videos in India (YouTube category 10)"""
+    YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
+    if not YOUTUBE_API_KEY:
+        return jsonify({"error": "no_api_key", "videos": []})
+
+    try:
+        def fmt_views(n):
+            try:
+                n = int(n)
+                if n >= 10_000_000: return f"{n // 1_000_000}M"
+                if n >= 1_000_000:  return f"{n / 1_000_000:.1f}M"
+                if n >= 1_000:      return f"{n // 1_000}K"
+                return str(n)
+            except Exception:
+                return "0"
+
+        params = urllib.parse.urlencode({
+            'part':            'snippet,statistics',
+            'chart':           'mostPopular',
+            'regionCode':      'IN',
+            'videoCategoryId': '10',
+            'maxResults':      10,
+            'key':             YOUTUBE_API_KEY,
+        })
+        url = f"https://www.googleapis.com/youtube/v3/videos?{params}"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read().decode())
+
+        videos = []
+        for i, item in enumerate(data.get('items', [])):
+            snippet = item.get('snippet', {})
+            stats   = item.get('statistics', {})
+            views   = int(stats.get('viewCount', 0))
+            videos.append({
+                'rank':       i + 1,
+                'id':         item.get('id', ''),
+                'title':      snippet.get('title', ''),
+                'channel':    snippet.get('channelTitle', ''),
+                'thumbnail':  snippet.get('thumbnails', {}).get('medium', {}).get('url', ''),
+                'views':      views,
+                'views_fmt':  fmt_views(views),
+                'url':        f"https://youtube.com/watch?v={item.get('id', '')}",
+            })
+
+        resp = jsonify({"videos": videos, "count": len(videos)})
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+    except Exception as e:
+        print(f"YouTube Music error: {e}")
+        return jsonify({"error": str(e), "videos": []}), 500
+
+
+# ── BOOKS TRENDING ────────────────────────────────────────────────
+@app.route("/api/books-trending")
+def get_books_trending():
+    """NYT bestsellers (optional key) + Google Books India titles"""
+    NYT_API_KEY = os.getenv("NYT_API_KEY", "")
+
+    try:
+        books_data = {"nyt_fiction": [], "nyt_nonfiction": [], "india_books": []}
+
+        if NYT_API_KEY:
+            def fetch_nyt(list_name):
+                url = (f"https://api.nytimes.com/svc/books/v3/lists/"
+                       f"current/{list_name}.json?api-key={NYT_API_KEY}")
+                req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    data = json.loads(r.read().decode())
+                return [
+                    {
+                        'rank':          b.get('rank'),
+                        'title':         b.get('title', ''),
+                        'author':        b.get('author', ''),
+                        'description':   b.get('description', '')[:120],
+                        'cover':         b.get('book_image', ''),
+                        'amazon_url':    b.get('amazon_product_url', ''),
+                        'weeks_on_list': b.get('weeks_on_list', 0),
+                    }
+                    for b in data.get('results', {}).get('books', [])[:6]
+                ]
+
+            try:
+                books_data['nyt_fiction']    = fetch_nyt('hardcover-fiction')
+            except Exception as e:
+                print(f"NYT fiction error: {e}")
+            try:
+                books_data['nyt_nonfiction'] = fetch_nyt('hardcover-nonfiction')
+            except Exception as e:
+                print(f"NYT nonfiction error: {e}")
+
+        # Google Books — India/Indian authors (no key needed)
+        try:
+            india_books = []
+            for q in ["india+2024+bestseller", "indian+author+fiction+2024"]:
+                params = urllib.parse.urlencode({
+                    'q':           q,
+                    'orderBy':     'relevance',
+                    'maxResults':  5,
+                    'printType':   'books',
+                    'langRestrict':'en',
+                })
+                url = f"https://www.googleapis.com/books/v1/volumes?{params}"
+                req = urllib.request.Request(url, headers={"User-Agent": "Teesra/1.0"})
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    gdata = json.loads(r.read().decode())
+                for item in gdata.get('items', [])[:4]:
+                    vol   = item.get('volumeInfo', {})
+                    img   = vol.get('imageLinks', {})
+                    title = vol.get('title', '')
+                    if any(b['title'] == title for b in india_books):
+                        continue
+                    india_books.append({
+                        'title':       title,
+                        'author':      ', '.join(vol.get('authors', ['Unknown'])),
+                        'description': vol.get('description', '')[:120],
+                        'cover':       img.get('thumbnail', img.get('smallThumbnail', '')),
+                        'url':         vol.get('infoLink', ''),
+                        'published':   vol.get('publishedDate', '')[:4],
+                        'rating':      vol.get('averageRating', 0),
+                        'source':      'Google Books',
+                    })
+            books_data['india_books'] = india_books[:8]
+        except Exception as e:
+            print(f"Google Books error: {e}")
+
+        resp = jsonify(books_data)
+        resp.headers['Cache-Control'] = 'public, max-age=7200'
+        return resp
+
+    except Exception as e:
+        print(f"Books route error: {e}")
+        return jsonify({"nyt_fiction": [], "nyt_nonfiction": [], "india_books": [], "error": str(e)}), 500
+
+
 # ── TODAY I LEARNED ──────────────────────────────────────────────
 @app.route("/api/til")
 def get_til():

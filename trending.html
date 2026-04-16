@@ -210,11 +210,9 @@
     .tmdb-title {
       font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
       color: var(--text); line-height: 1.3; margin-bottom: 4px;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden;
     }
     .tmdb-rating { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; margin-top: 4px; }
-    .tmdb-date { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text); opacity: 0.75; margin-top: 2px; }
+    .tmdb-date   { font-family: 'DM Mono', monospace; font-size: 9px;  color: var(--text); opacity: 0.75; margin-top: 2px; }
 
     /* ── THREE-COLUMN GRID ────────────────────────────────────── */
     .trending-grid {
@@ -537,6 +535,38 @@
     </div>
   </div>
 
+  <!-- YOUTUBE MUSIC TRENDING -->
+  <div style="max-width:var(--card-max);margin:32px auto 0;padding:0 32px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;">🎵 MUSIC TRENDING INDIA</span>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">YouTube Music — most watched today</span>
+    </div>
+    <div id="music-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">
+      <div class="skel-line" style="height:64px"></div>
+      <div class="skel-line" style="height:64px"></div>
+      <div class="skel-line" style="height:64px"></div>
+    </div>
+  </div>
+
+  <!-- BOOKS TRENDING -->
+  <div style="max-width:var(--card-max);margin:32px auto 0;padding:0 32px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;">📚 BOOKS</span>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">Bestsellers &amp; Indian titles</span>
+    </div>
+    <p style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">🇮🇳 INDIAN &amp; INDIA-RELATED</p>
+    <div id="books-india" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:24px;">
+      <div class="tmdb-skel"></div><div class="tmdb-skel"></div>
+      <div class="tmdb-skel"></div><div class="tmdb-skel"></div>
+    </div>
+    <div id="nyt-section" style="display:none;">
+      <p style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">📰 NYT BESTSELLERS — FICTION</p>
+      <div id="books-nyt-fiction" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:24px;"></div>
+      <p style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">📰 NYT BESTSELLERS — NONFICTION</p>
+      <div id="books-nyt-nonfiction" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;"></div>
+    </div>
+  </div>
+
   <!-- STORY OF THE WEEK -->
   <div class="sotw-wrap" id="sotwWrap" style="display:none;">
     <div class="sotw-card" id="sotwCard">
@@ -781,6 +811,88 @@
     }
   }
 
+  // ── LOAD YOUTUBE MUSIC ───────────────────────────────────────────
+  async function loadYouTubeMusic() {
+    const container = document.getElementById('music-container');
+    try {
+      const res = await fetch('/api/youtube-music');
+      const data = await res.json();
+      if (!container) return;
+      const videos = data.videos || [];
+      if (videos.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted);font-size:12px;grid-column:1/-1">Music trends unavailable</p>';
+        return;
+      }
+      container.innerHTML = videos.map(v => `
+        <a href="${escHtml(v.url)}" target="_blank" rel="noopener noreferrer"
+           style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:border-color 0.2s;"
+           onmouseover="this.style.borderColor='var(--accent)'"
+           onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:700;min-width:28px;text-align:center;">${v.rank}</span>
+          <img src="${escHtml(v.thumbnail)}" style="width:56px;height:42px;object-fit:cover;border-radius:4px;flex-shrink:0;" loading="lazy" onerror="this.style.display='none'">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">${escHtml(v.title)}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:12px;">
+              <span>${escHtml(v.channel)}</span>
+              <span style="color:var(--accent);">▶ ${escHtml(v.views_fmt)}</span>
+            </div>
+          </div>
+        </a>`).join('');
+    } catch(e) {
+      console.error('Music load error:', e);
+      if (container) container.innerHTML = '<p style="color:var(--muted);font-size:12px;grid-column:1/-1">Music trends unavailable</p>';
+    }
+  }
+
+  // ── LOAD BOOKS ────────────────────────────────────────────────────
+  function renderBookCard(book) {
+    const cover  = book.cover || '';
+    const url    = book.amazon_url || book.url || '#';
+    const rating = book.rating ? `<div class="tmdb-rating">★ ${book.rating}</div>` : '';
+    const year   = book.published
+      ? `<div class="tmdb-date">${escHtml(book.published)}</div>`
+      : (book.weeks_on_list ? `<div class="tmdb-date">${book.weeks_on_list}w on list</div>` : '');
+    return `
+      <a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" class="tmdb-card">
+        ${cover
+          ? `<img class="tmdb-poster" src="${escHtml(cover)}" alt="${escHtml(book.title)}" loading="lazy" onerror="this.style.display='none'">`
+          : `<div class="tmdb-poster-placeholder">📚</div>`
+        }
+        <div class="tmdb-info">
+          <div class="tmdb-title">${escHtml(book.title)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(book.author || '')}</div>
+          ${rating}${year}
+        </div>
+      </a>`;
+  }
+
+  async function loadBooks() {
+    try {
+      const res  = await fetch('/api/books-trending');
+      const data = await res.json();
+
+      const indiaEl = document.getElementById('books-india');
+      if (indiaEl) {
+        const books = data.india_books || [];
+        indiaEl.innerHTML = books.length
+          ? books.map(renderBookCard).join('')
+          : '<p style="color:var(--muted);font-size:12px;grid-column:1/-1">No data available</p>';
+      }
+
+      const hasNYT = (data.nyt_fiction || []).length > 0 || (data.nyt_nonfiction || []).length > 0;
+      const nytSection = document.getElementById('nyt-section');
+      if (nytSection && hasNYT) {
+        nytSection.style.display = 'block';
+        const fEl = document.getElementById('books-nyt-fiction');
+        if (fEl && data.nyt_fiction)    fEl.innerHTML = data.nyt_fiction.map(renderBookCard).join('');
+        const nfEl = document.getElementById('books-nyt-nonfiction');
+        if (nfEl && data.nyt_nonfiction) nfEl.innerHTML = data.nyt_nonfiction.map(renderBookCard).join('');
+      }
+    } catch(e) {
+      console.error('Books load error:', e);
+    }
+  }
+
   // ── LOAD STORY OF THE WEEK ────────────────────────────────────────
   async function loadSOTW() {
     try {
@@ -814,6 +926,8 @@
       loadYouTube(),
       loadSOTW(),
       loadTMDB(),
+      loadYouTubeMusic(),
+      loadBooks(),
     ]);
   })();
 </script>
