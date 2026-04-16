@@ -13,7 +13,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Teesra">
-  <meta name="description" content="What India is talking about right now — Google trends, Reddit r/india, YouTube trending, and the Story of the Week."/>
+  <meta name="description" content="What India is talking about right now — Google trends, YouTube trending, movies, music, books, and the Story of the Week."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload"
@@ -220,11 +220,8 @@
       margin: 0 auto;
       padding: 32px 32px 0;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 24px;
-    }
-    @media (max-width: 960px) {
-      .trending-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 620px) {
       .trending-grid { grid-template-columns: 1fr; padding: 16px 16px 0; gap: 16px; }
@@ -272,31 +269,6 @@
     .trend-label {
       font-family: 'DM Sans', sans-serif; font-size: 14px;
       color: var(--text); font-weight: 500; flex: 1;
-    }
-
-    /* ── REDDIT ITEMS ─────────────────────────────────────────── */
-    .reddit-item {
-      display: block; padding: 10px 20px;
-      border-bottom: 1px solid var(--border);
-      text-decoration: none; transition: background 0.15s;
-    }
-    .reddit-item:last-child { border-bottom: none; }
-    .reddit-item:hover { background: var(--glow); }
-    .reddit-title {
-      font-family: 'DM Sans', sans-serif; font-size: 13px;
-      color: var(--text); font-weight: 500; line-height: 1.4;
-      margin-bottom: 4px;
-    }
-    .reddit-meta {
-      font-family: 'DM Mono', monospace; font-size: 10px;
-      color: var(--text-mid); display: flex; gap: 8px; flex-wrap: wrap;
-      align-items: center;
-    }
-    .reddit-score { color: var(--facts); font-weight: 600; }
-    .reddit-flair {
-      background: color-mix(in srgb, var(--facts) 12%, transparent);
-      border: 1px solid color-mix(in srgb, var(--facts) 30%, transparent);
-      color: var(--facts); padding: 1px 6px; border-radius: 3px; font-size: 9px;
     }
 
     /* ── YOUTUBE ITEMS ────────────────────────────────────────── */
@@ -396,6 +368,11 @@
     @media (max-width: 620px) {
       .page-footer { flex-direction: column; align-items: flex-start; padding: 20px 16px; }
     }
+
+    /* ── SAFETY NET — no stray blue text ─────────────────────── */
+    .tmdb-card *, .tmdb-info * { text-decoration: none; }
+    .tmdb-rating, .music-views, .book-rating { color: var(--accent) !important; }
+    .tmdb-date, .music-channel, .book-author { color: var(--muted, var(--text-mid)) !important; }
   </style>
 </head>
 <body>
@@ -453,7 +430,7 @@
   <div class="page-header">
     <p class="page-eyebrow">Live · Updated hourly</p>
     <h1 class="page-title">What India is Talking About</h1>
-    <p class="page-subtitle">Google Trends · Reddit · YouTube · Story of the Week</p>
+    <p class="page-subtitle">Google Trends · YouTube · Movies · Music · Books</p>
     <p class="page-updated" id="updatedAt"></p>
   </div>
 
@@ -477,24 +454,7 @@
       </div>
     </div>
 
-    <!-- SECTION 2: Reddit r/india -->
-    <div class="section-card">
-      <div class="section-head">
-        <div class="section-title">💬 Reddit r/india</div>
-        <div class="section-sub">Top posts today</div>
-      </div>
-      <div class="section-body" id="redditBody">
-        <div style="padding:16px 20px;">
-          <div class="skel-line" style="width:90%"></div>
-          <div class="skel-line" style="width:75%"></div>
-          <div class="skel-line" style="width:88%"></div>
-          <div class="skel-line" style="width:70%"></div>
-          <div class="skel-line" style="width:82%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 3: YouTube Trending -->
+    <!-- SECTION 2: YouTube Trending -->
     <div class="section-card">
       <div class="section-head">
         <div class="section-title">▶ YouTube Trending</div>
@@ -681,10 +641,6 @@
     if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
     return String(n);
   }
-  function fmtScore(n) {
-    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
-    return String(n);
-  }
   function escHtml(s) {
     return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -704,35 +660,6 @@
         </a>`).join('');
     } catch(e) {
       body.innerHTML = '<div class="section-error">Trends unavailable</div>';
-    }
-  }
-
-  // ── LOAD REDDIT ───────────────────────────────────────────────────
-  async function loadReddit() {
-    const body = document.getElementById('redditBody');
-    try {
-      const r = await fetch('/api/reddit-india');
-      const data = await r.json();
-      const posts = Array.isArray(data) ? data : (data.posts || []);
-      if (!posts || posts.length === 0) throw new Error('empty');
-      body.innerHTML = posts.map(p => {
-        const subHtml = p.subreddit
-          ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);opacity:0.8;">${escHtml(p.subreddit)}</span>`
-          : '';
-        const catHtml = p.category
-          ? `<span class="reddit-flair">${escHtml(p.category)}</span>`
-          : '';
-        return `
-        <a class="reddit-item" href="${escHtml(p.url)}" target="_blank" rel="noopener">
-          <div class="reddit-title">${escHtml(p.title)}</div>
-          <div class="reddit-meta">
-            ${subHtml}
-            ${catHtml}
-          </div>
-        </a>`;
-      }).join('');
-    } catch(e) {
-      body.innerHTML = '<div class="section-error">Reddit data unavailable</div>';
     }
   }
 
@@ -922,7 +849,6 @@
     // Load all sections in parallel
     await Promise.allSettled([
       loadTrends(),
-      loadReddit(),
       loadYouTube(),
       loadSOTW(),
       loadTMDB(),
