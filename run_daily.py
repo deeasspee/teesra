@@ -6,16 +6,15 @@
 #   full       — pipeline + newsletter (for manual local testing)
 
 import sys
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 
 def run_pipeline():
     """Full fetch + analyze + save pipeline. Does NOT send newsletter."""
     print(f"\n🚀 TEESRA DAILY PIPELINE — FETCH & ANALYZE")
-    from datetime import timezone, timedelta
     IST = timezone(timedelta(hours=5, minutes=30))
     ist_now = datetime.now(IST)
-    print(f"   UTC Time:  {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"   UTC Time:  {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   IST Time:  {ist_now.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   IST Date:  {ist_now.date()} (articles will be saved with this date)")
     print("=" * 50)
@@ -115,10 +114,9 @@ def run_newsletter():
     """Send newsletter only — articles must already exist in Supabase
     from today's pipeline run."""
     print(f"\n📧 TEESRA NEWSLETTER SEND")
-    from datetime import timezone, timedelta
     IST = timezone(timedelta(hours=5, minutes=30))
     ist_now = datetime.now(IST)
-    print(f"   UTC Time:  {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"   UTC Time:  {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   IST Time:  {ist_now.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   IST Date:  {ist_now.date()} (fetching articles for this date)")
     print("=" * 50)
@@ -154,6 +152,9 @@ def run_newsletter():
     print(f"\n  ✅ Newsletter sent: {success}/{len(subscribers)}")
     if failed > 0:
         print(f"  ❌ Failed: {failed}")
+    if success > 0:
+        from newsletter import mark_newsletter_sent
+        mark_newsletter_sent()
 
     print("\n" + "=" * 50)
     print("✅ Teesra newsletter send complete!")

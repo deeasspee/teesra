@@ -631,8 +631,10 @@
     const body = document.getElementById('redditBody');
     try {
       const r = await fetch('/api/reddit-india');
-      const posts = await r.json();
-      if (posts.error || !posts.length) throw new Error('empty');
+      const data = await r.json();
+      // Handle both array (legacy) and object {posts:[]} response
+      const posts = Array.isArray(data) ? data : (data.posts || []);
+      if (!posts || posts.length === 0) throw new Error('empty');
       body.innerHTML = posts.map(p => {
         const flairHtml = p.flair ? `<span class="reddit-flair">${escHtml(p.flair)}</span>` : '';
         return `

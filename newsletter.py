@@ -292,9 +292,48 @@ def select_newsletter_articles(articles: list, target: int = 15) -> list:
     return selected
 
 
+# ── DUPLICATE SEND PREVENTION ─────────────────────────────────────
+def already_sent_today() -> bool:
+    """Check if newsletter already sent today"""
+    try:
+        from database import get_client
+        IST_check = timezone(timedelta(hours=5, minutes=30))
+        today = str(datetime.now(IST_check).date())
+        client = get_client()
+        result = client.table('newsletter_log')\
+            .select('id')\
+            .eq('sent_date', today)\
+            .execute()
+        return len(result.data) > 0
+    except Exception as e:
+        print(f"  ⚠️ Log check failed: {e}")
+        return False
+
+
+def mark_newsletter_sent():
+    """Record newsletter was sent today"""
+    try:
+        from database import get_client
+        IST_mark = timezone(timedelta(hours=5, minutes=30))
+        now_ist = datetime.now(IST_mark)
+        client = get_client()
+        client.table('newsletter_log').insert({
+            'sent_date': str(now_ist.date()),
+            'sent_at': now_ist.isoformat()
+        }).execute()
+        print("  ✅ Newsletter send logged")
+    except Exception as e:
+        print(f"  ⚠️ Could not log send: {e}")
+
+
 # ── SEND NEWSLETTER ───────────────────────────────────────────────
 def send_newsletter(to_email: str):
     print(f"\n📧 Building today's Teesra newsletter...")
+
+    # Prevent duplicate sends
+    if already_sent_today():
+        print("⚠️ Newsletter already sent today — skipping to prevent duplicates")
+        return False
 
     all_articles = get_todays_articles()
 

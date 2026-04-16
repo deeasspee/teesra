@@ -925,41 +925,71 @@ def get_story_of_week():
 # ── REDDIT INDIA ──────────────────────────────────────────────────
 @app.route("/api/reddit-india")
 def get_reddit_india():
-    """Fetch top posts from r/india — no API key needed"""
+    """Fetch top posts from r/india"""
     try:
-        import requests as _req
+        import json as _json
 
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/124.0.0.0 Safari/537.36",
-            "Accept": "application/json",
-        }
-        url = "https://www.reddit.com/r/india/hot.json?limit=20"
-        r = _req.get(url, headers=headers, timeout=10)
-        r.raise_for_status()
-        data = r.json()
+        urls_to_try = [
+            "https://www.reddit.com/r/india/hot.json?limit=15&raw_json=1",
+            "https://www.reddit.com/r/india/top.json?t=day&limit=15&raw_json=1",
+        ]
+
+        data = None
+        for url in urls_to_try:
+            try:
+                req = urllib.request.Request(
+                    url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 Teesra/1.0 news aggregator",
+                        "Accept": "application/json"
+                    }
+                )
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    if r.status == 200:
+                        data = _json.loads(r.read().decode())
+                        break
+            except Exception:
+                continue
+
+        if not data:
+            return jsonify({"error": "reddit_unavailable", "posts": []})
 
         posts = []
-        for post in data['data']['children']:
-            p = post['data']
+        children = data.get('data', {}).get('children', [])
+
+        for post in children:
+            p = post.get('data', {})
             if p.get('stickied'):
                 continue
+            if not p.get('title'):
+                continue
+            score = p.get('score', 0)
+            if score < 10:
+                continue
             posts.append({
-                'title':    p.get('title', ''),
-                'score':    p.get('score', 0),
-                'comments': p.get('num_comments', 0),
-                'url':      f"https://reddit.com{p.get('permalink', '')}",
-                'flair':    p.get('link_flair_text', ''),
-                'author':   p.get('author', ''),
-                'created':  p.get('created_utc', 0)
+                'title':     p.get('title', ''),
+                'score':     score,
+                'comments':  p.get('num_comments', 0),
+                'url':       'https://reddit.com' + p.get('permalink', ''),
+                'flair':     p.get('link_flair_text', '') or '',
+                'author':    p.get('author', ''),
+                'created':   p.get('created_utc', 0),
+                'thumbnail': p.get('thumbnail', '') or ''
             })
 
-        resp = jsonify(posts[:10])
+        posts.sort(key=lambda x: x['score'], reverse=True)
+
+        resp = jsonify({
+            "posts": posts[:10],
+            "subreddit": "r/india",
+            "count": len(posts[:10])
+        })
         resp.headers['Cache-Control'] = 'public, max-age=900'
         return resp
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Reddit error: {e}")
+        return jsonify({"error": str(e), "posts": []}), 500
 
 
 # ── YOUTUBE TRENDING INDIA ────────────────────────────────────────
