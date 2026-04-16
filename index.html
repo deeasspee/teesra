@@ -250,10 +250,10 @@
     .sp-loading{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;padding:20px 0;text-align:center;}
 
     /* TICKER */
-    .ticker-wrap{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;overflow:hidden;}
+    .ticker-wrap{background:var(--surface,var(--bg2));border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;overflow:hidden;}
     .ticker{display:flex;animation:tmove 35s linear infinite;white-space:nowrap;width:max-content;}
-    .ticker-item{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--text-dim);padding:0 36px;text-transform:uppercase;}
-    .ticker-item span{color:var(--accent);margin-right:10px;}
+    .ticker-item{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--text);font-weight:500;padding:0 36px;text-transform:uppercase;opacity:1;}
+    .ticker-item span{color:var(--accent);margin-right:10px;font-size:8px;font-weight:700;}
     @keyframes tmove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
     /* HOW IT WORKS */

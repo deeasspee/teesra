@@ -925,71 +925,90 @@ def get_story_of_week():
 # ── REDDIT INDIA ──────────────────────────────────────────────────
 @app.route("/api/reddit-india")
 def get_reddit_india():
-    """Fetch top posts from r/india"""
+    """Fetch top posts from multiple India-focused subreddits"""
     try:
         import json as _json
+        import random
+        import gzip as _gzip
 
-        urls_to_try = [
-            "https://www.reddit.com/r/india/hot.json?limit=15&raw_json=1",
-            "https://www.reddit.com/r/india/top.json?t=day&limit=15&raw_json=1",
+        USER_AGENTS = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         ]
 
-        data = None
-        for url in urls_to_try:
+        SUBREDDITS = [
+            ("india",            "General"),
+            ("Cricket",          "Sports"),
+            ("bollywood",        "Entertainment"),
+            ("IndiaInvestments", "Finance"),
+            ("bangalore",        "Tech/Startup"),
+        ]
+
+        def fetch_subreddit(name, category):
+            url = f"https://www.reddit.com/r/{name}/hot.json?limit=8&raw_json=1"
             try:
                 req = urllib.request.Request(
                     url,
                     headers={
-                        "User-Agent": "Mozilla/5.0 Teesra/1.0 news aggregator",
-                        "Accept": "application/json"
+                        "User-Agent":      random.choice(USER_AGENTS),
+                        "Accept":          "application/json",
+                        "Accept-Language": "en-US,en;q=0.9",
+                        "Accept-Encoding": "gzip, deflate",
+                        "Cache-Control":   "no-cache",
                     }
                 )
-                with urllib.request.urlopen(req, timeout=10) as r:
-                    if r.status == 200:
-                        data = _json.loads(r.read().decode())
-                        break
-            except Exception:
-                continue
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    raw = r.read()
+                    try:
+                        raw = _gzip.decompress(raw)
+                    except Exception:
+                        pass
+                    data = _json.loads(raw.decode('utf-8'))
 
-        if not data:
-            return jsonify({"error": "reddit_unavailable", "posts": []})
+                posts = []
+                for post in data.get('data', {}).get('children', []):
+                    p = post.get('data', {})
+                    if p.get('stickied') or not p.get('title'):
+                        continue
+                    posts.append({
+                        'title':      p.get('title', ''),
+                        'score':      p.get('score', 0),
+                        'comments':   p.get('num_comments', 0),
+                        'url':        'https://reddit.com' + p.get('permalink', ''),
+                        'flair':      p.get('link_flair_text', '') or '',
+                        'author':     p.get('author', ''),
+                        'subreddit':  f"r/{name}",
+                        'category':   category,
+                    })
+                return posts
+            except Exception as e:
+                print(f"Reddit r/{name} failed: {e}")
+                return []
 
-        posts = []
-        children = data.get('data', {}).get('children', [])
+        all_posts = []
+        fetched_sources = []
+        for name, category in SUBREDDITS:
+            posts = fetch_subreddit(name, category)
+            if posts:
+                all_posts.extend(posts)
+                fetched_sources.append(f"r/{name}")
+            time.sleep(0.5)
 
-        for post in children:
-            p = post.get('data', {})
-            if p.get('stickied'):
-                continue
-            if not p.get('title'):
-                continue
-            score = p.get('score', 0)
-            if score < 10:
-                continue
-            posts.append({
-                'title':     p.get('title', ''),
-                'score':     score,
-                'comments':  p.get('num_comments', 0),
-                'url':       'https://reddit.com' + p.get('permalink', ''),
-                'flair':     p.get('link_flair_text', '') or '',
-                'author':    p.get('author', ''),
-                'created':   p.get('created_utc', 0),
-                'thumbnail': p.get('thumbnail', '') or ''
-            })
-
-        posts.sort(key=lambda x: x['score'], reverse=True)
+        all_posts.sort(key=lambda x: x['score'], reverse=True)
+        top_posts = all_posts[:15]
 
         resp = jsonify({
-            "posts": posts[:10],
-            "subreddit": "r/india",
-            "count": len(posts[:10])
+            "posts":   top_posts,
+            "sources": fetched_sources,
+            "count":   len(top_posts),
         })
         resp.headers['Cache-Control'] = 'public, max-age=900'
         return resp
 
     except Exception as e:
-        print(f"Reddit error: {e}")
-        return jsonify({"error": str(e), "posts": []}), 500
+        print(f"Reddit route error: {e}")
+        return jsonify({"posts": [], "error": str(e)}), 500
 
 
 # ── YOUTUBE TRENDING INDIA ────────────────────────────────────────
@@ -1035,6 +1054,81 @@ def get_youtube_trending():
         return resp
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ── TMDB TRENDING ────────────────────────────────────────────────
+@app.route("/api/tmdb-trending")
+def get_tmdb_trending():
+    """Fetch trending movies and TV shows in India from TMDB"""
+    TMDB_READ_TOKEN = os.getenv('TMDB_READ_TOKEN', '')
+    TMDB_API_KEY    = os.getenv('TMDB_API_KEY', '')
+
+    if not TMDB_READ_TOKEN and not TMDB_API_KEY:
+        return jsonify({"error": "no_api_key", "movies": [], "shows": []})
+
+    try:
+        import json as _json
+
+        def fetch_tmdb(endpoint):
+            if TMDB_READ_TOKEN:
+                url = f"https://api.themoviedb.org/3{endpoint}"
+                req = urllib.request.Request(url, headers={
+                    "Authorization": f"Bearer {TMDB_READ_TOKEN}",
+                    "accept": "application/json"
+                })
+            else:
+                sep = '&' if '?' in endpoint else '?'
+                url = f"https://api.themoviedb.org/3{endpoint}{sep}api_key={TMDB_API_KEY}"
+                req = urllib.request.Request(url)
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return _json.loads(r.read().decode())
+
+        movies_data = fetch_tmdb("/trending/movie/week?language=en-IN&region=IN")
+        shows_data  = fetch_tmdb("/trending/tv/week?language=en-IN")
+
+        def format_movie(item):
+            poster = item.get('poster_path', '')
+            return {
+                'id':           item.get('id'),
+                'title':        item.get('title', item.get('name', '')),
+                'overview':     item.get('overview', '')[:150],
+                'rating':       round(item.get('vote_average', 0), 1),
+                'votes':        item.get('vote_count', 0),
+                'release_date': item.get('release_date', item.get('first_air_date', '')),
+                'poster':       f"https://image.tmdb.org/t/p/w200{poster}" if poster else '',
+                'url':          f"https://www.themoviedb.org/movie/{item.get('id')}",
+                'media_type':   'movie',
+            }
+
+        def format_show(item):
+            poster = item.get('poster_path', '')
+            return {
+                'id':           item.get('id'),
+                'title':        item.get('name', item.get('title', '')),
+                'overview':     item.get('overview', '')[:150],
+                'rating':       round(item.get('vote_average', 0), 1),
+                'votes':        item.get('vote_count', 0),
+                'release_date': item.get('first_air_date', ''),
+                'poster':       f"https://image.tmdb.org/t/p/w200{poster}" if poster else '',
+                'url':          f"https://www.themoviedb.org/tv/{item.get('id')}",
+                'media_type':   'tv',
+            }
+
+        movies = [format_movie(m) for m in movies_data.get('results', [])[:8]]
+        shows  = [format_show(s) for s in shows_data.get('results', [])[:8]]
+
+        resp = jsonify({
+            "movies":       movies,
+            "shows":        shows,
+            "total_movies": len(movies),
+            "total_shows":  len(shows),
+        })
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    except Exception as e:
+        print(f"TMDB error: {e}")
+        return jsonify({"error": str(e), "movies": [], "shows": []}), 500
 
 
 # ── TODAY I LEARNED ──────────────────────────────────────────────
