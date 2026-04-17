@@ -12,7 +12,6 @@ from datetime import datetime, timezone, timedelta
 def run_pipeline():
     """Full fetch + analyze + save pipeline. Does NOT send newsletter."""
     print(f"\n🚀 TEESRA DAILY PIPELINE — FETCH & ANALYZE")
-    IST = timezone(timedelta(hours=5, minutes=30))
     ist_now = datetime.now(IST)
     print(f"   UTC Time:  {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   IST Time:  {ist_now.strftime('%Y-%m-%d %H:%M:%S')}")
