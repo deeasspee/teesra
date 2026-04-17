@@ -233,6 +233,77 @@ def manifest():
     }
     from flask import Response
     return Response(_json.dumps(data), mimetype='application/manifest+json')
+@app.route("/sitemap.xml")
+def sitemap():
+    from flask import Response
+    from datetime import datetime, timezone, timedelta
+    
+    IST = timezone(timedelta(hours=5, minutes=30))
+    today = str(datetime.now(IST).date())
+    
+    # Static pages
+    static_urls = [
+        ("https://teesra.in/", "1.0", "daily"),
+        ("https://teesra.in/feed", "0.9", "daily"),
+        ("https://teesra.in/about", "0.7", "monthly"),
+        ("https://teesra.in/trending", "0.8", "daily"),
+        ("https://teesra.in/crossword", "0.8", "daily"),
+    ]
+    
+    # Story permalink pages from last 5 days
+    story_urls = []
+    try:
+        from database import get_client
+        client = get_client()
+        cutoff = str(datetime.now(IST).date() - 
+                    timedelta(days=5))
+        result = client.table('article')\
+            .select('id, fetched_date')\
+            .gte('fetched_date', cutoff)\
+            .execute()
+        for row in result.data:
+            story_urls.append((
+                f"https://teesra.in/story/{row['id']}",
+                "0.8",
+                row['fetched_date']
+            ))
+    except Exception as e:
+        print(f"Sitemap story fetch error: {e}")
+    
+    # Build XML
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    for url, priority, changefreq in static_urls:
+        xml += f'''  <url>
+    <loc>{url}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>{changefreq}</changefreq>
+    <priority>{priority}</priority>
+  </url>\n'''
+    
+    for url, priority, lastmod in story_urls:
+        xml += f'''  <url>
+    <loc>{url}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>never</changefreq>
+    <priority>{priority}</priority>
+  </url>\n'''
+    
+    xml += '</urlset>'
+    
+    return Response(xml, mimetype='application/xml')
+
+
+@app.route("/robots.txt")
+def robots():
+    from flask import Response
+    txt = """User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Sitemap: https://teesra.in/sitemap.xml"""
+    return Response(txt, mimetype='text/plain')
 
 # ── MARKET DATA ───────────────────────────────────────────────────
 @app.route("/api/market")
