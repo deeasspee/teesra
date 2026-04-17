@@ -110,8 +110,6 @@ def run_pipeline():
         print(f"\n✅ Pipeline done — {len(results)} articles saved\n")
 
         # ── SUNDAY: Generate Story of the Week ────────────────────
-        from datetime import timezone, timedelta
-        IST = timezone(timedelta(hours=5, minutes=30))
         if datetime.now(IST).weekday() == 6:  # Sunday
             print("\n📰 Sunday — generating Story of Week...")
             try:
