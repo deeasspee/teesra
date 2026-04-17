@@ -3,7 +3,11 @@ name: Teesra Daily Pipeline
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 2 * * *'  # 2:30 AM UTC = 8:00 AM IST
+    - cron: '30 0 * * *'  # 6:00 AM IST — fetch & analyze (primary)
+    - cron: '30 1 * * *'  # 7:00 AM IST — backup fetch if 6AM missed
+    - cron: '30 2 * * *'  # 8:00 AM IST — newsletter send (primary)
+    - cron: '30 3 * * *'  # 9:00 AM IST — backup newsletter if 8AM missed
+    - cron: '30 4 * * *'  # 10:00 AM IST — final backup
 
 jobs:
   daily_pipeline:
@@ -36,7 +40,6 @@ jobs:
           echo "IST: $(TZ='Asia/Kolkata' date)"
 
       - name: Fetch and analyze articles
-        id: pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

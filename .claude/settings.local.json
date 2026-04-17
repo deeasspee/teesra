@@ -9,7 +9,11 @@
       "Bash(python:*)",
       "Bash(taskkill:*)",
       "Bash(PYTHONIOENCODING=utf-8 python:*)",
-      "Bash(set PYTHONIOENCODING=utf-8)"
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(gh run *)",
+      "Bash(git remote *)",
+      "Bash(PYTHONUTF8=1 python *)",
+      "Bash(git *)"
     ]
   }
 }

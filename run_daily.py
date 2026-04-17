@@ -19,6 +19,33 @@ def run_pipeline():
     print(f"   IST Date:  {ist_now.date()} (articles will be saved with this date)")
     print("=" * 50)
 
+    # ── GUARD: Skip if already ran today ──
+    try:
+        from database import get_client, \
+            get_ist_today
+        _client = get_client()
+        _today = str(get_ist_today())
+        _check = _client.table('article')\
+            .select('id', count='exact')\
+            .eq('fetched_date', _today)\
+            .execute()
+        _count = _check.count or 0
+        if _count >= 10:
+            print(f"✅ Pipeline already ran "
+                  f"today — {_count} articles "
+                  f"exist for {_today}.")
+            print("   Skipping to prevent "
+                  "duplicate run.")
+            print("=" * 50 + "\n")
+            return
+        else:
+            print(f"  📋 {_count} articles exist"
+                  f" for {_today} "
+                  f"— proceeding with pipeline")
+    except Exception as _e:
+        print(f"  ⚠️ Guard check failed: {_e}"
+              f" — proceeding anyway")
+
     # ── STEP 1: FETCH + ANALYZE ───────────────────────────────────
     print("STEP 1 — Fetching and analyzing news")
     print("=" * 50)
