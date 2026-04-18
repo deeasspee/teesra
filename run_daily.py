@@ -53,7 +53,7 @@ def run_pipeline():
     try:
         from fetch_news import fetch_all_news
         from article_selector import select_top_stories
-        from analyze_article import analyze_article, display_analysis
+        from analyze_article import analyze_article, display_analysis, contains_hallucination_risk
         from database import save_article, clear_todays_articles
 
         print("📡 Fetching live articles...")
@@ -90,6 +90,7 @@ def run_pipeline():
             print(f"  [{i+1}/{len(top_articles)}] {article['title'][:60]}...")
             analysis = analyze_article(article)
             if analysis:
+                contains_hallucination_risk(analysis)
                 new_headline = analysis.get('headline', '')
                 # Skip if same story already saved in this run
                 existing = [r.get('headline', '') for r in results]

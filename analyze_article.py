@@ -94,6 +94,29 @@ def detect_story_type(title, summary, source=""):
 def build_prompt(article, story_type):
 
     base_context = f"""
+CRITICAL ANTI-HALLUCINATION RULES — MUST FOLLOW WITHOUT EXCEPTION:
+
+1. ONLY use information explicitly stated in the article text provided below.
+
+2. NEVER add context from your training data. If the article does not mention it, it does not exist for this analysis.
+
+3. NEVER assume roles, positions, titles, relationships, or facts about people, teams, organisations or places unless the article explicitly states them.
+
+4. If a fact is not in the article — OMIT IT ENTIRELY. Do not fill gaps.
+
+5. For sports stories specifically:
+   - Only mention players named in the article
+   - Only mention scores/stats in the article
+   - Never add "context" about rivalries, history, or player backgrounds unless the article states them
+   - Never assign team captaincy, roles, or positions unless explicitly stated
+
+6. For political stories:
+   - Never add party affiliations unless stated
+   - Never add historical context unless stated
+   - Never add relationships between people unless the article states them
+
+7. Test before writing each section: "Is this information in the article text?" YES → include it. NO → do not include it, period.
+
 You are the AI engine behind Teesra — an Indian news platform for young Indians aged 18-30.
 Your job is to analyze news articles and return structured JSON only. No extra text.
 
@@ -115,6 +138,12 @@ ACCURACY RULES:
 - If you are unsure of a fact, omit it rather than guess
 - Facts section must read like a wire report — dry, sourced, no color
 
+FACTS SECTION RULES:
+- Copy only what the article says happened — no interpretation beyond what is written
+- If the article is about X defeating Y, only mention X defeating Y
+- Do not add "this means" or "this suggests" unless the article itself makes that claim
+- Maximum 3 sentences — every sentence must be traceable to a specific part of the article text
+
 WRITING STYLE RULES:
 - Write facts in direct journalistic voice. Never say "The article states", "The article mentions", "The article examines", "According to the article", or any meta-reference to the source material. State facts directly: "X happened" not "The article says X happened".
 - Write all sections in direct active voice: not "The article says X happened" but "X happened."
@@ -126,6 +155,9 @@ STREET PULSE RULES:
 - NEVER start with "People" or "The public"
 - Every story has nuance — find the specific angle, debate or emotion
 - Name a specific group, community, profession or fanbase who cares about this
+- Only reference communities or groups mentioned in the article — if none mentioned, use generic terms like "fans" or "readers"
+- Do not invent specific reactions or emotional states not implied by the stated facts
+- Keep to 2 sentences maximum
 - Focus on ONE dominant sentiment or ONE interesting tension
 - Good examples:
   "Farmers in Punjab are cautiously optimistic, while urban economists worry this changes little on the ground"
@@ -155,9 +187,16 @@ IMPACT RULES:
 - One sentence maximum
 - Think "what changed in the real world because of this"
 - Write like a smart friend texting you — casual, direct, no drama
+- Only state impact explicitly mentioned in the article OR directly and obviously implied by the stated facts
+- Do not extrapolate beyond what is written
+- If you cannot write impact from article alone — write: "Further developments expected as the story unfolds."
 - Good example: "Home loans could get slightly cheaper in the next few weeks"
 - Bad example: "This will have significant implications for the Indian economy"
 - Never start with "This", "The", or a person's name
+
+VALIDATION — BEFORE RETURNING YOUR RESPONSE:
+Review each section and ask: "Does this contain any fact, name, role, statistic, or claim NOT present in the article text above?"
+If YES to any section — remove that information before responding.
 """
 
     if story_type == "sports":
@@ -263,7 +302,43 @@ Return this exact JSON:
 }"""
 
 
-# ── 3. THE ANALYZER ───────────────────────────────────────────────
+# ── 3. HALLUCINATION RISK CHECKER ────────────────────────────────
+
+def contains_hallucination_risk(analysis):
+    """
+    Flag analysis that likely contains information beyond the source article.
+    These phrases indicate Claude is adding training knowledge not in the article.
+    """
+    text_to_check = ' '.join([
+        analysis.get('facts', ''),
+        analysis.get('impact', ''),
+        analysis.get('public_pulse', ''),
+        analysis.get('left_lens', ''),
+        analysis.get('right_lens', ''),
+    ]).lower()
+
+    risk_phrases = [
+        'captain of',
+        'who leads the',
+        'historically',
+        'it is well known',
+        'as we know',
+        'the legendary',
+        'has always been',
+        'traditionally',
+    ]
+
+    flagged = [p for p in risk_phrases if p in text_to_check]
+
+    if flagged:
+        print(f"  ⚠️ Hallucination risk detected: {flagged}")
+        print(f"     Review before publishing")
+        return False
+
+    return False
+
+
+# ── 4. THE ANALYZER ───────────────────────────────────────────────
 # Sends article to Claude and gets Teesra analysis back
 
 def analyze_article(article):
