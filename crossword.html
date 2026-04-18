@@ -17,7 +17,7 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a120e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=Ubuntu:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* ── 6 THEMES ──────────────────────────────────────────────── */
     [data-theme="jungle"]   {--bg:#0a120e;--bg2:#101a12;--surface:rgba(22,32,24,0.92);--border:#1e2e20;--text:#e8f0e4;--text-dim:#426048;--text-mid:#90b094;--facts:#d4a820;--left:#5ba8e8;--right:#e8704a;--pulse:#6de86a;--glow:rgba(212,168,32,0.06);}
@@ -35,14 +35,14 @@
     .s1{grid-column:1/-1;}
     .theme-picker{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg);border:1px solid var(--border);padding:12px;z-index:500;width:220px;box-shadow:0 16px 40px rgba(0,0,0,0.4);}
     .theme-picker.open{display:block;}
-    .theme-picker-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+    .theme-picker-title{font-family:'Ubuntu',sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;font-weight:600;}
     .theme-grid-picker{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
     .theme-opt{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:7px;border:1px solid var(--border);transition:border-color 0.2s;}
     .theme-opt:hover{border-color:var(--facts);}
     .theme-opt.active{border-color:var(--facts);background:rgba(255,255,255,0.04);}
     .tsp{height:26px;border-radius:2px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
     .ts1{grid-column:1/-1;}
-    .tnl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
+    .tnl{font-family:'Ubuntu',sans-serif;font-size:9px;letter-spacing:1px;color:var(--text-mid);text-align:center;}
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -101,7 +101,7 @@
     }
     [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] nav { background: rgba(245,243,238,0.96); }
     .nav-logo { font-family:'Playfair Display',serif; font-size:20px; font-weight:900; color:var(--facts); text-decoration:none; flex-shrink:0; }
-    .nav-logo span { font-family:'DM Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:2px; display:block; margin-top:-3px; }
+    .nav-logo span { font-family:'Ubuntu',sans-serif; font-size:10px; color:var(--text-dim); letter-spacing:2px; display:block; margin-top:-3px; }
     .nav-right { display:flex; align-items:center; gap:16px; }
     .nav-back { font-size:12px; color:var(--text-dim); text-decoration:none; transition:color 0.2s; white-space:nowrap; }
     .nav-back:hover { color:var(--text); }
@@ -137,7 +137,7 @@
     }
     .page-header-left {}
     .page-eyebrow {
-      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px;
+      font-family: 'Ubuntu', sans-serif; font-size: 11px; letter-spacing: 3px;
       color: var(--facts); text-transform: uppercase; margin-bottom: 8px;
     }
     .page-title {
@@ -147,7 +147,7 @@
     }
     .page-subtitle { font-size: 14px; color: var(--text); opacity: 0.75; }
     .page-back {
-      font-family: 'DM Mono', monospace; font-size: 13px;
+      font-family: 'Ubuntu', sans-serif; font-size: 13px;
       color: var(--facts); text-decoration: none;
       white-space: nowrap; padding-top: 4px;
       transition: opacity 0.2s;
@@ -163,16 +163,16 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.10);
     }
     .timer-display {
-      font-family: 'Space Mono', 'DM Mono', monospace; font-size: 26px;
+      font-family: 'Space Mono', 'Ubuntu', sans-serif; font-size: 26px;
       font-weight: 700; color: var(--facts); letter-spacing: 3px; min-width: 90px;
     }
     .timer-label {
-      font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px;
+      font-family: 'Ubuntu', sans-serif; font-size: 9px; letter-spacing: 2px;
       text-transform: uppercase; color: var(--text-dim); margin-top: 2px;
     }
     .controls-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .ctrl-btn {
-      font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 1px;
+      font-family: 'Ubuntu', sans-serif; font-size: 12px; letter-spacing: 1px;
       text-transform: uppercase; padding: 8px 16px; cursor: pointer;
       border: 1px solid var(--border); background: none; color: var(--text);
       border-radius: 6px; transition: all 0.15s;
@@ -237,7 +237,7 @@
       }
       #mobileBannerNum {
         display: inline-block;
-        font-family: 'DM Mono', monospace;
+        font-family: 'Ubuntu', sans-serif;
         font-size: 10px;
         font-weight: 700;
         color: var(--bg);
@@ -328,7 +328,7 @@
     /* Cell numbers — bigger and more visible */
     .cell-num {
       position: absolute; top: 2px; left: 3px;
-      font-family: 'DM Mono', monospace; font-size: 10px;
+      font-family: 'Ubuntu', sans-serif; font-size: 10px;
       color: #6a6a60; line-height: 1; pointer-events: none;
       font-weight: 500;
     }
@@ -338,7 +338,7 @@
     .cell-letter {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Space Mono', 'DM Mono', monospace;
+      font-family: 'Space Mono', 'Ubuntu', sans-serif;
       font-size: 17px; font-weight: 700;
       color: #1a1a16;
       pointer-events: none; text-transform: uppercase;
@@ -359,7 +359,7 @@
     .clues-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     .clue-section-title {
-      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px;
+      font-family: 'Ubuntu', sans-serif; font-size: 11px; letter-spacing: 2px;
       text-transform: uppercase; color: var(--facts); margin-bottom: 12px;
       padding-bottom: 7px; border-bottom: 1px solid var(--border);
       font-weight: 700;
@@ -380,7 +380,7 @@
     .clue-item.solved .clue-text { text-decoration: line-through; color: var(--text-dim); opacity: 0.6; }
     .clue-item.solved .clue-num  { opacity: 0.5; }
     .clue-num {
-      font-family: 'DM Mono', monospace; font-size: 13px; color: var(--facts);
+      font-family: 'Ubuntu', sans-serif; font-size: 13px; color: var(--facts);
       flex-shrink: 0; min-width: 24px; margin-top: 1px; font-weight: 700;
     }
     .clue-text {
@@ -388,7 +388,7 @@
       line-height: 1.5; font-weight: 400;
     }
     .clue-len {
-      font-family: 'DM Mono', monospace; font-size: 12px;
+      font-family: 'Ubuntu', sans-serif; font-size: 12px;
       color: var(--text-dim); flex-shrink: 0; margin-top: 2px;
     }
 
@@ -414,7 +414,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text {
-      font-family: 'DM Mono', monospace; font-size: 11px;
+      font-family: 'Ubuntu', sans-serif; font-size: 11px;
       letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase;
     }
 
@@ -440,16 +440,16 @@
     }
     .modal-sub { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; line-height: 1.6; }
     .modal-time {
-      font-family: 'Space Mono', 'DM Mono', monospace; font-size: 32px;
+      font-family: 'Space Mono', 'Ubuntu', sans-serif; font-size: 32px;
       font-weight: 700; color: var(--facts); margin-bottom: 6px;
     }
     .modal-time-label {
-      font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px;
+      font-family: 'Ubuntu', sans-serif; font-size: 10px; letter-spacing: 2px;
       text-transform: uppercase; color: var(--text-dim); margin-bottom: 28px;
     }
     .modal-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .modal-btn {
-      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px;
+      font-family: 'Ubuntu', sans-serif; font-size: 11px; letter-spacing: 1px;
       text-transform: uppercase; padding: 10px 22px; cursor: pointer;
       border-radius: 6px; text-decoration: none; transition: all 0.15s;
       display: inline-block;
@@ -484,7 +484,7 @@
       font-weight: 900; color: var(--facts); margin-bottom: 6px;
     }
     .cw-footer-tagline {
-      font-family: 'DM Mono', monospace; font-size: 10px;
+      font-family: 'Ubuntu', sans-serif; font-size: 10px;
       letter-spacing: 1.5px; text-transform: uppercase;
       color: var(--text-dim); margin-bottom: 14px;
     }
@@ -492,7 +492,7 @@
       display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
     }
     .cw-footer-links a {
-      font-family: 'DM Mono', monospace; font-size: 11px;
+      font-family: 'Ubuntu', sans-serif; font-size: 11px;
       color: var(--text-dim); text-decoration: none; letter-spacing: 0.5px;
       transition: color 0.2s;
     }
@@ -535,7 +535,7 @@
   <a href="/" onclick="closeDrawer()">← Home</a>
   <a href="/feed" onclick="closeDrawer()">Today's Brief</a>
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;">
-    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
+    <span style="font-family:'Ubuntu',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
     <div style="display:grid;grid-template-columns:repeat(3,40px);gap:8px;" id="drawerThemeSwatches"></div>
   </div>
 </div>

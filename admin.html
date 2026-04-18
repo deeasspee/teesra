@@ -6,7 +6,7 @@
   <title>Admin — Teesra</title>
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     /* ── 6 THEMES ──────────────────────────────────────────────── */
@@ -53,7 +53,7 @@
       flex-shrink: 0;
     }
     .nav-logo span {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 9px;
       color: var(--text-dim);
       display: block;
@@ -66,7 +66,7 @@
       gap: 14px;
     }
     .nav-back {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 11px;
       color: var(--text-mid);
       text-decoration: none;
@@ -92,13 +92,13 @@
       box-shadow: 0 12px 32px rgba(0,0,0,0.4);
     }
     .theme-picker.open { display: block; }
-    .tp-title { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+    .tp-title { font-family: 'Ubuntu', sans-serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; font-weight: 600; }
     .tp-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .tp-opt   { display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border: 1px solid var(--border); transition: border-color 0.2s; }
     .tp-opt:hover, .tp-opt.active { border-color: var(--accent); }
     .tp-swatch { height: 22px; border-radius: 2px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
     .ts1 { grid-column: 1/-1; }
-    .tp-name { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--text-mid); text-align: center; }
+    .tp-name { font-family: 'Ubuntu', sans-serif; font-size: 8px; letter-spacing: 1px; color: var(--text-mid); text-align: center; }
 
     /* ── LAYOUT ────────────────────────────────────────────────── */
     .admin-wrap {
@@ -120,7 +120,7 @@
       letter-spacing: -0.5px;
     }
     .admin-header p {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 11px;
       color: var(--text-dim);
       letter-spacing: 1px;
@@ -132,7 +132,7 @@
       margin-bottom: 40px;
     }
     .section-title {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 10px;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -158,7 +158,7 @@
       border-radius: 2px;
     }
     .stat-card-label {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 9px;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -189,14 +189,14 @@
       justify-content: space-between;
     }
     .pipeline-card-label {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 10px;
       color: var(--text-dim);
       text-transform: uppercase;
       letter-spacing: 1px;
     }
     .pipeline-card-value {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 18px;
       font-weight: 500;
       color: var(--text);
@@ -214,7 +214,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 12px;
       padding: 8px 12px;
       outline: none;
@@ -235,7 +235,7 @@
       font-size: 12px;
     }
     th {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 9px;
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -263,7 +263,7 @@
       display: inline-block;
       padding: 2px 8px;
       border-radius: 10px;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 9px;
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -277,7 +277,7 @@
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text-mid);
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 9px;
       letter-spacing: 1px;
       padding: 3px 9px;
@@ -304,7 +304,7 @@
       color: var(--accent);
     }
     .access-msg {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Ubuntu', sans-serif;
       font-size: 12px;
       letter-spacing: 1px;
       color: var(--text-dim);
@@ -323,7 +323,7 @@
       position: fixed; bottom: 24px; right: 24px;
       background: var(--surface); border: 1px solid var(--accent);
       color: var(--text); padding: 12px 20px;
-      font-family: 'DM Mono', monospace; font-size: 12px;
+      font-family: 'Ubuntu', sans-serif; font-size: 12px;
       z-index: 9999; border-radius: 2px;
       animation: fadeInUp 0.25s ease;
     }
@@ -339,8 +339,8 @@
     <a href="/feed" class="nav-back">← Feed</a>
     <div id="auth-user-menu" style="display:none;align-items:center;gap:8px;">
       <img id="auth-user-avatar" style="display:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--accent);" src="" alt="avatar">
-      <span id="auth-user-name" style="font-size:11px;color:var(--text);font-family:'DM Mono',monospace;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-      <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:2px;font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;">SIGN OUT</button>
+      <span id="auth-user-name" style="font-size:11px;color:var(--text);font-family:'Ubuntu',sans-serif;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <button onclick="TeesraAuth.signOut()" style="padding:3px 9px;background:transparent;border:1px solid var(--border);color:var(--text-mid);border-radius:2px;font-size:10px;font-family:'Ubuntu',sans-serif;cursor:pointer;">SIGN OUT</button>
     </div>
     <!-- Theme swatch -->
     <div class="theme-wrap">
@@ -403,7 +403,7 @@
     <div class="section-title">Subscribers</div>
     <div class="table-controls">
       <input class="search-input" id="subSearch" type="text" placeholder="Search by email…" oninput="filterTable()">
-      <span id="subCount" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);"></span>
+      <span id="subCount" style="font-family:'Ubuntu',sans-serif;font-size:11px;color:var(--text-dim);"></span>
     </div>
     <div class="table-wrap">
       <table id="subTable">
@@ -557,8 +557,8 @@ function showAccessDenied(msg) {
     <div class="access-screen">
       <div class="access-logo">Teesra</div>
       <div class="access-msg">${msg}</div>
-      <button onclick="TeesraAuth.signInWithGoogle()" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:var(--bg);border:none;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;cursor:pointer;border-radius:2px;">SIGN IN WITH GOOGLE</button>
-      <a href="/" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;margin-top:8px;">← Back to Teesra</a>
+      <button onclick="TeesraAuth.signInWithGoogle()" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:var(--bg);border:none;font-family:'Ubuntu',sans-serif;font-size:12px;letter-spacing:1px;cursor:pointer;border-radius:2px;">SIGN IN WITH GOOGLE</button>
+      <a href="/" style="font-family:'Ubuntu',sans-serif;font-size:11px;color:var(--text-dim);text-decoration:none;margin-top:8px;">← Back to Teesra</a>
     </div>`;
 }
 
@@ -617,7 +617,7 @@ async function loadPipeline() {
       const breakdown = document.getElementById('topicBreakdown');
       breakdown.innerHTML = Object.entries(data.topics)
         .sort((a, b) => b[1] - a[1])
-        .map(([t, c]) => `<span style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 10px;border:1px solid var(--border);color:var(--text-mid);border-radius:10px;">${t}: ${c}</span>`)
+        .map(([t, c]) => `<span style="font-family:'Ubuntu',sans-serif;font-size:10px;padding:3px 10px;border:1px solid var(--border);color:var(--text-mid);border-radius:10px;">${t}: ${c}</span>`)
         .join('');
     }
   } catch(e) { console.error('Pipeline error:', e); }

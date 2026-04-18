@@ -44,12 +44,12 @@ def build_story_html(article, index):
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td width="48%" style="padding: 12px; background:#0f1218; border-left: 2px solid #5b9bd5; vertical-align:top;">
-                  <p style="margin:0 0 4px 0; font-family:monospace; font-size:9px; color:#5b9bd5; letter-spacing:2px; text-transform:uppercase;">🔵 Left Lens</p>
+                  <p style="margin:0 0 4px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#5b9bd5; letter-spacing:2px; text-transform:uppercase;">🔵 Left Lens</p>
                   <p style="margin:0; font-size:12px; color:#b0aa90; line-height:1.6;">{article.get('left_lens', '')}</p>
                 </td>
                 <td width="4%"></td>
                 <td width="48%" style="padding: 12px; background:#180f0f; border-left: 2px solid #d45b5b; vertical-align:top;">
-                  <p style="margin:0 0 4px 0; font-family:monospace; font-size:9px; color:#d45b5b; letter-spacing:2px; text-transform:uppercase;">🔴 Right Lens</p>
+                  <p style="margin:0 0 4px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#d45b5b; letter-spacing:2px; text-transform:uppercase;">🔴 Right Lens</p>
                   <p style="margin:0; font-size:12px; color:#b0aa90; line-height:1.6;">{article.get('right_lens', '')}</p>
                 </td>
               </tr>
@@ -75,9 +75,9 @@ def build_story_html(article, index):
           <!-- CARD HEADER -->
           <tr>
             <td style="padding: 20px 20px 0 20px; border-top: 3px solid {color};">
-              <p style="margin:0 0 6px 0; font-family:monospace; font-size:9px; color:{color}; letter-spacing:2px; text-transform:uppercase;">{label}</p>
+              <p style="margin:0 0 6px 0; font-family:'Ubuntu', monospace; font-size:9px; color:{color}; letter-spacing:2px; text-transform:uppercase;">{label}</p>
               <h2 style="margin:0 0 8px 0; font-family:Georgia,serif; font-size:17px; font-weight:700; color:#e8e4d4; line-height:1.3;">{article.get('headline', '')}</h2>
-              <p style="margin:0 0 16px 0; font-family:monospace; font-size:10px; color:#7a7660;">
+              <p style="margin:0 0 16px 0; font-family:'Ubuntu', monospace; font-size:10px; color:#7a7660;">
                 {article.get('source', '')} · {article.get('source_bias', '')}
                 {f'· <a href="{article["url"]}" style="color:#7a7660;">Read original →</a>' if article.get('url') else ''}
               </p>
@@ -87,7 +87,7 @@ def build_story_html(article, index):
           <!-- FACTS -->
           <tr>
             <td style="padding: 0 20px 12px 20px;">
-              <p style="margin:0 0 4px 0; font-family:monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">⚖️ Facts</p>
+              <p style="margin:0 0 4px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">⚖️ Facts</p>
               <p style="margin:0; font-size:13px; color:#b0aa90; line-height:1.65;">{article.get('facts', '')}</p>
             </td>
           </tr>
@@ -95,7 +95,7 @@ def build_story_html(article, index):
           <!-- IMPACT -->
           <tr>
             <td style="padding: 8px 20px 12px 20px; background: rgba(232,200,74,0.03);">
-              <p style="margin:0 0 4px 0; font-family:monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">💥 Impact</p>
+              <p style="margin:0 0 4px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#e8c84a; letter-spacing:2px; text-transform:uppercase;">💥 Impact</p>
               <p style="margin:0; font-size:13px; color:#e8e4d4; line-height:1.6;">{article.get('impact', '')}</p>
             </td>
           </tr>
@@ -106,7 +106,7 @@ def build_story_html(article, index):
           <!-- STREET PULSE -->
           <tr>
             <td style="padding: 8px 20px 16px 20px; border-top: 1px solid #2a2a1f;">
-              <p style="margin:0 0 4px 0; font-family:monospace; font-size:9px; color:#7bc67e; letter-spacing:2px; text-transform:uppercase;">💬 Street Pulse</p>
+              <p style="margin:0 0 4px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#7bc67e; letter-spacing:2px; text-transform:uppercase;">💬 Street Pulse</p>
               <p style="margin:0; font-size:12px; color:#b0aa90; line-height:1.6;">{article.get('public_pulse', '')}</p>
             </td>
           </tr>
@@ -141,15 +141,15 @@ def build_email_html(articles, market_data=None, recipient_email="",
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f1a0f;border:2px solid #e8c84a;">
         <tr>
           <td style="padding:16px 20px 0 20px;">
-            <p style="margin:0 0 4px 0;font-family:monospace;font-size:9px;color:#e8c84a;letter-spacing:3px;text-transform:uppercase;">✦ Story of the Week</p>
-            <p style="margin:0 0 4px 0;font-family:monospace;font-size:9px;color:#7a7660;">{story_of_week.get('week_start','')} to {story_of_week.get('week_end','')}</p>
+            <p style="margin:0 0 4px 0;font-family:'Ubuntu', monospace;font-size:9px;color:#e8c84a;letter-spacing:3px;text-transform:uppercase;">✦ Story of the Week</p>
+            <p style="margin:0 0 4px 0;font-family:'Ubuntu', monospace;font-size:9px;color:#7a7660;">{story_of_week.get('week_start','')} to {story_of_week.get('week_end','')}</p>
           </td>
         </tr>
         <tr>
           <td style="padding:8px 20px 16px 20px;">
             <h2 style="margin:0 0 12px 0;font-family:Georgia,serif;font-size:20px;font-weight:700;color:#e8e4d4;line-height:1.3;">{story_of_week.get('headline','')}</h2>
             <p style="margin:0 0 10px 0;font-size:13px;color:#b0aa90;line-height:1.65;">{story_of_week.get('summary','')}</p>
-            <p style="margin:0 0 4px 0;font-family:monospace;font-size:9px;color:#e8c84a;letter-spacing:2px;text-transform:uppercase;">Why it matters</p>
+            <p style="margin:0 0 4px 0;font-family:'Ubuntu', monospace;font-size:9px;color:#e8c84a;letter-spacing:2px;text-transform:uppercase;">Why it matters</p>
             <p style="margin:0 0 0 0;font-size:13px;color:#e8e4d4;line-height:1.6;">{story_of_week.get('why_it_matters','')}</p>
           </td>
         </tr>
@@ -177,14 +177,14 @@ def build_email_html(articles, market_data=None, recipient_email="",
   <tr>
     <td style="padding:0 0 24px 0; border-bottom:1px solid #2a2a1f; margin-bottom:24px;">
       <p style="margin:0 0 2px 0;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#e8c84a;letter-spacing:-1px;">Teesra</p>
-      <p style="margin:0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:3px;text-transform:uppercase;">News that matters to you</p>
+      <p style="margin:0;font-family:'Ubuntu', monospace;font-size:10px;color:#7a7660;letter-spacing:3px;text-transform:uppercase;">News that matters to you</p>
     </td>
   </tr>
 
   <!-- DATE BAR -->
   <tr>
     <td style="padding:20px 0;">
-      <p style="margin:0 0 4px 0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:2px;text-transform:uppercase;">Morning Brief</p>
+      <p style="margin:0 0 4px 0;font-family:'Ubuntu', monospace;font-size:10px;color:#7a7660;letter-spacing:2px;text-transform:uppercase;">Morning Brief</p>
       <p style="margin:0;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#e8e4d4;">{today}</p>
       <p style="margin:8px 0 0 0;font-size:13px;color:#7a7660;">{article_count} stories · verified across multiple sources · facts first</p>
     </td>
@@ -206,39 +206,39 @@ def build_email_html(articles, market_data=None, recipient_email="",
   <tr>
     <td style="padding:28px 0 0 0; border-top:1px solid #2a2a1f; text-align:center;">
       <p style="margin:0 0 6px 0; font-family:Georgia,serif; font-size:17px; font-weight:700; color:#e8e4d4;">Found this useful?</p>
-      <p style="margin:0 0 18px 0; font-family:monospace; font-size:10px; color:#6a6650; letter-spacing:1.5px; text-transform:uppercase;">Share Teesra with someone who reads the news</p>
+      <p style="margin:0 0 18px 0; font-family:'Ubuntu', monospace; font-size:10px; color:#6a6650; letter-spacing:1.5px; text-transform:uppercase;">Share Teesra with someone who reads the news</p>
       <table cellpadding="0" cellspacing="0" style="margin:0 auto 24px auto;">
         <tr>
           <td style="padding:0 5px;">
             <a href="https://wa.me/?text=Read%20today%27s%20Teesra%20brief%20%E2%80%94%20India%27s%20news%20from%20three%20perspectives.%20https%3A%2F%2Fteesra.in%2Ffeed"
                target="_blank"
-               style="display:inline-block; padding:9px 16px; background:#25D366; font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#0a0a08; text-decoration:none; text-transform:uppercase; font-weight:700;">
+               style="display:inline-block; padding:9px 16px; background:#25D366; font-family:'Ubuntu', monospace; font-size:10px; letter-spacing:1.5px; color:#0a0a08; text-decoration:none; text-transform:uppercase; font-weight:700;">
               📲 WhatsApp
             </a>
           </td>
           <td style="padding:0 5px;">
             <a href="https://twitter.com/intent/tweet?text=Reading%20today%27s%20Teesra%20brief%20%E2%80%94%20same%20story%2C%20three%20perspectives.%20No%20spin.%20https%3A%2F%2Fteesra.in%2Ffeed"
                target="_blank"
-               style="display:inline-block; padding:9px 16px; background:#1a1a1a; border:1px solid #3a3a3a; font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#e8e4d4; text-decoration:none; text-transform:uppercase; font-weight:700;">
+               style="display:inline-block; padding:9px 16px; background:#1a1a1a; border:1px solid #3a3a3a; font-family:'Ubuntu', monospace; font-size:10px; letter-spacing:1.5px; color:#e8e4d4; text-decoration:none; text-transform:uppercase; font-weight:700;">
               𝕏 Twitter
             </a>
           </td>
           <td style="padding:0 5px;">
             <a href="https://teesra.in/feed"
                target="_blank"
-               style="display:inline-block; padding:9px 16px; background:rgba(232,200,74,0.08); border:1px solid rgba(232,200,74,0.25); font-family:monospace; font-size:10px; letter-spacing:1.5px; color:#e8c84a; text-decoration:none; text-transform:uppercase; font-weight:700;">
+               style="display:inline-block; padding:9px 16px; background:rgba(232,200,74,0.08); border:1px solid rgba(232,200,74,0.25); font-family:'Ubuntu', monospace; font-size:10px; letter-spacing:1.5px; color:#e8c84a; text-decoration:none; text-transform:uppercase; font-weight:700;">
               🔗 Read Online
             </a>
           </td>
         </tr>
       </table>
       <p style="margin:0 0 4px 0; font-family:Georgia,serif; font-size:15px; font-weight:900; color:#e8c84a;">Teesra</p>
-      <p style="margin:0 0 10px 0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:2px; text-transform:uppercase;">तीसरा नज़रिया · One story, three perspectives</p>
+      <p style="margin:0 0 10px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#3a3a28; letter-spacing:2px; text-transform:uppercase;">तीसरा नज़रिया · One story, three perspectives</p>
       <p style="margin:0 0 6px 0; font-size:11px; color:#7a7660; font-style:italic;">We don't tell you what to think. We give you everything you need to think for yourself.</p>
-      <p style="margin:0 0 12px 0; font-family:monospace; font-size:9px; color:#3a3a28; letter-spacing:1px;">
+      <p style="margin:0 0 12px 0; font-family:'Ubuntu', monospace; font-size:9px; color:#3a3a28; letter-spacing:1px;">
         Built by Divyendu · IIM Amritsar · No ads, ever.
       </p>
-      <p style="margin:0; font-size:11px; color:#4a5568; font-family:monospace; letter-spacing:0.5px;">
+      <p style="margin:0; font-size:11px; color:#4a5568; font-family:'Ubuntu', monospace; letter-spacing:0.5px;">
         Don't want these emails?
         <a href="https://teesra.in/unsubscribe?email={recipient_email}"
            style="color:#718096; text-decoration:underline;">Unsubscribe</a>
