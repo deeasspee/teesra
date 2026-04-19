@@ -71,14 +71,6 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
-    [data-theme="dawn"] .trends-bar,
-    [data-theme="cloud"] .trends-bar,
-    [data-theme="parchment"] .trends-bar {
-      background: rgba(255, 255, 255, 0.80) !important;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
     /* ── LIGHT THEME CARD READABILITY ────────────────────────────── */
     [data-theme="dawn"] .story-card,
     [data-theme="cloud"] .story-card,
@@ -1496,15 +1488,6 @@
       line-height: 1;
     }
     /* ── Google Trends Ticker ───────────────────────────────── */
-    .trends-bar{background:rgba(10,18,14,0.65);border-bottom:1px solid var(--border);overflow:hidden;height:32px;display:flex;align-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;}
-    [data-theme="dawn"] .trends-bar,[data-theme="cloud"] .trends-bar,[data-theme="parchment"] .trends-bar{background:rgba(245,243,238,0.75);}
-    .trends-label{font-family:'Space Mono','Ubuntu',sans-serif;font-size:8px;letter-spacing:0.15em;color:var(--facts);text-transform:uppercase;padding:0 12px;flex-shrink:0;border-right:1px solid var(--border);height:100%;display:flex;align-items:center;white-space:nowrap;}
-    .trends-scroll-wrap{overflow:hidden;flex:1;height:100%;display:flex;align-items:center;}
-    .trends-scroll{display:flex;animation:trmove 40s linear infinite;white-space:nowrap;}
-    .trends-scroll:hover{animation-play-state:paused;}
-    @keyframes trmove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
-    .trend-item{font-family:'Ubuntu',sans-serif;font-size:10px;color:var(--text-mid);padding:0 18px;display:inline-flex;align-items:center;gap:5px;text-decoration:none;transition:color 0.2s;white-space:nowrap;height:32px;border-right:1px solid rgba(255,255,255,0.04);}
-    .trend-item:hover{color:var(--facts);}
     .trend-num{font-size:8px;color:var(--text-dim);opacity:0.6;}
     /* ── IPL SIDEBARS ────────────────────────────────────────── */
     .feed-layout {
@@ -1825,16 +1808,6 @@
     </a>
   </div>
 
-  <!-- GOOGLE TRENDS TICKER -->
-  <div class="trends-bar">
-    <span class="trends-label">🔥 Trending India</span>
-    <div class="trends-scroll-wrap">
-      <div class="trends-scroll" id="trendsScroll">
-        <span class="trend-item" style="color:var(--text-dim);font-size:9px;opacity:0.5;">Loading trends...</span>
-      </div>
-    </div>
-  </div>
-
   <!-- 3-COLUMN LAYOUT: Cricket Left | Feed Center | Football Right -->
   <div class="feed-layout">
 
@@ -2044,56 +2017,6 @@
     syncThemeLabels();
 
     window.addEventListener('DOMContentLoaded', () => { syncThemeLabels(); });
-
-    // ── GOOGLE TRENDS ─────────────────────────────────────────────
-    (function () {
-      const CACHE_KEY = 'teesra_trends_' + new Date().toISOString().slice(0, 13);
-      async function loadTrends() {
-        const scroll = document.getElementById('trendsScroll');
-        if (!scroll) return;
-
-        // Check cache first
-        try {
-          var cached = sessionStorage.getItem(CACHE_KEY);
-          if (cached) { renderTrends(JSON.parse(cached), scroll); return; }
-        } catch(e) {}
-
-        // Fetch trends from backend (no CORS issues)
-        try {
-          var r2 = await fetch('/api/trends');
-          var d2 = await r2.json();
-          if (d2.trends && d2.trends.length) {
-            var t2 = d2.trends.slice(0, 15).map(function(item, i) {
-              return { title: item.title, link: item.link || 'https://www.google.com/search?q=' + encodeURIComponent(item.title) + '&gl=in', rank: i + 1 };
-            });
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(t2));
-            renderTrends(t2, scroll);
-            return;
-          }
-          throw new Error('no trends');
-        } catch(e) {
-          scroll.innerHTML = '<span class="trend-item" style="color:var(--text-dim);font-size:9px;opacity:0.5;">Trends unavailable</span>';
-        }
-      }
-
-      function renderTrends(trends, scroll) {
-        if (!trends || !trends.length) return;
-        var all = trends.concat(trends); // duplicate for seamless loop
-        scroll.innerHTML = all.map(function(t, i) {
-          var rank = (i % trends.length) + 1;
-          return '<a href="' + t.link + '" target="_blank" rel="noopener" class="trend-item">' +
-            '<span class="trend-num">' + rank + '</span>' + t.title + '</a>';
-        }).join('');
-      }
-
-      // Trends already cached per hour; delay fresh fetch to after articles render
-      var cachedTrend = sessionStorage.getItem(CACHE_KEY);
-      if (cachedTrend) {
-        try { renderTrends(JSON.parse(cachedTrend), document.getElementById('trendsScroll')); } catch(e) {}
-      } else {
-        setTimeout(loadTrends, 1000);
-      }
-    })();
 
     // ── DATE ──────────────────────────────────────────────────────
     const dateEl = document.getElementById('todayDate');

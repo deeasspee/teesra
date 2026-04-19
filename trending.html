@@ -306,43 +306,7 @@
       padding: 24px 32px 0;
     }
     @media (max-width: 620px) { .sotw-wrap { padding: 16px 16px 0; } }
-    .sotw-card {
-      background: var(--surface);
-      border: 2px solid var(--facts);
-      border-radius: 12px;
-      padding: 28px 32px;
-      position: relative;
-      overflow: hidden;
-    }
-    .sotw-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: var(--facts);
-    }
-    .sotw-label {
-      font-family: 'Ubuntu', sans-serif; font-size: 10px;
-      letter-spacing: 3px; text-transform: uppercase;
-      color: var(--facts); font-weight: 600; margin-bottom: 4px;
-    }
-    .sotw-dates {
-      font-family: 'Ubuntu', sans-serif; font-size: 10px;
-      color: var(--text-mid); letter-spacing: 1px; margin-bottom: 16px;
-    }
-    .sotw-headline {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(20px, 3vw, 28px); font-weight: 900;
-      line-height: 1.2; letter-spacing: -0.5px;
-      margin-bottom: 14px; color: var(--text);
-    }
-    .sotw-summary {
-      font-size: 15px; color: var(--text-mid);
-      line-height: 1.75; margin-bottom: 18px;
-    }
-    .sotw-matters-label {
-      font-family: 'Ubuntu', sans-serif; font-size: 10px;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: var(--facts); font-weight: 600; margin-bottom: 8px;
-    }
-    .sotw-matters { font-size: 15px; color: var(--text); line-height: 1.7; }
+    @media (max-width: 768px) { .sotw-grid { grid-template-columns: 1fr !important; } }
 
     /* ── FOOTER ──────────────────────────────────────────────── */
     .page-footer {
@@ -432,6 +396,45 @@
     <h1 class="page-title">What India is Talking About</h1>
     <p class="page-subtitle">Google Trends · YouTube · Movies · Music · Books</p>
     <p class="page-updated" id="updatedAt"></p>
+  </div>
+
+  <!-- STORY OF THE WEEK -->
+  <div class="sotw-wrap" id="sotw-card" style="display:none; margin-bottom:40px;">
+    <div style="background:var(--surface);border:2px solid var(--facts);border-radius:16px;overflow:hidden;position:relative;">
+      <!-- Gold accent top bar -->
+      <div style="background:var(--facts);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:'Ubuntu',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0a1a0f;">✦ Story of the Week</span>
+        <span id="sotw-dates" style="font-family:'Ubuntu',sans-serif;font-size:10px;color:rgba(10,26,15,0.7);letter-spacing:1px;"></span>
+      </div>
+      <!-- Main content -->
+      <div style="padding:28px 32px;">
+        <!-- Story type badge -->
+        <div id="sotw-type" style="display:inline-block;font-family:'Ubuntu',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--facts);background:color-mix(in srgb,var(--facts) 10%,transparent);padding:4px 12px;border-radius:20px;border:1px solid color-mix(in srgb,var(--facts) 25%,transparent);margin-bottom:16px;"></div>
+        <!-- Headline -->
+        <h2 id="sotw-headline" style="font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,32px);font-weight:700;color:var(--text);line-height:1.3;margin:0 0 20px 0;"></h2>
+        <!-- Two column layout -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;" class="sotw-grid">
+          <!-- What happened -->
+          <div style="padding:20px;background:color-mix(in srgb,var(--bg) 60%,var(--surface));border-radius:10px;border:1px solid var(--border);">
+            <p style="font-family:'Ubuntu',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--facts);margin:0 0 10px 0;">📋 WHAT HAPPENED</p>
+            <p id="sotw-summary" style="font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);line-height:1.75;margin:0;"></p>
+          </div>
+          <!-- Why it matters -->
+          <div style="padding:20px;background:color-mix(in srgb,var(--facts) 6%,var(--surface));border-radius:10px;border:1px solid color-mix(in srgb,var(--facts) 20%,transparent);">
+            <p style="font-family:'Ubuntu',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--facts);margin:0 0 10px 0;">⚡ WHY IT MATTERS</p>
+            <p id="sotw-matters" style="font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);line-height:1.75;margin:0;"></p>
+          </div>
+        </div>
+        <!-- Footer row -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:'Ubuntu',sans-serif;font-size:10px;color:var(--muted);letter-spacing:0.5px;">Primary source:</span>
+            <span id="sotw-source" style="font-family:'Ubuntu',sans-serif;font-size:10px;font-weight:600;color:var(--facts);"></span>
+          </div>
+          <a href="/feed" style="font-family:'Ubuntu',sans-serif;font-size:11px;font-weight:600;color:var(--facts);text-decoration:none;letter-spacing:1px;">Read full analysis in brief →</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- THREE COLUMN GRID -->
@@ -524,18 +527,6 @@
       <div id="books-nyt-fiction" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:24px;"></div>
       <p style="font-family:'Ubuntu',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">📰 NYT BESTSELLERS — NONFICTION</p>
       <div id="books-nyt-nonfiction" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;"></div>
-    </div>
-  </div>
-
-  <!-- STORY OF THE WEEK -->
-  <div class="sotw-wrap" id="sotwWrap" style="display:none;">
-    <div class="sotw-card" id="sotwCard">
-      <p class="sotw-label">✦ Story of the Week</p>
-      <p class="sotw-dates" id="sotwDates"></p>
-      <h2 class="sotw-headline" id="sotwHeadline"></h2>
-      <p class="sotw-summary" id="sotwSummary"></p>
-      <h4 class="sotw-matters-label">Why it Matters</h4>
-      <p class="sotw-matters" id="sotwMatters"></p>
     </div>
   </div>
 
@@ -823,17 +814,33 @@
   // ── LOAD STORY OF THE WEEK ────────────────────────────────────────
   async function loadSOTW() {
     try {
-      const r = await fetch('/api/story-of-week');
-      const d = await r.json();
-      if (d.error || !d.headline) return;
-      document.getElementById('sotwDates').textContent =
-        `${d.week_start || ''} to ${d.week_end || ''}`;
-      document.getElementById('sotwHeadline').textContent = d.headline || '';
-      document.getElementById('sotwSummary').textContent = d.summary || '';
-      document.getElementById('sotwMatters').textContent = d.why_it_matters || '';
-      document.getElementById('sotwWrap').style.display = 'block';
+      const res = await fetch('/api/story-of-week');
+      const data = await res.json();
+
+      if (data.error || !data.headline) {
+        document.getElementById('sotw-card').style.display = 'none';
+        return;
+      }
+
+      const datesEl    = document.getElementById('sotw-dates');
+      const typeEl     = document.getElementById('sotw-type');
+      const headlineEl = document.getElementById('sotw-headline');
+      const summaryEl  = document.getElementById('sotw-summary');
+      const mattersEl  = document.getElementById('sotw-matters');
+      const sourceEl   = document.getElementById('sotw-source');
+
+      if (datesEl)    datesEl.textContent    = `${data.week_start || ''} to ${data.week_end || ''}`;
+      if (typeEl)     typeEl.textContent     = (data.story_type || 'general').toUpperCase();
+      if (headlineEl) headlineEl.textContent = data.headline;
+      if (summaryEl)  summaryEl.textContent  = data.summary;
+      if (mattersEl)  mattersEl.textContent  = data.why_it_matters;
+      if (sourceEl)   sourceEl.textContent   = data.source || 'Multiple sources';
+
+      document.getElementById('sotw-card').style.display = 'block';
     } catch(e) {
-      // No story of week — section stays hidden
+      console.error('SOTW error:', e);
+      const card = document.getElementById('sotw-card');
+      if (card) card.style.display = 'none';
     }
   }
 
