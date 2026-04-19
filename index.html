@@ -155,8 +155,9 @@
     .nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
     .nav-links a{color:var(--text-dim);text-decoration:none;font-size:13px;transition:color 0.2s;}
     .nav-links a:hover{color:var(--text);}
-    .nav-cta{background:var(--accent)!important;color:var(--bg)!important;padding:8px 18px!important;font-weight:500!important;}
-    .nav-cta:hover{opacity:0.88;}
+    .nav-cta{background:var(--accent)!important;color:var(--bg)!important;padding:8px 18px!important;font-weight:500!important;transition:all 0.2s ease!important;}
+    .nav-cta:hover{opacity:0.88;transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,168,32,0.3);}
+    @media(max-width:768px){.example-card{display:none;}}
     .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;z-index:1100;}
     .hamburger span{display:block;width:22px;height:2px;background:var(--text-dim);transition:all 0.3s;}
     .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
@@ -293,7 +294,7 @@
     .why-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
     .why-quote{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,44px);font-weight:700;line-height:1.2;letter-spacing:-1px;color:var(--text);}
     .why-quote em{color:var(--accent);font-style:italic;}
-    .why-body p{font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:18px;}
+    .why-body p{font-size:15px;color:var(--text-mid);line-height:1.8;margin-bottom:24px;}
     .why-body strong{color:var(--text);font-weight:500;}
     .why-pillars{display:flex;flex-direction:column;gap:0;}
     .pillar{display:flex;gap:20px;padding:20px 0;border-top:1px solid var(--border);}
@@ -336,6 +337,7 @@
     .btn-ghost:hover::after{transform:translateX(4px);}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
 
     /* RESPONSIVE */
     @media(max-width:900px){
@@ -386,6 +388,7 @@
       }
       .nav-links a:hover { color: var(--accent) !important; }
       .nav-links a.nav-cta { color: var(--bg) !important; }
+      .nav-links a.nav-support { color: var(--text-dim) !important; font-size: 11px !important; }
       #auth-signin-btn { font-size: 12px !important; padding: 6px 14px !important; border-width: 1.5px !important; }
       #auth-user-name { font-size: 13px !important; color: var(--accent) !important; font-weight: 600 !important; }
       #auth-user-menu button { font-size: 11px !important; color: var(--text) !important; opacity: 0.8 !important; }
@@ -413,6 +416,7 @@
   <button onclick="toggleMenu()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#426048 !important;font-size:28px;cursor:pointer;z-index:10000;">✕</button>
   <a href="#how" onclick="toggleMenu()" style="color:#e8f0e4 !important;">How it works</a>
   <a href="/feed" style="color:#d4a820 !important;">Today's Brief ✦</a>
+  <a href="/trending" onclick="toggleMenu()" style="color:#e8f0e4 !important;">Trending ↑</a>
   <a href="/about" onclick="toggleMenu()" style="color:#e8f0e4 !important;">About</a>
   <a href="#signup" onclick="toggleMenu()" style="display:inline-block;background:#d4a820 !important;color:#0a120e !important;padding:12px 32px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;text-decoration:none;">Subscribe →</a>
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px;">
@@ -430,10 +434,10 @@
   <button class="hamburger" id="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
   <ul class="nav-links">
     <li><a href="#how">How it works</a></li>
-    <li><a href="/feed">Today's Brief ✦</a></li>
+    <li><a href="/feed"><span style="display:inline-block;width:6px;height:6px;background:#6de86a;border-radius:50%;margin-right:5px;animation:pulse-dot 2s ease-in-out infinite;vertical-align:middle;"></span>Today's Brief ✦</a></li>
     <li><a href="/trending">Trending ↑</a></li>
     <li><a href="/about">About</a></li>
-    <li><a href="#" onclick="event.preventDefault();document.getElementById('qrModal').classList.add('active')">Support Teesra</a></li>
+    <li><a href="#" class="nav-support" onclick="event.preventDefault();document.getElementById('qrModal').classList.add('active')">♥ Support</a></li>
     <li><a href="#signup" class="nav-cta">Subscribe →</a></li>
     <li style="display:flex;align-items:center;gap:8px;">
       <button id="auth-signin-btn" onclick="TeesraAuth.signInWithGoogle()" title="Sign in with Google" style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:20px;font-size:11px;font-family:'Ubuntu',sans-serif;letter-spacing:1px;cursor:pointer;white-space:nowrap;">
@@ -471,6 +475,39 @@
         <div class="hero-cta-row">
           <a href="#signup" class="btn-primary">Get the morning brief</a>
           <a href="/feed" class="btn-ghost">Today's stories</a>
+        </div>
+
+        <!-- Example story card — desktop only -->
+        <div class="example-card" style="margin-top:32px;background:var(--surface,#132a18);border:1px solid var(--border,#1e2e20);border-radius:12px;overflow:hidden;max-width:480px;">
+          <div style="padding:16px 20px 12px 20px;border-top:3px solid var(--facts,#d4a820);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="font-family:'Ubuntu',sans-serif;font-size:9px;font-weight:600;color:var(--facts,#d4a820);letter-spacing:2px;text-transform:uppercase;background:rgba(212,168,32,0.1);padding:3px 8px;border-radius:20px;">🏛 POLITICAL</span>
+            </div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text,#e8f0e4);line-height:1.4;margin:0 0 8px 0;">Supreme Court upholds electoral bond scheme challenge</h3>
+            <p style="font-family:'Ubuntu',sans-serif;font-size:10px;color:var(--text-dim,#426048);margin:0;">The Hindu · center · Today</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border,#1e2e20);">
+            <div style="padding:12px;border-right:1px solid var(--border,#1e2e20);">
+              <p style="font-family:'Ubuntu',sans-serif;font-size:8px;font-weight:600;color:var(--facts,#d4a820);letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px 0;">⚖ Facts</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:10px;color:var(--text-mid,#90b094);line-height:1.5;margin:0;">The Supreme Court directed full disclosure of electoral bond data, ruling the scheme violated RTI provisions.</p>
+            </div>
+            <div style="padding:12px;border-right:1px solid var(--border,#1e2e20);background:rgba(26,96,150,0.05);">
+              <p style="font-family:'Ubuntu',sans-serif;font-size:8px;font-weight:600;color:#5ba8e8;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px 0;">◀ Left</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:10px;color:var(--text-mid,#90b094);line-height:1.5;margin:0;">A historic win for transparency. Corporate influence over elections must be exposed and ended.</p>
+            </div>
+            <div style="padding:12px;background:rgba(192,64,32,0.05);">
+              <p style="font-family:'Ubuntu',sans-serif;font-size:8px;font-weight:600;color:#e8704a;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px 0;">▶ Right</p>
+              <p style="font-family:'DM Sans',sans-serif;font-size:10px;color:var(--text-mid,#90b094);line-height:1.5;margin:0;">Judicial overreach into legitimate democratic funding mechanisms sets a dangerous precedent.</p>
+            </div>
+          </div>
+          <div style="padding:10px 12px;border-top:1px solid var(--border,#1e2e20);background:rgba(109,232,106,0.03);">
+            <p style="font-family:'Ubuntu',sans-serif;font-size:8px;font-weight:600;color:#6de86a;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 4px 0;">● Street Pulse</p>
+            <p style="font-family:'DM Sans',sans-serif;font-size:10px;color:var(--text-mid,#90b094);line-height:1.5;margin:0;">Opposition supporters celebrating on social media while BJP sympathisers argue the ruling is politically motivated.</p>
+          </div>
+          <div style="padding:8px 12px;border-top:1px solid var(--border,#1e2e20);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Ubuntu',sans-serif;font-size:9px;color:var(--text-dim,#426048);font-style:italic;">Example story — real brief at teesra.in/feed</span>
+            <span style="font-family:'Ubuntu',sans-serif;font-size:9px;color:var(--facts,#d4a820);font-weight:600;">Read full →</span>
+          </div>
         </div>
       </div>
 
