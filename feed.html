@@ -79,6 +79,38 @@
       -webkit-backdrop-filter: blur(8px);
     }
 
+    /* ── LIGHT THEME CARD READABILITY ────────────────────────────── */
+    [data-theme="dawn"] .story-card,
+    [data-theme="cloud"] .story-card,
+    [data-theme="parchment"] .story-card {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-width: 1px;
+    }
+    [data-theme="dawn"] .card-headline,
+    [data-theme="cloud"] .card-headline,
+    [data-theme="parchment"] .card-headline {
+      font-size: clamp(18px, 2.2vw, 22px);
+      font-weight: 800;
+    }
+    [data-theme="dawn"] .panel-facts,
+    [data-theme="cloud"] .panel-facts,
+    [data-theme="parchment"] .panel-facts { background: rgba(180,116,0,0.06); }
+    [data-theme="dawn"] .panel-left,
+    [data-theme="cloud"] .panel-left,
+    [data-theme="parchment"] .panel-left  { background: rgba(26,96,150,0.06); }
+    [data-theme="dawn"] .panel-right,
+    [data-theme="cloud"] .panel-right,
+    [data-theme="parchment"] .panel-right { background: rgba(192,64,32,0.06); }
+    [data-theme="dawn"] .card-bottom,
+    [data-theme="cloud"] .card-bottom,
+    [data-theme="parchment"] .card-bottom { background: rgba(42,122,46,0.06); }
+    [data-theme="dawn"] .market-label,
+    [data-theme="cloud"] .market-label,
+    [data-theme="parchment"] .market-label { font-weight: 600; color: var(--text-mid); }
+    [data-theme="dawn"] .market-val,
+    [data-theme="cloud"] .market-val,
+    [data-theme="parchment"] .market-val   { font-size: 14px; font-weight: 700; color: var(--text); }
+
     /* ── THEME SWATCH ─────────────────────────────────────────── */
     .theme-wrap{position:relative;}
     .theme-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;background:none;padding:0;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
@@ -669,9 +701,10 @@
       background: rgba(232,200,74,0.07);
       border: 1px solid rgba(232,200,74,0.15);
       border-radius: 20px;
-      padding: 5px 12px;
+      padding: 8px 16px;
       font-family: 'Ubuntu', sans-serif;
-      font-size: 10px;
+      font-size: 12px;
+      font-weight: 600;
       letter-spacing: 1.5px;
       color: var(--facts);
       text-transform: uppercase;
@@ -727,14 +760,14 @@
       font-family: 'Playfair Display', serif;
       font-size: 21px;
       font-weight: 700;
-      line-height: 1.3;
+      line-height: 1.4;
       margin-bottom: 8px;
       transition: color 0.2s;
     }
 
     .card-source {
       font-family: 'Ubuntu', sans-serif;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-mid);
     }
 
@@ -822,7 +855,8 @@
     .panel-label {
       font-family: 'Ubuntu', sans-serif;
       font-size: 10px;
-      letter-spacing: 2px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       margin-bottom: 8px;
       display: flex;
@@ -845,7 +879,7 @@
     .panel-right .panel-label         { color: var(--right); }
     .panel-right .panel-label::before { background: var(--right); }
 
-    .panel-text      { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+    .panel-text      { font-size: 14px; color: var(--text-mid); line-height: 1.7; }
     .panel-text-full { font-size: 14px; color: var(--text-mid); line-height: 1.8; }
 
     .card-impact {
@@ -900,7 +934,7 @@
 
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .pulse-text { font-size: 13px; color: var(--text-mid); line-height: 1.65; flex: 1; }
+    .pulse-text { font-size: 14px; color: var(--text-mid); line-height: 1.7; flex: 1; }
 
     .card-caution {
       border-top: 1px solid rgba(212,91,91,0.2);
