@@ -927,16 +927,17 @@
     .panel-right .panel-label         { color: var(--right); }
     .panel-right .panel-label::before { background: var(--right); }
 
-    .panel-text      { font-size: 14px; color: var(--text-mid); line-height: 1.7; }
-    .panel-text-full { font-size: 14px; color: var(--text-mid); line-height: 1.8; }
+    .panel-text      { font-size: 14px; color: var(--text-mid); line-height: 1.75; }
+    .panel-text-full { font-size: 14px; color: var(--text-mid); line-height: 1.75; }
 
     .card-impact {
-      padding: 12px 20px;
-      background: rgba(232,200,74,0.03);
+      padding: 10px 14px 10px 17px;
+      background: color-mix(in srgb, var(--facts) 5%, transparent);
+      border-left: 3px solid var(--facts);
       border-bottom: 1px solid var(--border);
       display: flex;
-      gap: 10px;
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .impact-label {
@@ -945,17 +946,79 @@
       letter-spacing: 2px;
       color: var(--facts);
       text-transform: uppercase;
-      flex-shrink: 0;
-      margin-top: 2px;
+      font-weight: 700;
     }
 
-    .impact-text { font-size: 14px; color: var(--text); line-height: 1.6; flex: 1; }
+    .impact-text { font-size: 14px; color: var(--text); line-height: 1.6; font-weight: 500; }
 
     .card-bottom {
       padding: 12px 20px;
       display: flex;
       gap: 10px;
       align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-read-original {
+      padding: 10px 20px;
+    }
+
+    .read-original-btn {
+      display: inline-block;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      color: var(--text);
+      font-size: 11px;
+      font-family: 'Ubuntu', sans-serif;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+      border-radius: 4px;
+    }
+
+    .read-original-btn:hover {
+      border-color: var(--facts);
+      color: var(--facts);
+    }
+
+    .story-rating {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      background: color-mix(in srgb, var(--card, var(--surface)) 95%, var(--bg));
+    }
+
+    .rating-label {
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-mid);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 0 0 10px 0;
+    }
+
+    .rating-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rating-btn {
+      padding: 6px 16px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .rating-btn:hover {
+      border-color: var(--facts);
+      color: var(--facts);
     }
 
     .pulse-label {
@@ -2188,6 +2251,22 @@
           <span>⚠️</span><span>${article.caution_note}</span>
         </div>` : '';
 
+      const readOriginalHtml = article.url ? `
+        <div class="card-read-original">
+          <a href="${article.url}" target="_blank" rel="noopener" class="read-original-btn">Read original article →</a>
+        </div>` : '';
+
+      const ratingId = `rating-${article.id}`;
+      const ratingHtml = article.id ? `
+        <div class="story-rating" id="${ratingId}">
+          <p class="rating-label">Did Teesra help you understand this topic better?</p>
+          <div class="rating-btns">
+            <button class="rating-btn" onclick="rateStory(${article.id}, 'yes')">👍 Yes, helped</button>
+            <button class="rating-btn" onclick="rateStory(${article.id}, 'partial')">🤔 Somewhat</button>
+            <button class="rating-btn" onclick="rateStory(${article.id}, 'no')">👎 Not really</button>
+          </div>
+        </div>` : '';
+
       return `
         <div class="story-card" id="story-${article.id || ''}" ${sportsAttr} ${iplAttr} ${techAttr} ${intlAttr}>
           <div class="card-header">
@@ -2197,7 +2276,6 @@
               <p class="card-source">
                 ${article.source} · ${article.source_bias}
                 · ${new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}
-                ${article.url ? `· <a href="${article.url}" target="_blank">Read original →</a>` : ''}
               </p>
             </div>
             ${sourceHtml}
@@ -2223,8 +2301,47 @@
           </div>
 
           ${cautionHtml}
+          ${readOriginalHtml}
+          ${ratingHtml}
           ${buildBiasMeter(article.bias_score || 0, article.bias_label || 'Balanced coverage')}
         </div>`;
+    }
+
+    // ── STORY RATING ──────────────────────────────────────────────
+    function rateStory(articleId, rating) {
+      const key = `teesra_rated_${articleId}`;
+      if (localStorage.getItem(key)) return;
+
+      localStorage.setItem(key, rating);
+
+      fetch('/api/rate-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ article_id: articleId, rating: rating })
+      }).catch(e => console.error('Rating error:', e));
+
+      const container = document.getElementById(`rating-${articleId}`);
+      if (container) {
+        const emoji = rating === 'yes' ? '👍' : rating === 'partial' ? '🤔' : '👎';
+        const msg   = rating === 'yes'
+          ? 'Glad it helped!'
+          : rating === 'partial'
+          ? 'Thanks for the feedback!'
+          : "Thanks — we'll keep improving.";
+        container.innerHTML = `<p style="font-family:'Ubuntu',sans-serif;font-size:12px;color:var(--facts);font-weight:600;margin:0;">${emoji} ${msg}</p>`;
+      }
+    }
+
+    function restoreRatings() {
+      document.querySelectorAll('[id^="rating-"]').forEach(container => {
+        const id      = container.id.replace('rating-', '');
+        const key     = `teesra_rated_${id}`;
+        const existing = localStorage.getItem(key);
+        if (existing) {
+          const emoji = existing === 'yes' ? '👍' : existing === 'partial' ? '🤔' : '👎';
+          container.innerHTML = `<p style="font-family:'Ubuntu',sans-serif;font-size:11px;color:var(--text-mid);margin:0;">${emoji} You rated this</p>`;
+        }
+      });
     }
 
     // ── MARKET TICKER ─────────────────────────────────────────────
@@ -2548,6 +2665,7 @@
         document.querySelectorAll('.story-card').forEach((card, i) => {
           setTimeout(() => card.classList.add('visible'), i * 80);
         });
+        restoreRatings();
       }, 50);
     }
 

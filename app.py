@@ -1529,6 +1529,66 @@ def set_role():
         return jsonify({"error": str(e)}), 500
 
 
+# ── STORY RATING ──────────────────────────────────────────────────
+@app.route('/api/rate-story', methods=['POST'])
+def rate_story():
+    try:
+        from database import get_client
+        data = request.json or {}
+        article_id = data.get('article_id')
+        rating = data.get('rating', '')
+
+        if not article_id or rating not in ['yes', 'partial', 'no']:
+            return jsonify({"error": "Invalid"}), 400
+
+        client = get_client()
+        client.table('story_ratings').insert({
+            'article_id': article_id,
+            'rating': rating,
+            'rated_at': __import__('datetime').datetime.utcnow().isoformat()
+        }).execute()
+
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"Rating error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/admin/ratings')
+@require_admin
+def admin_ratings():
+    try:
+        from database import get_client
+        from datetime import datetime, timedelta
+        client = get_client()
+        week_ago = (datetime.utcnow() - timedelta(days=7)).isoformat()
+
+        result = client.table('story_ratings')\
+            .select('rating, article_id')\
+            .gte('rated_at', week_ago)\
+            .execute()
+
+        counts = {'yes': 0, 'partial': 0, 'no': 0}
+        for row in result.data:
+            r = row.get('rating')
+            if r in counts:
+                counts[r] += 1
+
+        total = sum(counts.values())
+
+        return jsonify({
+            'total': total,
+            'yes': counts['yes'],
+            'partial': counts['partial'],
+            'no': counts['no'],
+            'yes_pct': round(counts['yes'] / total * 100) if total else 0,
+            'partial_pct': round(counts['partial'] / total * 100) if total else 0,
+            'no_pct': round(counts['no'] / total * 100) if total else 0,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("FLASK_ENV") != "production"

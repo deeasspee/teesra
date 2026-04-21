@@ -141,8 +141,30 @@ def fetch_commodity_data() -> dict:
         return None
 
 
+def _fmt_commodity(value, label, unit):
+    """Returns a single <td> for gold/silver in the newsletter market table."""
+    if not value or value == 0:
+        return ""
+    formatted = "{:,}".format(int(value))
+    return (
+        '<td style="padding:4px 16px;'
+        'border-left:1px solid #2a2a1f;'
+        'white-space:nowrap;">'
+        '<p style="margin:0 0 2px 0;'
+        'font-family:monospace;font-size:9px;'
+        'color:#7a7660;">' + label + '</p>'
+        '<p style="margin:0;font-size:15px;'
+        'font-weight:700;color:#e8c84a;'
+        'font-family:Georgia,serif;">'
+        '&#8377;' + formatted + '</p>'
+        '<p style="margin:0;font-size:10px;'
+        'color:#7a7660;">' + unit + '</p>'
+        '</td>'
+    )
+
+
 def format_market_for_email(market):
-    """Returns HTML snippet for newsletter (Sensex, Nifty, Bank Nifty)."""
+    """Returns HTML snippet for newsletter (Sensex, Nifty, Bank Nifty + Gold/Silver)."""
     if not market:
         return ""
 
@@ -177,6 +199,20 @@ def format_market_for_email(market):
     nifty_cell      = cell("NIFTY 50",   nifty)
     bank_nifty_cell = cell("BANK NIFTY", bank_nifty)
 
+    gold_24k_cell = _fmt_commodity(market.get('gold_24k', 0),  'GOLD 24K', 'per 10g')
+    gold_22k_cell = _fmt_commodity(market.get('gold_22k', 0),  'GOLD 22K', 'per 10g')
+    silver_cell   = _fmt_commodity(market.get('silver_kg', 0), 'SILVER',   'per kg')
+
+    commodity_row = ""
+    if gold_24k_cell or gold_22k_cell or silver_cell:
+        commodity_row = (
+            '<tr><td style="padding:8px 20px 10px 20px;border-top:1px solid #2a2a1f;">'
+            '<table cellpadding="0" cellspacing="0"><tr>'
+            + gold_24k_cell + gold_22k_cell + silver_cell +
+            '</tr></table>'
+            '</td></tr>'
+        )
+
     return (
         '<table width="100%" cellpadding="0" cellspacing="0"'
         ' style="background:#0f0f0a;border:1px solid #2a2a1f;margin-bottom:20px;">'
@@ -189,6 +225,7 @@ def format_market_for_email(market):
         + sensex_cell + nifty_cell + bank_nifty_cell +
         '</tr></table>'
         '</td></tr>'
+        + commodity_row +
         '</table>'
     )
 
