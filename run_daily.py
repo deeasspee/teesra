@@ -9,6 +9,38 @@ import sys
 from datetime import datetime, timezone, timedelta
 
 
+def count_insufficient_fields(analysis: dict) -> int:
+    """Count how many fields contain INSUFFICIENT_CONTENT."""
+    MARKER = 'INSUFFICIENT_CONTENT'
+    fields = ['facts', 'left_lens', 'right_lens', 'public_pulse', 'impact']
+    return sum(
+        1 for f in fields
+        if MARKER in str(analysis.get(f, '') or '').upper()
+    )
+
+
+def is_quality_analysis(analysis: dict) -> bool:
+    """
+    Returns True if analysis is good enough to publish.
+    0–1 insufficient fields: publish.
+    2+ insufficient fields: reject (not enough content for meaningful analysis).
+    """
+    count = count_insufficient_fields(analysis)
+
+    if count >= 2:
+        headline = analysis.get('headline', '')[:55]
+        print(f"  ❌ REJECTED — {count} insufficient fields: {headline}...")
+        return False
+
+    if count == 1:
+        MARKER = 'INSUFFICIENT_CONTENT'
+        fields = ['facts', 'left_lens', 'right_lens', 'public_pulse', 'impact']
+        bad = [f for f in fields if MARKER in str(analysis.get(f, '') or '').upper()]
+        print(f"  ⚠️  1 insufficient field ({bad[0]}) — publishing anyway")
+
+    return True
+
+
 def run_pipeline():
     """Full fetch + analyze + save pipeline. Does NOT send newsletter."""
     print(f"\n🚀 TEESRA DAILY PIPELINE — FETCH & ANALYZE")
@@ -92,22 +124,38 @@ def run_pipeline():
             if analysis:
                 contains_hallucination_risk(analysis)
                 new_headline = analysis.get('headline', '')
-                # Skip if same story already saved in this run
+
+                # Check 1: Duplicate story
                 existing = [r.get('headline', '') for r in results]
                 if any(headlines_similar(new_headline, h) for h in existing):
-                    print(f"  🔁 Duplicate story — skipping: {new_headline[:55]}...")
+                    print(f"  🔁 Duplicate — skipping: {new_headline[:50]}...")
                     continue
+
+                # Check 2: Quality validation — reject if 2+ insufficient fields
+                if not is_quality_analysis(analysis):
+                    failed_analysis += 1
+                    print(f"  ⬇️  Moving to next candidate...")
+                    continue
+
+                # Passed all checks — save
                 save_article(analysis)
                 results.append(analysis)
+                print(f"  ✅ Saved: {new_headline[:50]}...")
             else:
                 failed_analysis += 1
-                print(f"  ⚠️  Claude rejected or failed — running total: {failed_analysis} rejected")
+                print(f"  ⚠️  Claude rejected/failed — total rejected: {failed_analysis}")
 
         print(f"\n📊 PIPELINE SUMMARY:")
         print(f"   Stage 1 — RSS fetch:       {len(all_articles)} articles")
         print(f"   Stage 2 — After scoring:   {len(top_articles)} candidates")
-        print(f"   Stage 3 — Claude analysis: {len(results)} passed, {failed_analysis} rejected")
+        print(f"   Stage 3 — Analysis passed: {len(results)}")
+        print(f"   Stage 3 — Rejected:        {failed_analysis} (Claude fail + 2+ insufficient)")
         print(f"   Stage 4 — Saved to DB:     {len(results)} articles")
+
+        if len(results) < 10:
+            print(f"\n  ⚠️  WARNING: Only {len(results)} articles saved — below target of 20")
+            print(f"     Consider lowering score threshold in article_selector.py")
+
         print(f"\n✅ Pipeline done — {len(results)} articles saved\n")
 
         # ── SUNDAY: Generate Story of the Week ────────────────────

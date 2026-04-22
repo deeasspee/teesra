@@ -148,7 +148,14 @@ WRITING STYLE RULES:
 - Write facts in direct journalistic voice. Never say "The article states", "The article mentions", "The article examines", "According to the article", or any meta-reference to the source material. State facts directly: "X happened" not "The article says X happened".
 - Write all sections in direct active voice: not "The article says X happened" but "X happened."
 - Never reference "the article", "the piece", or "the source" in any section.
-- If the article does not contain enough information for 3 or more factual sentences, return exactly: INSUFFICIENT_CONTENT
+- If the article text is genuinely too short or garbled to extract even 2 factual sentences, return exactly: INSUFFICIENT_CONTENT for facts only.
+
+INSUFFICIENT_CONTENT RULES — CRITICAL:
+- Use INSUFFICIENT_CONTENT for a field ONLY if the article truly has zero usable information for that field. It should be rare.
+- For left_lens and right_lens: if the story has no political angle (sports result, business data, weather), write a brief neutral observation instead. Example: "Sports coverage focuses on performance metrics rather than political framing." or "Economists across the spectrum agree this data warrants attention." One neutral sentence is always better than INSUFFICIENT_CONTENT.
+- For public_pulse: always write something specific. Even "Sports fans are closely following this result" or "Commuters and daily-wage workers are most directly affected" is better than INSUFFICIENT_CONTENT. Find any group that could plausibly care about this story.
+- For impact: if no real-world impact is clear, write "Further developments expected as the story unfolds." — never INSUFFICIENT_CONTENT here.
+- Only use INSUFFICIENT_CONTENT in facts if the article is genuinely too short or garbled to produce any factual sentences at all.
 
 STREET PULSE RULES:
 - NEVER use the words "mixed", "divided", "varied", "split" or "reactions"
