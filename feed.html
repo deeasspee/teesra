@@ -2424,12 +2424,41 @@
       });
     }
 
-    // Safe response parser — handles both plain array and {articles:[]}
+    // Safe response parser — handles plain array, {articles:[]}, or {is_fallback:true}
     function parseArticles(data) {
+      if (data && data.is_fallback === true) {
+        _isFallback  = true;
+        selectedDate = data.serving_date || getISTDateString(1);
+        showPreparingBanner(data.serving_date);
+        return data.articles || [];
+      }
       if (Array.isArray(data)) return data;
       if (data && Array.isArray(data.articles)) return data.articles;
       if (data && Array.isArray(data.data)) return data.data;
       return [];
+    }
+
+    function showPreparingBanner(servingDate) {
+      let dateLabel = 'yesterday';
+      if (servingDate) {
+        try {
+          const [y, m, d] = servingDate.split('-');
+          const dt = new Date(Date.UTC(+y, +m - 1, +d));
+          dateLabel = dt.toLocaleDateString('en-IN', {
+            weekday: 'long', day: 'numeric', month: 'long',
+            timeZone: 'Asia/Kolkata'
+          });
+        } catch(e) {}
+      }
+      // Reuse existing banner slot inside renderFeed or create a sticky one
+      window._preparingBannerDate = dateLabel;
+    }
+
+    function highlightDateTab(dateStr) {
+      document.querySelectorAll('.date-tab').forEach(btn => {
+        const match = btn.dataset.date === dateStr;
+        btn.classList.toggle('active', match);
+      });
     }
 
     // ── LOAD FEED ─────────────────────────────────────────────────
@@ -2488,7 +2517,10 @@
       const container = document.getElementById('feedContainer');
       const skeleton  = document.getElementById('articles-skeleton');
 
-      // ── Priority 1: Articles (blocks page content) ────────────
+      // Reset fallback state — parseArticles() may set it back to true
+      _isFallback  = false;
+      selectedDate = getISTDateString(0);
+
       let data;
       try {
         const res = await fetch('/api/articles?days=1');
@@ -2498,33 +2530,35 @@
         return;
       }
 
+      // parseArticles sets _isFallback + selectedDate if server returns is_fallback
       allArticles = parseArticles(data);
 
       if (!allArticles.length) {
-        // ── Midnight fallback: before 7 AM IST with no articles ──
-        if (_istHour() < 7) {
+        // Client-side safety net: before 9 AM with still-empty response
+        if (_istHour() < 9) {
           try {
             const res2 = await fetch('/api/articles?days=2');
             const data2 = await res2.json();
             const prevArticles = parseArticles(data2);
             if (prevArticles.length > 0) {
-              allArticles = prevArticles;
+              allArticles  = prevArticles;
               _isFallback  = true;
-              selectedDate = getISTDateString(1); // yesterday
+              selectedDate = getISTDateString(1);
+              showPreparingBanner(selectedDate);
               _initFeedUI(skeleton);
+              highlightDateTab(selectedDate);
               _loadMarket();
               return;
             }
           } catch(e) {}
         }
-        // No fallback available
         if (skeleton) skeleton.style.display = 'none';
         _showEmptyState(container);
         return;
       }
 
-      _isFallback = false;
       _initFeedUI(skeleton);
+      if (_isFallback) highlightDateTab(selectedDate);
       _loadMarket();
     }
 
@@ -2540,6 +2574,7 @@
         const label    = i === 0 ? 'Today' : formatTabDate(dateStr);
         const daysBack = i + 1;
         html += `<button class="date-tab ${i === 0 ? 'active' : ''}"
+          data-date="${dateStr}"
           onclick="selectDate('${dateStr}', ${daysBack}, this)">${label}</button>`;
       }
       tabs.innerHTML = html;
@@ -2631,10 +2666,11 @@
         : formatTabDate(selectedDate);
 
       const isToday = selectedDate === today;
+      const _bannerDate = window._preparingBannerDate || 'yesterday';
       const preparingBannerHtml = _isFallback ? `
         <div style="background:color-mix(in srgb,var(--facts) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--facts) 25%,var(--border));border-radius:8px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-family:'Ubuntu',sans-serif;font-size:10px;letter-spacing:1px;color:var(--facts);text-transform:uppercase;">
           <span style="font-size:14px;">⏳</span>
-          <span>Today's brief is being prepared — showing yesterday's stories</span>
+          <span>Today's brief is being prepared — showing ${_bannerDate}'s stories. Fresh articles arrive by 8 AM IST.</span>
         </div>` : '';
       container.innerHTML = `
         <div class="articles-feed">

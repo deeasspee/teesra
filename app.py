@@ -431,23 +431,48 @@ def get_articles():
     if not is_authorised():
         return jsonify({"error": "Unauthorized"}), 401
     try:
-        from datetime import timedelta
+        from datetime import datetime, timezone, timedelta
+        _IST = timezone(timedelta(hours=5, minutes=30))
+        ist_now   = datetime.now(_IST)
+        ist_today = ist_now.date()
+
         days_back = int(request.args.get('days', 1))
-        days_back = max(1, min(days_back, 5))        # clamp 1-5
-        target_date = get_ist_today() - timedelta(days=days_back - 1)
+        days_back = max(1, min(days_back, 5))
+        target_date = ist_today - timedelta(days=days_back - 1)
+
         articles = get_articles_by_date(target_date)
-        # Fallback to local JSON for today if DB is empty
+
+        # Local JSON safety net for today
         if not articles and days_back == 1:
             try:
                 with open("analyzed_articles.json", "r", encoding="utf-8") as f:
                     articles = json.load(f)
             except FileNotFoundError:
-                articles = []
+                pass
+
+        # Before 9 AM IST: if today truly has no articles, serve yesterday
+        # with is_fallback flag so the frontend can show the right tab + banner
+        if not articles and days_back == 1 and ist_now.hour < 9:
+            yesterday = ist_today - timedelta(days=1)
+            print(f"  📰 No articles for today before 9 AM — serving {yesterday}")
+            fallback_articles = get_articles_by_date(yesterday)
+            if fallback_articles:
+                enriched = [enrich_article(a) for a in fallback_articles]
+                resp = jsonify({
+                    "articles":       enriched,
+                    "is_fallback":    True,
+                    "serving_date":   str(yesterday),
+                    "requested_date": str(target_date),
+                })
+                resp.headers['Cache-Control'] = 'public, max-age=120'
+                return resp
+
         enriched = [enrich_article(a) for a in articles]
         resp = jsonify(enriched)
         resp.headers['Cache-Control'] = 'public, max-age=120'
         return resp
     except Exception as e:
+        print(f"Articles route error: {e}")
         return jsonify([])
 
 # ── SINGLE STORY PERMALINK ────────────────────────────────────────
@@ -910,14 +935,48 @@ def crossword():
 
 @app.route("/api/crossword")
 def get_crossword():
-    today_str = str(get_ist_today())
+    from datetime import datetime, timezone, timedelta as _td
+    _IST = timezone(_td(hours=5, minutes=30))
+    ist_today    = datetime.now(_IST).date()
+    today_str    = str(ist_today)
+    yesterday_str = str(ist_today - _td(days=1))
 
+    def _cors(resp):
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Cache-Control'] = 'public, max-age=3600'
+        return resp
+
+    # Serve from cache if available
     if today_str in _crossword_cache:
-        return jsonify(_crossword_cache[today_str])
+        return _cors(jsonify(_crossword_cache[today_str]))
 
-    articles = get_todays_articles()
+    # Try today's articles; fall back to yesterday if too few
+    articles  = get_todays_articles()
+    used_date = today_str
+
     if len(articles) < 5:
-        return jsonify({"error": "not_enough_articles"})
+        print(f"  📰 Not enough articles for {today_str} — trying yesterday")
+        try:
+            from database import get_client
+            _c = get_client()
+            _r = _c.table('article').select('*').eq('fetched_date', yesterday_str).execute()
+            yesterday_articles = _r.data or []
+        except Exception:
+            yesterday_articles = []
+
+        if len(yesterday_articles) >= 5:
+            articles  = yesterday_articles
+            used_date = yesterday_str
+            print(f"  ✅ Using yesterday's articles for crossword")
+        else:
+            return _cors(jsonify({
+                "error": "not_enough_articles",
+                "message": "Crossword not ready yet. Check back after 8 AM IST."
+            }))
+
+    # Serve from cache for the date we resolved to
+    if used_date in _crossword_cache:
+        return _cors(jsonify(_crossword_cache[used_date]))
 
     facts_text = "\n".join(
         f"- {a.get('facts', '')} (Source: {a.get('source', '')}, Headline: {a.get('headline', '')})"
@@ -957,16 +1016,15 @@ Return this exact JSON structure with no markdown, no explanation:
             messages=[{"role": "user", "content": prompt}]
         )
         raw = response.content[0].text.strip()
-        # Strip any accidental markdown fences
         if raw.startswith("```"):
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$", "", raw)
         data = json.loads(raw)
-        # Ensure length field is correct
         for p in data.get("pairs", []):
             p["length"] = len(p["answer"])
-        _crossword_cache[today_str] = data
-        return jsonify(data)
+        data['clues_date'] = used_date
+        _crossword_cache[used_date] = data
+        return _cors(jsonify(data))
     except Exception as e:
         print(f"❌ Crossword generation failed: {e}")
         return jsonify({"error": str(e)}), 500
