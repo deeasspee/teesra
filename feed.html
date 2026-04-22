@@ -283,7 +283,12 @@
       -webkit-backdrop-filter: blur(16px);
       transition: background 0.3s;
     }
-    [data-theme="dawn"],[data-theme="cloud"],[data-theme="parchment"] nav { background: rgba(245,243,238,0.96); }
+    [data-theme="dawn"] nav      { background: rgba(250,247,240,0.97) !important; }
+    [data-theme="cloud"] nav     { background: rgba(244,246,250,0.97) !important; }
+    [data-theme="parchment"] nav { background: rgba(245,240,228,0.97) !important; }
+    [data-theme="dawn"] .nav-hamburger span,
+    [data-theme="cloud"] .nav-hamburger span,
+    [data-theme="parchment"] .nav-hamburger span { background: var(--text) !important; }
 
     .nav-logo {
       font-family: 'Playfair Display', serif;
