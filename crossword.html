@@ -574,7 +574,11 @@
   <!-- Error -->
   <div id="errorState" style="display:none;" class="error-state">
     <div class="error-title">Today's crossword isn't ready yet.</div>
-    <p class="error-sub">Check back after 7 AM once the daily brief is published.</p>
+    <p class="error-sub">Check back after 8 AM IST once the daily brief is published.</p>
+    <div style="margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <button onclick="init()" style="padding:8px 20px;background:transparent;border:1.5px solid var(--accent);color:var(--accent);font-family:'Ubuntu',sans-serif;font-size:12px;letter-spacing:1px;border-radius:20px;cursor:pointer;">Try Again ↻</button>
+      <a href="/feed" style="font-size:12px;color:var(--text-dim);text-decoration:none;">← Today's Brief</a>
+    </div>
   </div>
 
   <!-- Puzzle -->
@@ -1307,40 +1311,83 @@ function buildSkeleton() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────
+function showCrosswordError(msg, sub) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').style.display = 'block';
+  if (msg) document.querySelector('.error-title').textContent = msg;
+  if (sub) document.querySelector('.error-sub').textContent = sub;
+}
+
 async function init() {
+  // Reset states
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('errorState').style.display = 'none';
+  document.getElementById('puzzleState').style.display = 'none';
   buildSkeleton();
 
-  // Date subtitle
+  // Default subtitle (overridden below if API returns a date)
   const today = new Date();
-  const label = today.toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-  document.getElementById('pageSubtitle').textContent = `Clues drawn from today's Teesra brief · ${label}`;
+  const todayLabel = today.toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Kolkata'});
+  document.getElementById('pageSubtitle').textContent = `Clues drawn from today's Teesra brief · ${todayLabel}`;
 
   try {
     const res = await fetch('/api/crossword');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
     document.getElementById('loadingState').style.display = 'none';
 
-    if (data.error === 'not_enough_articles') {
-      document.getElementById('errorState').style.display = 'block';
+    if (data.error) {
+      const isNotReady = data.error === 'not_enough_articles';
+      showCrosswordError(
+        isNotReady ? "Today's crossword isn't ready yet." : "Crossword unavailable.",
+        data.message || (isNotReady ? "Check back after 8 AM IST." : "Try refreshing the page.")
+      );
       return;
     }
-    if (data.error) {
-      document.getElementById('errorState').style.display = 'block';
-      document.querySelector('.error-sub').textContent = 'Something went wrong. Please try again later.';
-      return;
+
+    // Update subtitle with actual clues date
+    const dateStr = data.clues_date || data.date;
+    if (dateStr) {
+      const d = new Date(dateStr + 'T00:00:00+05:30');
+      const dateLabel = d.toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', timeZone:'Asia/Kolkata'});
+      document.getElementById('pageSubtitle').textContent = `Clues drawn from ${dateLabel}'s Teesra brief`;
     }
 
     const pairs = data.pairs || [];
-    if (pairs.length < 4) {
-      document.getElementById('errorState').style.display = 'block';
+
+    // Filter valid answer lengths (4-12 chars)
+    const lengthFiltered = pairs.filter(p => {
+      const len = p.answer ? p.answer.length : 0;
+      return len >= 4 && len <= 12;
+    });
+
+    // Deduplicate answers
+    const seen = new Set();
+    const validPairs = lengthFiltered.filter(p => {
+      if (seen.has(p.answer)) return false;
+      seen.add(p.answer);
+      return true;
+    });
+
+    console.log(`Pairs received: ${pairs.length}, valid for grid: ${validPairs.length}`, validPairs.map(p => `${p.answer}(${p.answer.length})`).join(', '));
+
+    if (validPairs.length < 5) {
+      showCrosswordError("Not enough valid clues for today.", "Try refreshing the page.");
       return;
     }
 
-    buildLayout(pairs);
+    buildLayout(validPairs);
+
+    console.log(`Words placed: ${placedWords.length} of ${validPairs.length}`);
+
+    if (placedWords.length === 0) {
+      showCrosswordError("Could not build today's crossword.", "The puzzle generator had trouble with today's clues. Try refreshing.");
+      return;
+    }
+
     renderGrid();
     renderClues();
-
     document.getElementById('puzzleState').style.display = 'block';
 
     // Select first across word
@@ -1348,9 +1395,8 @@ async function init() {
     if (firstAcross) selectWord(firstAcross.id);
 
   } catch (err) {
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('errorState').style.display = 'block';
     console.error('Crossword load error:', err);
+    showCrosswordError("Could not load crossword.", "Check your connection and try refreshing.");
   }
 }
 

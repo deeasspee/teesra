@@ -71,8 +71,6 @@ def enrich_article(article):
 # Simple in-memory cache for cricket data
 _cricket_cache = {"data": None, "ts": 0}
 
-# Crossword cache keyed by date string
-_crossword_cache = {}
 _til_cache = {}
 IPL_CACHE_SECS = 1800  # 30 minutes
 
@@ -935,99 +933,151 @@ def crossword():
 
 @app.route("/api/crossword")
 def get_crossword():
-    from datetime import datetime, timezone, timedelta as _td
-    _IST = timezone(_td(hours=5, minutes=30))
-    ist_today    = datetime.now(_IST).date()
-    today_str    = str(ist_today)
-    yesterday_str = str(ist_today - _td(days=1))
+    try:
+        from datetime import datetime, timezone, timedelta as _td
+        import traceback as _tb
 
-    def _cors(resp):
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        resp.headers['Cache-Control'] = 'public, max-age=3600'
-        return resp
+        _IST = timezone(_td(hours=5, minutes=30))
+        ist_now = datetime.now(_IST)
+        today_str = str(ist_now.date())
+        yesterday_str = str(ist_now.date() - _td(days=1))
 
-    # Serve from cache if available
-    if today_str in _crossword_cache:
-        return _cors(jsonify(_crossword_cache[today_str]))
+        def _cors(resp):
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            resp.headers['Cache-Control'] = 'public, max-age=14400'
+            return resp
 
-    # Try today's articles; fall back to yesterday if too few
-    articles  = get_todays_articles()
-    used_date = today_str
+        from database import get_client
+        client = get_client()
 
-    if len(articles) < 5:
-        print(f"  📰 Not enough articles for {today_str} — trying yesterday")
-        try:
-            from database import get_client
-            _c = get_client()
-            _r = _c.table('article').select('*').eq('fetched_date', yesterday_str).execute()
-            yesterday_articles = _r.data or []
-        except Exception:
-            yesterday_articles = []
+        def fetch_articles_for_date(date_str):
+            try:
+                result = client.table('article')\
+                    .select('id, headline, facts, story_type, source')\
+                    .eq('fetched_date', date_str)\
+                    .execute()
+                return result.data or []
+            except Exception as e:
+                print(f"  Article fetch error for {date_str}: {e}")
+                return []
 
-        if len(yesterday_articles) >= 5:
-            articles  = yesterday_articles
+        articles = fetch_articles_for_date(today_str)
+        used_date = today_str
+
+        if len(articles) < 5:
+            print(f"  📰 Only {len(articles)} articles for {today_str} — trying {yesterday_str}")
+            articles = fetch_articles_for_date(yesterday_str)
             used_date = yesterday_str
-            print(f"  ✅ Using yesterday's articles for crossword")
-        else:
+
+        if len(articles) < 5:
             return _cors(jsonify({
                 "error": "not_enough_articles",
-                "message": "Crossword not ready yet. Check back after 8 AM IST."
+                "message": "Crossword not ready. Check back after 8 AM IST."
             }))
 
-    # Serve from cache for the date we resolved to
-    if used_date in _crossword_cache:
-        return _cors(jsonify(_crossword_cache[used_date]))
+        print(f"  ✅ Generating crossword from {len(articles)} articles ({used_date})")
 
-    facts_text = "\n".join(
-        f"- {a.get('facts', '')} (Source: {a.get('source', '')}, Headline: {a.get('headline', '')})"
-        for a in articles if a.get("facts")
-    )
+        facts_text = "\n".join([
+            f"- {a.get('facts','')[:300]}"
+            for a in articles[:15]
+            if a.get('facts') and
+            'INSUFFICIENT' not in str(a.get('facts', '')).upper()
+        ])
 
-    prompt = f"""Based on these news facts from today's Indian news brief, generate exactly 12 crossword clue-answer pairs.
+        if not facts_text.strip():
+            return _cors(jsonify({
+                "error": "no_valid_facts",
+                "message": "Crossword generation failed. Try again later."
+            }))
+
+        prompt = f"""From these Indian news facts, generate exactly 12 crossword clue-answer pairs.
 
 Rules for answers:
-- Must be a SINGLE word, ALL CAPS, 4-10 letters
-- Must be a proper noun or key term directly from the facts (person name, city, organisation, country, number spelled out like FIFTEEN)
+- Single word, ALL CAPS, 4-12 letters ONLY (minimum 4, maximum 12)
+- Must be a proper noun or key term directly from the facts (person name, city, organisation, country)
 - No common words like SAID, ALSO, THAT
-- Answers must be specific enough that reading the brief helps
+- No multi-word answers (WORKSPACE_INTELLIGENCE is invalid — use one word)
+- No abbreviations under 4 letters (DMK, BJP are too short — skip them)
+- Prefer answers between 5-9 letters
 
 Rules for clues:
-- Clue should be solvable if you read today's Teesra brief
-- Write in classic crossword style — terse, no "The article says"
+- Solvable if you read today's Teesra brief
+- Classic crossword style — terse, no "The article says"
 - Example good clue: "PM who chaired today's cabinet meet"
-- Example bad clue: "According to the article, this person..."
 
-Today's facts:
-{facts_text}
-
-Return this exact JSON structure with no markdown, no explanation:
+Return ONLY this JSON, no markdown:
 {{
   "pairs": [
-    {{"answer": "MODI", "clue": "PM who chaired today's cabinet meet", "length": 4}},
+    {{"answer": "MODI", "clue": "PM who chaired cabinet meet", "length": 4}},
     ... 12 total
   ]
-}}"""
+}}
 
-    try:
+Facts:
+{facts_text}"""
+
         response = anthropic_client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1200,
-            system="You are a crossword puzzle generator. Return ONLY valid JSON, no markdown, no explanation.",
+            system="Return only valid JSON. No markdown. No explanation.",
             messages=[{"role": "user", "content": prompt}]
         )
+
         raw = response.content[0].text.strip()
-        if raw.startswith("```"):
-            raw = re.sub(r"^```[a-z]*\n?", "", raw)
-            raw = re.sub(r"\n?```$", "", raw)
+        if raw.startswith('```'):
+            raw = re.sub(r'^```[a-z]*\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw)
+        raw = raw.strip()
+
         data = json.loads(raw)
-        for p in data.get("pairs", []):
-            p["length"] = len(p["answer"])
+        pairs = data.get('pairs', [])
+
+        # Filter invalid length answers
+        valid_pairs = [
+            p for p in pairs
+            if p.get('answer') and 4 <= len(p.get('answer', '')) <= 12
+        ]
+
+        # Deduplicate answers
+        seen = set()
+        deduped = []
+        for p in valid_pairs:
+            ans = p.get('answer', '')
+            if ans not in seen:
+                seen.add(ans)
+                deduped.append(p)
+
+        print(f"  Pairs: {len(pairs)} received, {len(deduped)} valid after filtering")
+
+        if len(deduped) < 5:
+            return _cors(jsonify({
+                "error": "insufficient_valid_pairs",
+                "message": "Crossword generation failed. Try refreshing."
+            }))
+
+        for p in deduped:
+            p['length'] = len(p['answer'])
+
+        data['pairs'] = deduped
         data['clues_date'] = used_date
-        _crossword_cache[used_date] = data
+        data['articles_count'] = len(articles)
+
         return _cors(jsonify(data))
+
+    except json.JSONDecodeError as e:
+        print(f"❌ Crossword JSON parse error: {e}")
+        return jsonify({
+            "error": "parse_error",
+            "message": "Crossword generation failed. Try refreshing."
+        }), 500
     except Exception as e:
-        print(f"❌ Crossword generation failed: {e}")
-        return jsonify({"error": str(e)}), 500
+        print(f"❌ Crossword error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "error": str(e),
+            "message": "Crossword unavailable. Try again in a few minutes."
+        }), 500
 
 
 # ── TRENDING PAGE ─────────────────────────────────────────────────
