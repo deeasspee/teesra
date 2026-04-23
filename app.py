@@ -990,27 +990,37 @@ def get_crossword():
                 "message": "Crossword generation failed. Try again later."
             }))
 
-        prompt = f"""From these Indian news facts, generate exactly 12 crossword clue-answer pairs.
+        prompt = f"""You are a quality crossword editor for an Indian news product called Teesra. Generate exactly 10 crossword clue-answer pairs from today's news facts.
 
-Rules for answers:
-- Single word, ALL CAPS, 4-12 letters ONLY (minimum 4, maximum 12)
-- Must be a proper noun or key term directly from the facts (person name, city, organisation, country)
-- No common words like SAID, ALSO, THAT
-- No multi-word answers (WORKSPACE_INTELLIGENCE is invalid — use one word)
-- No abbreviations under 4 letters (DMK, BJP are too short — skip them)
-- Prefer answers between 5-9 letters
+STRICT ANSWER RULES:
+- Single word, ALL CAPS, 5-12 letters ONLY (minimum 5, maximum 12)
+- Must be directly from the article facts
+- Prefer: Indian states, major cities, countries, major organisations (Supreme Court, ISRO, RBI, major companies)
+- Nationally known leaders only (PM, President, Chief Ministers level)
+- NEVER use: village names, small town names, accused persons, victims, crime suspects, private individuals
+- NEVER use: casualty numbers spelled out as words
+- AVOID: obscure court case details, crime specifics, accident locations unless major cities
 
-Rules for clues:
-- Solvable if you read today's Teesra brief
-- Classic crossword style — terse, no "The article says"
-- Example good clue: "PM who chaired today's cabinet meet"
+STRICT CLUE RULES:
+- Clue must be 100% factually accurate — never assume roles not explicitly stated in the text
+- NEVER call someone a team captain unless the article explicitly says so
+- Clue must be solvable from reading the Teesra brief today
+- Terse, classic crossword style — no "According to" or "The article says"
+
+PREFERRED ANSWER TYPES (priority order):
+1. Indian states and major cities (TAMILNADU, MUMBAI, DELHI, BENGALURU)
+2. Countries involved in news (PAKISTAN, CHINA, RUSSIA)
+3. Major organisations (SUPREMECOURT invalid — too long; use ISRO, SEBI, etc.)
+4. Nationally known leaders (MODI, YOGI, etc.)
+5. Key policy/technical terms from the news
 
 Return ONLY this JSON, no markdown:
 {{
   "pairs": [
-    {{"answer": "MODI", "clue": "PM who chaired cabinet meet", "length": 4}},
-    ... 12 total
-  ]
+    {{"answer": "TAMILNADU", "clue": "Southern state holding local body elections", "length": 9}},
+    ... 10 total
+  ],
+  "date": "{used_date}"
 }}
 
 Facts:
@@ -1047,7 +1057,39 @@ Facts:
                 seen.add(ans)
                 deduped.append(p)
 
-        print(f"  Pairs: {len(pairs)} received, {len(deduped)} valid after filtering")
+        print(f"  Pairs: {len(pairs)} received, {len(deduped)} valid after length/dedup filter")
+
+        # Quality filter — reject generic words and factually risky clues
+        SKIP_ANSWERS = {
+            'INDIA', 'TODAY', 'AFTER', 'FIRST', 'THIRD', 'BEING', 'THEIR',
+            'ABOUT', 'WHICH', 'THESE', 'OTHER', 'WHILE', 'WHERE', 'UNDER',
+            'SINCE', 'THERE', 'THOSE', 'WOULD', 'COULD', 'EVERY', 'ALONG',
+        }
+        RED_FLAGS = [
+            'captain of csk', 'captain of rcb', 'captain of mi',
+            'captain of kkr', 'captain of srh', 'captain of dc',
+            'captain of gt', 'captain of lsg', 'captain of pbks',
+            'village where', 'accused of', 'who was killed',
+            'death toll', 'blast killed', 'victim of',
+        ]
+        quality_pairs = []
+        for p in deduped:
+            answer = p.get('answer', '').upper()
+            clue_lower = p.get('clue', '').lower()
+            if answer in SKIP_ANSWERS:
+                print(f"  ⚠️ Generic answer skipped: {answer}")
+                continue
+            if any(flag in clue_lower for flag in RED_FLAGS):
+                print(f"  ⚠️ Quality filter rejected: {answer} — {p.get('clue','')[:50]}")
+                continue
+            quality_pairs.append(p)
+
+        if len(quality_pairs) >= 5:
+            deduped = quality_pairs
+        else:
+            print(f"  ⚠️ Quality filter too strict ({len(quality_pairs)} left) — using pre-filter pairs")
+
+        print(f"  Pairs final: {len(deduped)} after all filters")
 
         if len(deduped) < 5:
             return _cors(jsonify({

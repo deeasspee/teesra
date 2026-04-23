@@ -591,6 +591,7 @@
       </div>
       <div class="controls-row">
         <button class="ctrl-btn primary" onclick="checkPuzzle()">Check</button>
+        <button class="ctrl-btn" onclick="moveToNextWord()">Next Clue →</button>
         <button class="ctrl-btn" onclick="revealWord()">Reveal Word</button>
         <button class="ctrl-btn danger" onclick="revealAll()">Reveal All</button>
         <button class="ctrl-btn" onclick="location.reload()">New Puzzle</button>
@@ -641,13 +642,13 @@
 <!-- Completion Modal -->
 <div class="modal-overlay" id="completionModal">
   <div class="modal-card">
-    <span class="modal-emoji">🎉</span>
-    <div class="modal-title">You solved Today's Teesra Crossword!</div>
-    <p class="modal-sub">You clearly read the brief. Come back tomorrow.</p>
-    <div class="modal-time" id="modalTime">0:00</div>
-    <div class="modal-time-label">Time to solve</div>
+    <span class="modal-emoji" id="modalEmoji">🎉</span>
+    <div class="modal-title" id="modalTitle">You solved Today's Teesra Crossword!</div>
+    <p class="modal-sub" id="modalSub">You clearly read the brief. Come back tomorrow.</p>
+    <div class="modal-time" id="modalTime" style="display:none;">0:00</div>
+    <div class="modal-time-label" id="modalTimeLabel" style="display:none;">Time to solve</div>
     <div class="modal-btns">
-      <button class="modal-btn modal-btn-primary" onclick="shareResult()">Share</button>
+      <button id="modalShareBtn" class="modal-btn modal-btn-primary" onclick="shareResult()" style="display:none;">Share</button>
       <a href="/feed" class="modal-btn modal-btn-outline">Read the Brief</a>
     </div>
   </div>
@@ -1202,6 +1203,9 @@ function moveToNextWord() {
   const idx = sorted.findIndex(w => w.id === activeWordId);
   const next = sorted[(idx + 1) % sorted.length];
   selectWord(next.id);
+  // Scroll active clue into view
+  const clueEl = document.getElementById(`clue-${next.id}`);
+  if (clueEl) clueEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── CHECK / REVEAL ────────────────────────────────────────────────
@@ -1258,7 +1262,8 @@ function revealAll() {
     }
   }
   markSolvedClues();
-  checkCompletion();
+  stopTimer();
+  showCompletion('revealed');
 }
 
 // ── SOLVED STATE ──────────────────────────────────────────────────
@@ -1277,17 +1282,85 @@ function markSolvedClues() {
 
 function checkCompletion() {
   markSolvedClues();
-  // Check all non-black cells are correctly filled
   for (let r = 0; r < GRID_SIZE; r++) {
     for (let c = 0; c < GRID_SIZE; c++) {
       if (grid[r][c] === null) continue;
       if (userGrid[r][c] !== grid[r][c].letter) return;
     }
   }
-  // All correct — show completion modal
   stopTimer();
-  const timeStr = formatTime(timerSeconds);
-  document.getElementById('modalTime').textContent = timeStr;
+  showCompletion('solved');
+}
+
+function calculateScore() {
+  if (!placedWords || placedWords.length === 0) return { correct: 0, total: 0 };
+  let correct = 0;
+  const total = placedWords.length;
+  for (const w of placedWords) {
+    let wordCorrect = true;
+    for (let i = 0; i < w.length; i++) {
+      const r = w.direction === 'across' ? w.startRow : w.startRow + i;
+      const c = w.direction === 'across' ? w.startCol + i : w.startCol;
+      if ((userGrid[r][c] || '').toUpperCase() !== w.answer[i].toUpperCase()) {
+        wordCorrect = false;
+        break;
+      }
+    }
+    if (wordCorrect) correct++;
+  }
+  return { correct, total };
+}
+
+function showCompletion(type) {
+  const { correct, total } = calculateScore();
+  const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+
+  let emoji, title, sub, showTime, showShare;
+
+  if (type === 'revealed') {
+    emoji = '📖';
+    title = `${correct}/${total} correct`;
+    if (correct === total) {
+      sub = 'You had it! Read the brief tomorrow and try to solve without hints.';
+    } else if (pct >= 60) {
+      sub = 'Good effort! Read today\'s brief and come back tomorrow to improve.';
+    } else {
+      sub = 'Read today\'s brief to learn the stories — the answers are all in there.';
+    }
+    showTime = false;
+    showShare = false;
+  } else {
+    emoji = pct === 100 ? '🎉' : pct >= 75 ? '👏' : '🙌';
+    if (correct === total) {
+      title = 'Solved!';
+      sub = 'You clearly read the brief. Come back tomorrow.';
+    } else if (pct >= 75) {
+      title = `${correct}/${total} correct`;
+      sub = 'Almost there! A few stories to catch up on in today\'s brief.';
+    } else {
+      title = `${correct}/${total} correct`;
+      sub = 'Read today\'s brief for the full context — it helps tomorrow.';
+    }
+    showTime = true;
+    showShare = true;
+  }
+
+  document.getElementById('modalEmoji').textContent = emoji;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent = sub;
+  const timeEl = document.getElementById('modalTime');
+  const timeLabelEl = document.getElementById('modalTimeLabel');
+  const shareBtn = document.getElementById('modalShareBtn');
+  if (showTime) {
+    timeEl.textContent = formatTime(timerSeconds);
+    timeEl.style.display = 'block';
+    timeLabelEl.style.display = 'block';
+  } else {
+    timeEl.style.display = 'none';
+    timeLabelEl.style.display = 'none';
+  }
+  if (shareBtn) shareBtn.style.display = showShare ? 'inline-block' : 'none';
+
   document.getElementById('completionModal').classList.add('open');
 }
 
