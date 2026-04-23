@@ -961,6 +961,10 @@ def get_crossword():
                 print(f"  Article fetch error for {date_str}: {e}")
                 return []
 
+        # ?refresh=1 forces regeneration (no server cache; logs intent)
+        if request.args.get('refresh') == '1':
+            print("  🔄 refresh=1 requested — generating fresh crossword")
+
         articles = fetch_articles_for_date(today_str)
         used_date = today_str
 
@@ -990,40 +994,49 @@ def get_crossword():
                 "message": "Crossword generation failed. Try again later."
             }))
 
-        prompt = f"""You are a quality crossword editor for an Indian news product called Teesra. Generate exactly 10 crossword clue-answer pairs from today's news facts.
+        prompt = f"""You are a crossword editor. Generate 10 crossword clue-answer pairs from ONLY the facts provided below.
 
-STRICT ANSWER RULES:
-- Single word, ALL CAPS, 5-12 letters ONLY (minimum 5, maximum 12)
-- Must be directly from the article facts
-- Prefer: Indian states, major cities, countries, major organisations (Supreme Court, ISRO, RBI, major companies)
-- Nationally known leaders only (PM, President, Chief Ministers level)
-- NEVER use: village names, small town names, accused persons, victims, crime suspects, private individuals
-- NEVER use: casualty numbers spelled out as words
-- AVOID: obscure court case details, crime specifics, accident locations unless major cities
+ABSOLUTE RULES — NEVER BREAK THESE:
 
-STRICT CLUE RULES:
-- Clue must be 100% factually accurate — never assume roles not explicitly stated in the text
-- NEVER call someone a team captain unless the article explicitly says so
-- Clue must be solvable from reading the Teesra brief today
-- Terse, classic crossword style — no "According to" or "The article says"
+1. ONLY use information explicitly written in the Facts section below.
+   DO NOT use any knowledge from training. DO NOT assume ANY facts not written.
 
-PREFERRED ANSWER TYPES (priority order):
-1. Indian states and major cities (TAMILNADU, MUMBAI, DELHI, BENGALURU)
-2. Countries involved in news (PAKISTAN, CHINA, RUSSIA)
-3. Major organisations (SUPREMECOURT invalid — too long; use ISRO, SEBI, etc.)
-4. Nationally known leaders (MODI, YOGI, etc.)
-5. Key policy/technical terms from the news
+2. CLUES must be DIRECTLY VERIFIABLE from the text below.
+   If the text does not say "X is captain", do NOT write "captain" in the clue. Ever.
+
+3. ANSWERS must be:
+   - 5-10 letters, single word, ALL CAPS
+   - Proper nouns only: states, countries, cities, organisations, official titles
+   - NOT: village names, accused persons, victims, private individuals,
+     casualty numbers, small localities
+
+4. PREFERRED answers (in order):
+   - Indian states (TAMILNADU, RAJASTHAN)
+   - Major Indian cities (MUMBAI, DELHI)
+   - Countries (PAKISTAN, AMERICA)
+   - Major organisations if 5-10 letters (GOOGLE, ISRO, SEBI)
+   - Official titles used in text (MINISTER, GOVERNOR, DIRECTOR)
+
+5. CLUE FORMAT:
+   - Use only what the text says
+   - If text says "PM Modi" — clue can say "India's Prime Minister"
+   - If text says a person's name without their role — DO NOT assign them a role
+   - Keep clues under 10 words
+   - No "accused of", "who was killed", "death toll", "blast killed"
+
+6. SELF-CHECK before returning:
+   For each clue, ask: "Is every word in this clue directly supported by the facts text?"
+   If NO — rewrite the clue or choose a different answer.
 
 Return ONLY this JSON, no markdown:
 {{
   "pairs": [
-    {{"answer": "TAMILNADU", "clue": "Southern state holding local body elections", "length": 9}},
-    ... 10 total
+    {{"answer": "TAMILNADU", "clue": "State holding elections today", "length": 9}}
   ],
   "date": "{used_date}"
 }}
 
-Facts:
+FACTS (use ONLY these, nothing else):
 {facts_text}"""
 
         response = anthropic_client.messages.create(
@@ -1066,11 +1079,20 @@ Facts:
             'SINCE', 'THERE', 'THOSE', 'WOULD', 'COULD', 'EVERY', 'ALONG',
         }
         RED_FLAGS = [
+            # IPL captaincy errors
             'captain of csk', 'captain of rcb', 'captain of mi',
             'captain of kkr', 'captain of srh', 'captain of dc',
-            'captain of gt', 'captain of lsg', 'captain of pbks',
-            'village where', 'accused of', 'who was killed',
-            'death toll', 'blast killed', 'victim of',
+            'captain of gt', 'captain of lsg', 'captain of pbks', 'captain of rr',
+            # Assumed leadership roles
+            'who leads', 'who heads', 'who commands', 'who captains',
+            # Crime/victim related
+            'accused of', 'who was killed', 'who was murdered',
+            'victim of', 'who died in', 'who was raped',
+            # Location of crimes
+            'village where', 'town where', 'place where crime',
+            # Casualty counts
+            'death toll', 'people died', 'killed in blast',
+            'blast killed', 'factory explosion',
         ]
         quality_pairs = []
         for p in deduped:

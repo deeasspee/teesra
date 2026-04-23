@@ -641,7 +641,8 @@
 
 <!-- Completion Modal -->
 <div class="modal-overlay" id="completionModal">
-  <div class="modal-card">
+  <div class="modal-card" style="position:relative;">
+    <button onclick="closeCompletionModal()" title="Close" style="position:absolute;top:12px;right:16px;background:transparent;border:none;font-size:20px;color:var(--text-dim);cursor:pointer;line-height:1;padding:4px 8px;border-radius:4px;z-index:10;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
     <span class="modal-emoji" id="modalEmoji">🎉</span>
     <div class="modal-title" id="modalTitle">You solved Today's Teesra Crossword!</div>
     <p class="modal-sub" id="modalSub">You clearly read the brief. Come back tomorrow.</p>
@@ -651,6 +652,7 @@
       <button id="modalShareBtn" class="modal-btn modal-btn-primary" onclick="shareResult()" style="display:none;">Share</button>
       <a href="/feed" class="modal-btn modal-btn-outline">Read the Brief</a>
     </div>
+    <button onclick="closeCompletionModal()" style="display:block;width:100%;margin-top:12px;padding:10px 20px;background:transparent;border:1.5px solid var(--border);color:var(--text);font-family:'Ubuntu',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:6px;">See Solved Grid →</button>
   </div>
 </div>
 
@@ -1078,6 +1080,7 @@ document.getElementById('mobileInput').addEventListener('input', function(e) {
 });
 
 document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeCompletionModal(); return; }
   if (activeCell.row < 0) return;
   if (e.key === 'Tab') { e.preventDefault(); moveToNextWord(); return; }
   if (e.key === 'Backspace') { e.preventDefault(); eraseLetter(); return; }
@@ -1289,7 +1292,12 @@ function checkCompletion() {
     }
   }
   stopTimer();
-  showCompletion('solved');
+  // Delay 2s so user sees the completed grid before the modal appears
+  setTimeout(() => showCompletion('solved'), 2000);
+}
+
+function closeCompletionModal() {
+  document.getElementById('completionModal').classList.remove('open');
 }
 
 function calculateScore() {
