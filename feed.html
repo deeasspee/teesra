@@ -1778,7 +1778,6 @@
   <!-- MOBILE NAV DRAWER -->
   <div class="nav-drawer" id="navDrawer">
     <a href="/" onclick="closeDrawer()">← Home</a>
-    <a href="#" onclick="event.preventDefault();closeDrawer();openModal()">Support Teesra</a>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:8px;">
       <span style="font-family:'Ubuntu',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);">Theme</span>
       <div style="display:grid;grid-template-columns:repeat(3,40px);gap:8px;" id="drawerThemeSwatches"></div>
@@ -1793,7 +1792,6 @@
     </a>
     <div class="nav-right">
       <span class="nav-date" id="todayDate"></span>
-      <a href="#" onclick="event.preventDefault();openModal()" class="nav-back">Support Teesra</a>
       <a href="/" class="nav-back">← Home</a>
       <!-- Auth UI -->
       <button id="auth-signin-btn" onclick="TeesraAuth.signInWithGoogle()" title="Sign in with Google" style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:transparent;border:1px solid var(--facts);color:var(--facts);border-radius:20px;font-size:11px;font-family:'Ubuntu',sans-serif;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
