@@ -46,6 +46,7 @@ def save_article(analysis: dict) -> bool:
             "source_bias":    analysis.get("source_bias", ""),
             "original_title": analysis.get("original_title", ""),
             "url":            analysis.get("url", ""),
+            "score":          analysis.get("score", 0),
             "fetched_date":   str(get_ist_today())
         }
 

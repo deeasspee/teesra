@@ -95,8 +95,8 @@ def run_pipeline():
 
         TARGET = 20
         clear_todays_articles()
-        # Select 40 candidates so 15-20 survive Claude's quality filters
-        top_articles = select_top_stories(all_articles, n=40)
+        # Select 60 candidates so 18-20 survive Claude's quality filters
+        top_articles = select_top_stories(all_articles, n=60)
         print(f"   Stage 2 — After scoring:   {len(top_articles)} candidates selected")
 
         print(f"\n🧠 Analyzing up to {len(top_articles)} articles (target: {TARGET})...\n")
@@ -137,7 +137,8 @@ def run_pipeline():
                     print(f"  ⬇️  Moving to next candidate...")
                     continue
 
-                # Passed all checks — save
+                # Passed all checks — attach score from original article, save
+                analysis['score'] = article.get('score', 0)
                 save_article(analysis)
                 results.append(analysis)
                 print(f"  ✅ Saved: {new_headline[:50]}...")

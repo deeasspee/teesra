@@ -182,9 +182,10 @@ def build_story_html(article, index):
 
 # ── BUILD FULL EMAIL ──────────────────────────────────────────────
 def build_email_html(articles, market_data=None, recipient_email="",
-                     story_of_week=None):
+                     story_of_week=None, total_count=None):
     today = datetime.now(IST).strftime("%A, %d %B %Y")
     article_count = len(articles)
+    total_count = total_count or article_count
 
     market_section = ""
     if market_data:
@@ -336,6 +337,31 @@ def build_email_html(articles, market_data=None, recipient_email="",
   <!-- STORIES -->
   {stories_html}
 
+  <!-- READ FULL BRIEF CTA -->
+  <tr>
+    <td style="padding: 8px 0 28px 0;">
+      <table width="100%" cellpadding="0" cellspacing="0"
+             style="background:rgba(232,200,74,0.06);border:1.5px solid rgba(232,200,74,0.25);border-radius:8px;">
+        <tr>
+          <td style="padding: 20px 24px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <p style="margin:0 0 4px 0;font-family:Georgia,serif;font-size:16px;font-weight:700;color:#e8e4d4;">{total_count} stories today on Teesra</p>
+                  <p style="margin:0;font-family:monospace;font-size:10px;color:#7a7660;letter-spacing:1px;">This newsletter has top 10. Full brief + Left · Right · Pulse on the website.</p>
+                </td>
+                <td align="right" style="padding-left:16px;white-space:nowrap;">
+                  <a href="https://teesra.in/feed"
+                     style="display:inline-block;padding:10px 20px;background:#e8c84a;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:1.5px;color:#0a0a08;text-decoration:none;text-transform:uppercase;border-radius:4px;">Read Full Brief →</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
   <!-- FOOTER -->
   <tr>
     <td style="padding:32px 0 0 0;border-top:1px solid #2a2a1f;text-align:center;">
@@ -427,19 +453,34 @@ def build_email_html(articles, market_data=None, recipient_email="",
 
 
 # ── SELECT NEWSLETTER ARTICLES ────────────────────────────────────
-def select_newsletter_articles(articles: list, target: int = 15) -> list:
+def select_newsletter_articles(articles: list, target: int = 10) -> list:
     """
-    Pick 12-15 articles with topic diversity for the newsletter.
-    Score is not stored in Supabase, so use type-based caps.
-    Max: political=3, general=3, sports=2, tech=2, international=2, sensitive=1.
+    Select top N articles by score for newsletter.
+    Falls back to topic-based diversity if scores not available.
     """
+    if not articles:
+        return []
+
+    # Try sorting by score first
+    scored = [a for a in articles if a.get('score', 0) > 0]
+
+    if len(scored) >= target:
+        scored.sort(key=lambda x: x.get('score', 0), reverse=True)
+        selected = scored[:target]
+        print(f"  📊 Newsletter: top {len(selected)} by score "
+              f"(scores: {[a.get('score', 0) for a in selected[:3]]}...)")
+        return selected
+
+    # Fallback: topic diversity if no scores
+    print(f"  ℹ️ No scores available — using topic diversity selection")
     type_caps = {
         "political":     3,
-        "general":       3,
-        "sports":        2,
-        "tech":          2,
-        "international": 2,
+        "general":       2,
+        "sports":        1,
+        "tech":          1,
+        "international": 1,
         "sensitive":     1,
+        "security":      1,
     }
     type_counts = defaultdict(int)
     selected = []
@@ -448,13 +489,13 @@ def select_newsletter_articles(articles: list, target: int = 15) -> list:
         if len(selected) >= target:
             break
         t = article.get("story_type", "general")
-        cap = type_caps.get(t, 2)
+        cap = type_caps.get(t, 1)
         if type_counts[t] < cap:
             selected.append(article)
             type_counts[t] += 1
 
-    # If still under 12, top up without caps
-    if len(selected) < 12:
+    # Top up if needed
+    if len(selected) < target:
         used_ids = {id(a) for a in selected}
         for article in articles:
             if len(selected) >= target:
@@ -462,7 +503,7 @@ def select_newsletter_articles(articles: list, target: int = 15) -> list:
             if id(article) not in used_ids:
                 selected.append(article)
 
-    return selected
+    return selected[:target]
 
 
 # ── DUPLICATE SEND PREVENTION ─────────────────────────────────────
@@ -514,9 +555,9 @@ def send_newsletter(to_email: str):
         print("❌ No articles found for today. Run analyze_article.py first.")
         return False
 
-    # Select top 12-15 with topic diversity for email
-    articles = select_newsletter_articles(all_articles, target=15)
-    print(f"   Found {len(all_articles)} articles total — sending top {len(articles)} in newsletter")
+    # Select top 10 by score for email
+    articles = select_newsletter_articles(all_articles, target=10)
+    print(f"  📬 Sending top {len(articles)} of {len(all_articles)} stories in newsletter")
 
     try:
         from market_data import fetch_market_data, fetch_commodity_data
@@ -543,15 +584,16 @@ def send_newsletter(to_email: str):
         except Exception as e:
             print(f"  ⚠️ Story of week failed: {e}")
 
-    # Build email with optional story of week
+    # Build email with optional story of week and total article count
     html = build_email_html(articles, market_data,
                             recipient_email=to_email,
-                            story_of_week=story_of_week)
+                            story_of_week=story_of_week,
+                            total_count=len(all_articles))
 
     if is_sunday:
         subject = f"☀️ Teesra Sunday Brief — {today_str} · Week in Review"
     else:
-        subject = f"☀️ Teesra Brief — {today_str} · {len(articles)} stories"
+        subject = f"☀️ Teesra Brief — {today_str} · Top 10 of {len(all_articles)} stories"
 
     # ── FROM ADDRESS ──────────────────────────────────────────────
     FROM_ADDRESS = "Teesra <brief@teesra.in>"
