@@ -1613,11 +1613,20 @@ def admin_stats():
         google   = client.table('subscribers').select('id', count='exact').not_.is_('auth_uid', 'null').execute()
         week_ago = str(get_ist_today() - timedelta(days=7))
         new_week = client.table('subscribers').select('id', count='exact').gte('created_at', week_ago).execute()
+        try:
+            ratings_result = client.table('story_ratings')\
+                .select('rating', count='exact')\
+                .gte('rated_at', week_ago)\
+                .execute()
+            ratings_count = ratings_result.count or 0
+        except Exception:
+            ratings_count = 0
         return jsonify({
-            "total":        total.count or 0,
-            "active":       active.count or 0,
-            "google_users": google.count or 0,
-            "new_this_week": new_week.count or 0,
+            "total":             total.count or 0,
+            "active":            active.count or 0,
+            "google_users":      google.count or 0,
+            "new_this_week":     new_week.count or 0,
+            "ratings_this_week": ratings_count,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1706,23 +1715,28 @@ def set_role():
 def rate_story():
     try:
         from database import get_client
+        from datetime import datetime, timezone, timedelta
         data = request.json or {}
         article_id = data.get('article_id')
         rating = data.get('rating', '')
+        story_type = data.get('story_type', '')
 
         if not article_id or rating not in ['yes', 'partial', 'no']:
-            return jsonify({"error": "Invalid"}), 400
+            return jsonify({"error": "Invalid data"}), 400
 
+        IST = timezone(timedelta(hours=5, minutes=30))
         client = get_client()
         client.table('story_ratings').insert({
-            'article_id': article_id,
+            'article_id': int(article_id),
             'rating': rating,
-            'rated_at': __import__('datetime').datetime.utcnow().isoformat()
+            'story_type': story_type,
+            'rated_at': datetime.now(IST).isoformat(),
         }).execute()
 
+        print(f"  ⭐ Rating saved: {rating} for article {article_id}")
         return jsonify({"success": True})
     except Exception as e:
-        print(f"Rating error: {e}")
+        print(f"  ❌ Rating error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -1758,6 +1772,132 @@ def admin_ratings():
             'no_pct': round(counts['no'] / total * 100) if total else 0,
         })
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/admin/ratings-detail')
+@require_admin
+def admin_ratings_detail():
+    try:
+        from database import get_client
+        from datetime import datetime, timedelta, timezone
+        from collections import defaultdict
+
+        IST = timezone(timedelta(hours=5, minutes=30))
+        client = get_client()
+
+        all_result = client.table('story_ratings')\
+            .select('rating, rated_at, article_id, story_type')\
+            .execute()
+        all_ratings = all_result.data or []
+
+        week_ago = (datetime.now(IST) - timedelta(days=7)).isoformat()
+        week_result = client.table('story_ratings')\
+            .select('rating, rated_at, story_type')\
+            .gte('rated_at', week_ago)\
+            .execute()
+        week_ratings = week_result.data or []
+
+        two_weeks_ago = (datetime.now(IST) - timedelta(days=14)).isoformat()
+        last_week_result = client.table('story_ratings')\
+            .select('rating')\
+            .gte('rated_at', two_weeks_ago)\
+            .lt('rated_at', week_ago)\
+            .execute()
+        last_week = last_week_result.data or []
+
+        def calc_pcts(ratings_list):
+            total = len(ratings_list)
+            if not total:
+                return {'total': 0, 'yes': 0, 'partial': 0, 'no': 0,
+                        'yes_pct': 0, 'partial_pct': 0, 'no_pct': 0}
+            yes     = sum(1 for r in ratings_list if r['rating'] == 'yes')
+            partial = sum(1 for r in ratings_list if r['rating'] == 'partial')
+            no      = sum(1 for r in ratings_list if r['rating'] == 'no')
+            return {
+                'total': total, 'yes': yes, 'partial': partial, 'no': no,
+                'yes_pct':     round(yes / total * 100, 1),
+                'partial_pct': round(partial / total * 100, 1),
+                'no_pct':      round(no / total * 100, 1),
+            }
+
+        all_time  = calc_pcts(all_ratings)
+        this_week = calc_pcts(week_ratings)
+        prev_week = calc_pcts(last_week)
+        wow_change = round(this_week['yes_pct'] - prev_week['yes_pct'], 1)
+
+        # Daily breakdown last 14 days
+        daily = defaultdict(lambda: {'yes': 0, 'partial': 0, 'no': 0})
+        for r in all_ratings:
+            try:
+                dt  = datetime.fromisoformat(r['rated_at'].replace('Z', ''))
+                day = dt.strftime('%b %d')
+                daily[day][r['rating']] += 1
+            except Exception:
+                pass
+
+        daily_list = []
+        for day, counts in sorted(daily.items(), reverse=True)[:14]:
+            total = sum(counts.values())
+            if not total:
+                continue
+            daily_list.append({
+                'day': day, 'total': total,
+                'yes': counts['yes'], 'partial': counts['partial'], 'no': counts['no'],
+                'yes_pct': round(counts['yes'] / total * 100),
+                'partial_pct': round(counts['partial'] / total * 100),
+            })
+
+        # Weekly breakdown last 8 weeks
+        weekly = defaultdict(lambda: {'yes': 0, 'partial': 0, 'no': 0})
+        for r in all_ratings:
+            try:
+                dt     = datetime.fromisoformat(r['rated_at'].replace('Z', ''))
+                monday = dt - timedelta(days=dt.weekday())
+                weekly[monday.strftime('%b %d')][r['rating']] += 1
+            except Exception:
+                pass
+
+        weekly_list = []
+        for week, counts in sorted(weekly.items(), reverse=True)[:8]:
+            total = sum(counts.values())
+            if not total:
+                continue
+            weekly_list.append({
+                'week': week, 'total': total,
+                'yes': counts['yes'], 'partial': counts['partial'], 'no': counts['no'],
+                'yes_pct':     round(counts['yes'] / total * 100),
+                'partial_pct': round(counts['partial'] / total * 100),
+                'no_pct':      round(counts['no'] / total * 100),
+            })
+
+        # Story type breakdown
+        type_data = defaultdict(lambda: {'yes': 0, 'partial': 0, 'no': 0})
+        for r in all_ratings:
+            stype = r.get('story_type') or 'unknown'
+            type_data[stype][r['rating']] += 1
+
+        type_list = []
+        for stype, counts in type_data.items():
+            total = sum(counts.values())
+            if total < 2:
+                continue
+            type_list.append({
+                'type': stype.upper(), 'total': total,
+                'yes': counts['yes'], 'partial': counts['partial'], 'no': counts['no'],
+                'yes_pct': round(counts['yes'] / total * 100),
+            })
+        type_list.sort(key=lambda x: x['yes_pct'], reverse=True)
+
+        return jsonify({
+            'all_time': all_time, 'this_week': this_week,
+            'prev_week': prev_week, 'wow_change': wow_change,
+            'daily': daily_list, 'weekly': weekly_list, 'by_type': type_list,
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 

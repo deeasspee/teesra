@@ -2248,9 +2248,9 @@
         <div class="story-rating" id="${ratingId}">
           <p class="rating-label">Did Teesra help you understand this topic better?</p>
           <div class="rating-btns">
-            <button class="rating-btn" onclick="rateStory(${article.id}, 'yes')">👍 Yes, helped</button>
-            <button class="rating-btn" onclick="rateStory(${article.id}, 'partial')">🤔 Somewhat</button>
-            <button class="rating-btn" onclick="rateStory(${article.id}, 'no')">👎 Not really</button>
+            <button class="rating-btn" onclick="rateStory(${article.id}, 'yes', '${article.story_type || 'general'}')">👍 Yes, helped</button>
+            <button class="rating-btn" onclick="rateStory(${article.id}, 'partial', '${article.story_type || 'general'}')">🤔 Somewhat</button>
+            <button class="rating-btn" onclick="rateStory(${article.id}, 'no', '${article.story_type || 'general'}')">👎 Not really</button>
           </div>
         </div>` : '';
 
@@ -2295,7 +2295,7 @@
     }
 
     // ── STORY RATING ──────────────────────────────────────────────
-    function rateStory(articleId, rating) {
+    function rateStory(articleId, rating, storyType) {
       const key = `teesra_rated_${articleId}`;
       if (localStorage.getItem(key)) return;
 
@@ -2304,7 +2304,7 @@
       fetch('/api/rate-story', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ article_id: articleId, rating: rating })
+        body: JSON.stringify({ article_id: articleId, rating: rating, story_type: storyType || 'general' })
       }).catch(e => console.error('Rating error:', e));
 
       const container = document.getElementById(`rating-${articleId}`);
