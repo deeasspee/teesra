@@ -436,8 +436,8 @@
   <!-- THREE COLUMN GRID -->
   <div class="trending-grid">
 
-    <!-- SECTION 1: Google Trends -->
-    <div class="section-card">
+    <!-- SECTION 1: Google Trends + Prediction Market -->
+    <div class="section-card" style="display:flex;flex-direction:column;">
       <div class="section-head">
         <div class="section-title">🔥 Trending Searches</div>
         <div class="section-sub">Google India — right now</div>
@@ -451,6 +451,31 @@
           <div class="skel-line" style="width:78%"></div>
         </div>
       </div>
+
+      <!-- PREDICTION MARKET: fills empty space below trends list -->
+      <div style="border-top:1px solid var(--border);margin-top:auto;">
+        <div style="padding:10px 20px 6px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-family:'Ubuntu',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--facts);font-weight:600;">🗳️ PREDICTION MARKET</span>
+          <a href="https://polymarket.com/event/west-bengal-legislative-assembly-election-winner" target="_blank" rel="noopener"
+             style="font-family:'Ubuntu',sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);text-decoration:none;transition:color 0.2s;"
+             onmouseover="this.style.color='var(--facts)'" onmouseout="this.style.color='var(--text-mid)'">Polymarket →</a>
+        </div>
+        <div style="padding:0 12px 12px;">
+          <figure style="margin:0;display:block;width:100%;">
+            <iframe
+              title=" West Bengal 2026 — Polymarket"
+              src="https://embed.polymarket.com/market?market=will-the-all-india-trinamool-congress-aitc-win-the-most-seats-in-the-2026-west-bengal-legislative-assembly-election&rotate=true&theme=dark&creator=0xe32e483DF5d91701De04848CdA0D6a7B08bF05dB-1777609044244&height=240"
+              width="100%"
+              height="240"
+              frameborder="0"
+              allowtransparency="true"
+              scrolling="no"
+              style="display:block;border-radius:8px;border:none;">
+            </iframe>
+          </figure>
+        </div>
+      </div>
+
     </div>
 
     <!-- SECTION 2: YouTube Trending -->
@@ -471,7 +496,7 @@
     </div>
 
   </div>
-
+  
   <!-- TMDB TRENDING SECTION -->
   <div style="max-width:var(--card-max);margin:32px auto 0;padding:0 32px;">
     <div style="padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:20px;display:flex;align-items:center;gap:12px;">
