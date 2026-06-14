@@ -2901,7 +2901,7 @@
 
     // ── FOOTBALL WIDGET ───────────────────────────────────────────
     (function() {
-      const CACHE_KEY = 'teesra_football_v2_' + new Date().toISOString().slice(0, 13);
+      const CACHE_KEY = 'teesra_football_v3_' + new Date().toISOString().slice(0, 13);
 
       function statusLabel(status, minute) {
         if (['IN_PLAY','LIVE'].includes(status)) return `🔴 ${minute ? minute+"'" : 'LIVE'}`;
@@ -2920,25 +2920,6 @@
         }) + ' IST · ' + d.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
       }
 
-      // Maps raw football-data.org object → renderFootball's expected shape
-      function adaptMatch(m, competitionLabel, isWorldCup) {
-        const isLive = ['IN_PLAY','PAUSED','LIVE'].includes(m.status);
-        const isDone = m.status === 'FINISHED';
-        return {
-          home:        m.homeTeam?.shortName || m.homeTeam?.name || '?',
-          away:        m.awayTeam?.shortName || m.awayTeam?.name || '?',
-          home_crest:  m.homeTeam?.crest || '',
-          away_crest:  m.awayTeam?.crest || '',
-          score_home:  (isLive || isDone) ? (m.score?.fullTime?.home ?? null) : null,
-          score_away:  (isLive || isDone) ? (m.score?.fullTime?.away ?? null) : null,
-          status:      m.status,
-          minute:      m.minute || null,
-          utc_date:    m.utcDate,
-          competition: competitionLabel,
-          _isWorldCup: isWorldCup || false
-        };
-      }
-
       function renderFootball(matches) {
         const el  = document.getElementById('footballFeed');
         const sk  = document.getElementById('footballSkeleton');
@@ -2951,15 +2932,9 @@
           return;
         }
 
-        const realMatches = matches.filter(m => !m._divider);
-        if (sub) sub.textContent = `${realMatches.length} matches`;
+        if (sub) sub.textContent = `${matches.length} matches`;
 
         el.innerHTML = matches.map(m => {
-          // Section divider
-          if (m._divider) {
-            return `<div style="padding:6px 14px 4px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-mid);border-top:1px solid var(--border);margin-top:4px;">${m.label}</div>`;
-          }
-
           const isLive     = ['IN_PLAY','LIVE','PAUSED'].includes(m.status);
           const isFinished = m.status === 'FINISHED';
           const score      = (m.score_home !== null && m.score_away !== null)
@@ -2969,7 +2944,7 @@
           const statusHtml = isLive
             ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#ff4444;margin-right:3px;vertical-align:middle;animation:mkt-pulse 1.5s ease-in-out infinite;"></span><span style="color:#ff4444;font-weight:700;">LIVE ${m.minute ? m.minute+"'" : ''}</span>`
             : statusStr ? `<span style="color:${isFinished ? 'var(--text-mid)' : 'var(--facts)'};">${statusStr}</span>` : '';
-          const wcStyle = m._isWorldCup ? 'border-color:rgba(250,204,21,0.3);background:rgba(250,204,21,0.03);' : '';
+          const wcStyle = m._isWC ? 'border-color:rgba(250,204,21,0.35);background:rgba(250,204,21,0.04);' : '';
 
           return `<div style="padding:9px 14px;border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;${wcStyle}">
             <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.5px;color:var(--text-mid);text-transform:uppercase;margin-bottom:6px;font-weight:400;">
@@ -2995,7 +2970,7 @@
       }
 
       async function loadFootball() {
-        // Check cache first
+        // Check session cache first
         try {
           const cached = sessionStorage.getItem(CACHE_KEY);
           if (cached) {
@@ -3005,50 +2980,39 @@
         } catch(e) {}
 
         try {
-          const res = await fetch('/api/football-scores');
+          const res = await fetch('/api/football');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
-          if (data.error) throw new Error(data.error);
 
-          const wcMatches = (data.worldCup || []).map(m =>
-            adaptMatch(m, '🏆 FIFA World Cup 2026', true)
-          );
-          const leagueMatches = (data.leagues || []).map(m => {
-            const nameMap = { PL:'Premier League', PD:'La Liga', BL1:'Bundesliga', SA:'Serie A', FL1:'Ligue 1', CL:'Champions League' };
-            const label = nameMap[m._competitionCode] || m.competition?.name || 'League';
-            return adaptMatch(m, label, false);
-          });
-
-          // Build combined list with divider if both sections exist
-          let combined = [];
-          if (wcMatches.length && leagueMatches.length) {
-            combined = [
-              ...wcMatches,
-              { _divider: true, label: '— TOP LEAGUES' },
-              ...leagueMatches
-            ];
-          } else if (wcMatches.length) {
-            combined = wcMatches;
+          if (data.matches && data.matches.length) {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            renderFootball(data.matches);
           } else {
-            combined = leagueMatches;
+            // No matches but API worked — show "no upcoming matches" instead of hiding
+            const el = document.getElementById('footballFeed');
+            const sk = document.getElementById('footballSkeleton');
+            const sub = document.getElementById('footballSubtitle');
+            if (sub) sub.textContent = 'no matches soon';
+            if (sk) sk.style.display = 'none';
+            if (el) {
+              el.innerHTML = `<div style="padding:20px 16px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-mid);">No matches in the next 10 days</div>`;
+              el.style.display = 'block';
+            }
           }
-
-          if (combined.filter(m => !m._divider).length === 0) {
-            throw new Error('no matches');
-          }
-
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ matches: combined }));
-          renderFootball(combined);
-
         } catch(e) {
-          console.warn('Football scores error:', e.message);
-          // Show sidebar as hidden if nothing loads
-          const w = document.getElementById('footballSidebar');
-          if (w) w.style.display = 'none';
+          console.error('Football load error:', e.message);
+          const el = document.getElementById('footballFeed');
+          const sk = document.getElementById('footballSkeleton');
+          const sub = document.getElementById('footballSubtitle');
+          if (sub) sub.textContent = 'error';
+          if (sk) sk.style.display = 'none';
+          if (el) {
+            el.innerHTML = `<div style="padding:20px 16px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-mid);">Could not load scores</div>`;
+            el.style.display = 'block';
+          }
         }
       }
 
-      // Delay football fetch — fires after articles and cricket
       setTimeout(loadFootball, 2000);
     })();
   </script>
