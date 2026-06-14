@@ -2901,7 +2901,7 @@
 
     // ── FOOTBALL WIDGET ───────────────────────────────────────────
     (function() {
-      const CACHE_KEY = 'teesra_football_v3_' + new Date().toISOString().slice(0, 13);
+      const CACHE_KEY = 'teesra_football_' + new Date().toISOString().slice(0, 13);
 
       function statusLabel(status, minute) {
         if (['IN_PLAY','LIVE'].includes(status)) return `🔴 ${minute ? minute+"'" : 'LIVE'}`;
@@ -2944,24 +2944,30 @@
           const statusHtml = isLive
             ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#ff4444;margin-right:3px;vertical-align:middle;animation:mkt-pulse 1.5s ease-in-out infinite;"></span><span style="color:#ff4444;font-weight:700;">LIVE ${m.minute ? m.minute+"'" : ''}</span>`
             : statusStr ? `<span style="color:${isFinished ? 'var(--text-mid)' : 'var(--facts)'};">${statusStr}</span>` : '';
-          const wcStyle = m._isWC ? 'border-color:rgba(250,204,21,0.35);background:rgba(250,204,21,0.04);' : '';
 
-          return `<div style="padding:9px 14px;border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;${wcStyle}">
-            <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.5px;color:var(--text-mid);text-transform:uppercase;margin-bottom:6px;font-weight:400;">
+          return `<div style="padding:9px 14px;border-bottom:1px solid var(--border);border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;">
+            <div style="font-family:'Ubuntu',sans-serif;font-size:8px;letter-spacing:0.5px;
+              color:var(--text-mid);text-transform:uppercase;margin-bottom:6px;font-weight:400;">
               ${m.competition}${statusHtml ? ' · ' + statusHtml : ''}
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
               <div style="display:flex;align-items:center;gap:5px;flex:1;overflow:hidden;">
-                <img src="${m.home_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
-                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.home}</span>
+                <img src="${m.home_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;"
+                  onerror="this.style.display='none'">
+                <span style="font-family:'Ubuntu',sans-serif;font-size:12px;font-weight:400;color:var(--text);
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.home}</span>
               </div>
-              <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${scoreColor};flex-shrink:0;padding:0 6px;">${score}</span>
+              <span style="font-family:'Ubuntu',sans-serif;font-size:13px;font-weight:700;
+                color:${scoreColor};flex-shrink:0;padding:0 6px;">${score}</span>
               <div style="display:flex;align-items:center;gap:5px;flex:1;overflow:hidden;justify-content:flex-end;">
-                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;">${m.away}</span>
-                <img src="${m.away_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
+                <span style="font-family:'Ubuntu',sans-serif;font-size:12px;font-weight:400;color:var(--text);
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;">${m.away}</span>
+                <img src="${m.away_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;"
+                  onerror="this.style.display='none'">
               </div>
             </div>
-            ${!isFinished && !isLive ? `<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);margin-top:6px;font-weight:400;">📅 ${formatMatchTime(m.utc_date)}</div>` : ''}
+            ${!isFinished && !isLive ? `<div style="font-family:'Ubuntu',sans-serif;font-size:10px;
+              color:var(--facts);margin-top:6px;font-weight:400;">📅 ${formatMatchTime(m.utc_date)}</div>` : ''}
           </div>`;
         }).join('');
 
@@ -2970,49 +2976,31 @@
       }
 
       async function loadFootball() {
-        // Check session cache first
         try {
           const cached = sessionStorage.getItem(CACHE_KEY);
           if (cached) {
             const d = JSON.parse(cached);
-            if (d && d.matches && d.matches.length) { renderFootball(d.matches); return; }
+            if (d && d.matches) { renderFootball(d.matches); return; }
           }
         } catch(e) {}
 
         try {
-          const res = await fetch('/api/football');
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const res  = await fetch('/api/football');
           const data = await res.json();
-
           if (data.matches && data.matches.length) {
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
             renderFootball(data.matches);
           } else {
-            // No matches but API worked — show "no upcoming matches" instead of hiding
-            const el = document.getElementById('footballFeed');
-            const sk = document.getElementById('footballSkeleton');
-            const sub = document.getElementById('footballSubtitle');
-            if (sub) sub.textContent = 'no matches soon';
-            if (sk) sk.style.display = 'none';
-            if (el) {
-              el.innerHTML = `<div style="padding:20px 16px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-mid);">No matches in the next 10 days</div>`;
-              el.style.display = 'block';
-            }
+            const w = document.getElementById('footballSidebar');
+            if (w) w.style.display = 'none';
           }
         } catch(e) {
-          console.error('Football load error:', e.message);
-          const el = document.getElementById('footballFeed');
-          const sk = document.getElementById('footballSkeleton');
-          const sub = document.getElementById('footballSubtitle');
-          if (sub) sub.textContent = 'error';
-          if (sk) sk.style.display = 'none';
-          if (el) {
-            el.innerHTML = `<div style="padding:20px 16px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-mid);">Could not load scores</div>`;
-            el.style.display = 'block';
-          }
+          const w = document.getElementById('footballSidebar');
+          if (w) w.style.display = 'none';
         }
       }
 
+      // Delay football fetch — fires after articles and cricket
       setTimeout(loadFootball, 2000);
     })();
   </script>

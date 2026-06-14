@@ -4,7 +4,7 @@
 
 import feedparser
 import urllib.request
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 
 # ── 1. OUR NEWS SOURCES ──────────────────────────────────────────
 # Each source has a name, RSS feed URL, and political lean
@@ -187,13 +187,6 @@ def fetch_from_source(source):
                 "fetched_at": str(datetime.now())
             }
 
-            # Add published_parsed to article so is_recent can use it
-            article['published_parsed'] = entry.get('published_parsed')
-            article['published'] = entry.get('published', '')
-
-            if not is_recent(article, max_age_days=3):
-                continue
-
             if not is_likely_paywalled(article):
                 articles.append(article)
 
@@ -211,26 +204,6 @@ PAYWALLED_SOURCES = [
     "The Hindu",
     "Hindustan Times"
 ]
-
-def is_recent(article: dict, max_age_days: int = 3) -> bool:
-    """Return True only if article was published within max_age_days. If date unknown, let it through."""
-    pub = article.get('published_parsed') or article.get('published')
-    if not pub:
-        return True
-    try:
-        if hasattr(pub, 'tm_year'):  # feedparser struct_time
-            pub_dt = datetime(*pub[:6], tzinfo=timezone.utc)
-        elif isinstance(pub, str):
-            from email.utils import parsedate_to_datetime
-            pub_dt = parsedate_to_datetime(pub)
-            if pub_dt.tzinfo is None:
-                pub_dt = pub_dt.replace(tzinfo=timezone.utc)
-        else:
-            pub_dt = pub
-        age = datetime.now(timezone.utc) - pub_dt
-        return age <= timedelta(days=max_age_days)
-    except Exception:
-        return True
 
 def is_likely_paywalled(article: dict) -> bool:
     """Skip articles from known paywall sources with thin summaries"""
