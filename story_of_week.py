@@ -66,7 +66,7 @@ Here are all the stories covered this week:
 
 {article_list}
 
-Select the single most significant story of the week — the one with the most impact on India, the most public interest, or the most lasting consequence.
+Select the single most significant story of the week — but ONLY from stories dated {week_start} or later. Do not select any story if its fetched_date or content suggests it is older than {week_start}. The story must have broken or developed significantly within this week.
 
 Return ONLY this JSON, no markdown:
 {{
@@ -82,7 +82,7 @@ Return ONLY this JSON, no markdown:
         response = anthropic_client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=600,
-            system="Return only valid JSON. No markdown. No explanation.",
+            system=f"Return only valid JSON. No markdown. No explanation. Today is {today}. Only consider stories from {week_start} onward. Reject any story whose core event predates {week_start}.",
             messages=[{"role": "user", "content": prompt}]
         )
         raw = response.content[0].text.strip()
