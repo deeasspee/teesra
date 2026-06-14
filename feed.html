@@ -2901,7 +2901,7 @@
 
     // ── FOOTBALL WIDGET ───────────────────────────────────────────
     (function() {
-      const CACHE_KEY = 'teesra_football_' + new Date().toISOString().slice(0, 13);
+      const CACHE_KEY = 'teesra_football_v2_' + new Date().toISOString().slice(0, 13);
 
       function statusLabel(status, minute) {
         if (['IN_PLAY','LIVE'].includes(status)) return `🔴 ${minute ? minute+"'" : 'LIVE'}`;
@@ -2920,22 +2920,22 @@
         }) + ' IST · ' + d.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
       }
 
-      // Maps raw football-data.org match object → renderFootball's expected shape
-      function adaptMatch(m, competitionLabel) {
-        const isLive = ['IN_PLAY','PAUSED'].includes(m.status);
+      // Maps raw football-data.org object → renderFootball's expected shape
+      function adaptMatch(m, competitionLabel, isWorldCup) {
+        const isLive = ['IN_PLAY','PAUSED','LIVE'].includes(m.status);
         const isDone = m.status === 'FINISHED';
         return {
-          home:       m.homeTeam?.shortName || m.homeTeam?.name || '?',
-          away:       m.awayTeam?.shortName || m.awayTeam?.name || '?',
-          home_crest: m.homeTeam?.crest || '',
-          away_crest: m.awayTeam?.crest || '',
-          score_home: (isLive || isDone) ? (m.score?.fullTime?.home ?? null) : null,
-          score_away: (isLive || isDone) ? (m.score?.fullTime?.away ?? null) : null,
-          status:     m.status,
-          minute:     m.minute || null,
-          utc_date:   m.utcDate,
-          competition: competitionLabel || m.competition?.name || '',
-          _isWorldCup: m._isWorldCup || false
+          home:        m.homeTeam?.shortName || m.homeTeam?.name || '?',
+          away:        m.awayTeam?.shortName || m.awayTeam?.name || '?',
+          home_crest:  m.homeTeam?.crest || '',
+          away_crest:  m.awayTeam?.crest || '',
+          score_home:  (isLive || isDone) ? (m.score?.fullTime?.home ?? null) : null,
+          score_away:  (isLive || isDone) ? (m.score?.fullTime?.away ?? null) : null,
+          status:      m.status,
+          minute:      m.minute || null,
+          utc_date:    m.utcDate,
+          competition: competitionLabel,
+          _isWorldCup: isWorldCup || false
         };
       }
 
@@ -2951,12 +2951,13 @@
           return;
         }
 
-        if (sub) sub.textContent = `${matches.filter(m => !m._divider).length} matches`;
+        const realMatches = matches.filter(m => !m._divider);
+        if (sub) sub.textContent = `${realMatches.length} matches`;
 
         el.innerHTML = matches.map(m => {
-          // Divider between WC and league sections
+          // Section divider
           if (m._divider) {
-            return `<div style="padding:6px 14px 4px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-mid);border-top:1px solid var(--border);margin-top:6px;">${m.label || 'OTHER MATCHES'}</div>`;
+            return `<div style="padding:6px 14px 4px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-mid);border-top:1px solid var(--border);margin-top:4px;">${m.label}</div>`;
           }
 
           const isLive     = ['IN_PLAY','LIVE','PAUSED'].includes(m.status);
@@ -2968,31 +2969,24 @@
           const statusHtml = isLive
             ? `<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#ff4444;margin-right:3px;vertical-align:middle;animation:mkt-pulse 1.5s ease-in-out infinite;"></span><span style="color:#ff4444;font-weight:700;">LIVE ${m.minute ? m.minute+"'" : ''}</span>`
             : statusStr ? `<span style="color:${isFinished ? 'var(--text-mid)' : 'var(--facts)'};">${statusStr}</span>` : '';
-          const wcBorder = m._isWorldCup ? 'border-color:rgba(250,204,21,0.25);background:rgba(250,204,21,0.03);' : '';
+          const wcStyle = m._isWorldCup ? 'border-color:rgba(250,204,21,0.3);background:rgba(250,204,21,0.03);' : '';
 
-          return `<div style="padding:9px 14px;border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;${wcBorder}">
-            <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.5px;
-              color:var(--text-mid);text-transform:uppercase;margin-bottom:6px;font-weight:400;">
+          return `<div style="padding:9px 14px;border-radius:8px;margin:6px 8px;border:1px solid var(--border);overflow:hidden;${wcStyle}">
+            <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.5px;color:var(--text-mid);text-transform:uppercase;margin-bottom:6px;font-weight:400;">
               ${m.competition}${statusHtml ? ' · ' + statusHtml : ''}
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
               <div style="display:flex;align-items:center;gap:5px;flex:1;overflow:hidden;">
-                <img src="${m.home_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;"
-                  onerror="this.style.display='none'">
-                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:400;color:var(--text);
-                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.home}</span>
+                <img src="${m.home_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
+                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.home}</span>
               </div>
-              <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;
-                color:${scoreColor};flex-shrink:0;padding:0 6px;">${score}</span>
+              <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${scoreColor};flex-shrink:0;padding:0 6px;">${score}</span>
               <div style="display:flex;align-items:center;gap:5px;flex:1;overflow:hidden;justify-content:flex-end;">
-                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:400;color:var(--text);
-                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;">${m.away}</span>
-                <img src="${m.away_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;"
-                  onerror="this.style.display='none'">
+                <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;">${m.away}</span>
+                <img src="${m.away_crest}" style="width:18px;height:18px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'">
               </div>
             </div>
-            ${!isFinished && !isLive ? `<div style="font-family:'DM Mono',monospace;font-size:10px;
-              color:var(--facts);margin-top:6px;font-weight:400;">📅 ${formatMatchTime(m.utc_date)}</div>` : ''}
+            ${!isFinished && !isLive ? `<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--facts);margin-top:6px;font-weight:400;">📅 ${formatMatchTime(m.utc_date)}</div>` : ''}
           </div>`;
         }).join('');
 
@@ -3001,6 +2995,7 @@
       }
 
       async function loadFootball() {
+        // Check cache first
         try {
           const cached = sessionStorage.getItem(CACHE_KEY);
           if (cached) {
@@ -3010,48 +3005,46 @@
         } catch(e) {}
 
         try {
-          // Try new endpoint first (has WC + leagues)
-          const res  = await fetch('/api/football-scores');
-          if (!res.ok) throw new Error('football-scores failed');
+          const res = await fetch('/api/football-scores');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
+          if (data.error) throw new Error(data.error);
 
-          const wcMatches = (data.worldCup || []).map(m => adaptMatch(m, '🏆 FIFA World Cup 2026'));
-          const leagueMatches = (data.leagues || []).map(m => adaptMatch(m, m.competition?.name || m._competition || 'League'));
+          const wcMatches = (data.worldCup || []).map(m =>
+            adaptMatch(m, '🏆 FIFA World Cup 2026', true)
+          );
+          const leagueMatches = (data.leagues || []).map(m => {
+            const nameMap = { PL:'Premier League', PD:'La Liga', BL1:'Bundesliga', SA:'Serie A', FL1:'Ligue 1', CL:'Champions League' };
+            const label = nameMap[m._competitionCode] || m.competition?.name || 'League';
+            return adaptMatch(m, label, false);
+          });
 
-          // Build combined list: WC first (if any), then leagues
+          // Build combined list with divider if both sections exist
           let combined = [];
-          if (wcMatches.length > 0) {
-            combined = [...wcMatches];
-            if (leagueMatches.length > 0) {
-              combined.push({ _divider: true, label: 'TOP LEAGUES' });
-              combined = combined.concat(leagueMatches);
-            }
+          if (wcMatches.length && leagueMatches.length) {
+            combined = [
+              ...wcMatches,
+              { _divider: true, label: '— TOP LEAGUES' },
+              ...leagueMatches
+            ];
+          } else if (wcMatches.length) {
+            combined = wcMatches;
           } else {
             combined = leagueMatches;
           }
 
-          if (combined.length) {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ matches: combined }));
-            renderFootball(combined);
-          } else {
+          if (combined.filter(m => !m._divider).length === 0) {
             throw new Error('no matches');
           }
+
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ matches: combined }));
+          renderFootball(combined);
+
         } catch(e) {
-          // Fallback to old /api/football endpoint
-          try {
-            const res  = await fetch('/api/football');
-            const data = await res.json();
-            if (data.matches && data.matches.length) {
-              sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-              renderFootball(data.matches);
-            } else {
-              const w = document.getElementById('footballSidebar');
-              if (w) w.style.display = 'none';
-            }
-          } catch(e2) {
-            const w = document.getElementById('footballSidebar');
-            if (w) w.style.display = 'none';
-          }
+          console.warn('Football scores error:', e.message);
+          // Show sidebar as hidden if nothing loads
+          const w = document.getElementById('footballSidebar');
+          if (w) w.style.display = 'none';
         }
       }
 
