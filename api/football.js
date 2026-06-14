@@ -3,6 +3,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const API_KEY = process.env.FOOTBALL_DATA_API_KEY || process.env.FOOTBALL_API_KEY;
+  console.log('KEY_CHECK:', !!process.env.FOOTBALL_DATA_API_KEY, !!process.env.FOOTBALL_API_KEY, 'len:', API_KEY?.length);
   if (!API_KEY) {
     return res.status(500).json({ error: 'FOOTBALL_DATA_API_KEY not set', matches: [] });
   }
@@ -17,6 +18,8 @@ export default async function handler(req, res) {
       const currentMatchday = info.currentSeason?.currentMatchday || 1;
 
       console.log('WC current matchday:', currentMatchday);
+      const testRes = await fetch(`https://api.football-data.org/v4/competitions/WC/matches?matchday=1`, { headers });
+      console.log('WC test fetch status:', testRes.status);
 
       // Fetch current matchday
       const r = await fetch(
