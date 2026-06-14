@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=60');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const API_KEY = process.env.FOOTBALL_DATA_API_KEY;
+  const API_KEY = process.env.FOOTBALL_DATA_API_KEY || process.env.FOOTBALL_API_KEY;
   if (!API_KEY) {
     return res.status(500).json({ error: 'FOOTBALL_DATA_API_KEY not set', matches: [] });
   }
